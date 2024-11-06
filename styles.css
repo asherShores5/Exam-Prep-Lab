@@ -1,0 +1,99 @@
+body {
+    font-family: system-ui, -apple-system, sans-serif;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 10px 0;
+    background: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.option {
+    display: block;
+    padding: 10px;
+    margin: 5px 0;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.option:hover {
+    background-color: #f0f0f0;
+}
+
+.option.selected {
+    background-color: #e0e7ff;
+}
+
+.option.correct {
+    background-color: #dcfce7;
+    border-color: #86efac;
+}
+
+.option.incorrect {
+    background-color: #fee2e2;
+    border-color: #fca5a5;
+}
+
+button {
+    background-color: #3b82f6;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin: 5px;
+    transition: background-color 0.2s;
+}
+
+button:hover {
+    background-color: #2563eb;
+}
+
+.hidden {
+    display: none;
+}
+
+select, input, textarea {
+    width: 100%;
+    padding: 8px;
+    margin: 5px 0;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+#examSelect {
+    margin-bottom: 20px;
+}
+
+.radio-option {
+    display: flex;
+    align-items: center;
+    margin: 5px 0;
+}
+
+.radio-option input {
+    width: auto;
+    margin-right: 10px;
+}
+
+#questionDisplay {
+    margin-bottom: 20px;
+}
+
+#explanationDisplay {
+    margin-top: 15px;
+    padding: 10px;
+    background-color: #f8fafc;
+    border-left: 4px solid #3b82f6;
+    border-radius: 4px;
+}
+

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Certification Quiz Tool</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="quizApp">
+        <h1>Certification Quiz Tool</h1>
+        
+        <div class="card">
+            <select id="examSelect" onchange="changeExam()">
+                <option value="">Select an exam...</option>
+            </select>
+            <button onclick="showAddQuestion()">Add Question</button>
+            <button onclick="exportCurrentExam()">Export Current Exam</button>
+            <button onclick="document.getElementById('importFile').click()">Import Exam</button>
+            <input type="file" id="importFile" accept=".json" onchange="importExam()" style="display: none;">
+            <button onclick="showNewExam()">Add New Exam</button>
+        </div>
+
+        <div id="newExamForm" class="card hidden">
+            <h3>Add New Exam</h3>
+            <input type="text" id="newExamName" placeholder="Enter exam name (e.g., AWS-SAA, CCNA)">
+            <button onclick="addNewExam()">Add</button>
+            <button onclick="hideNewExam()">Cancel</button>
+        </div>
+
+        <div id="addQuestionForm" class="card hidden">
+            <h3>Add New Question</h3>
+            <textarea id="questionText" placeholder="Enter question text" rows="3"></textarea>
+            <div id="optionsContainer">
+                <input type="text" placeholder="Option A" id="optionA">
+                <input type="text" placeholder="Option B" id="optionB">
+                <input type="text" placeholder="Option C" id="optionC">
+                <input type="text" placeholder="Option D" id="optionD">
+            </div>
+            <div class="radio-option">
+                <input type="radio" name="correctAnswer" value="0" id="correct0">
+                <label for="correct0">A is correct</label>
+            </div>
+            <div class="radio-option">
+                <input type="radio" name="correctAnswer" value="1" id="correct1">
+                <label for="correct1">B is correct</label>
+            </div>
+            <div class="radio-option">
+                <input type="radio" name="correctAnswer" value="2" id="correct2">
+                <label for="correct2">C is correct</label>
+            </div>
+            <div class="radio-option">
+                <input type="radio" name="correctAnswer" value="3" id="correct3">
+                <label for="correct3">D is correct</label>
+            </div>
+            <textarea id="explanationText" placeholder="Enter explanation (optional)" rows="2"></textarea>
+            <button onclick="saveQuestion()">Save Question</button>
+            <button onclick="hideAddQuestion()">Cancel</button>
+        </div>
+
+        <div id="quizContainer" class="card hidden">
+            <div id="questionDisplay"></div>
+            <div id="optionsDisplay"></div>
+            <button onclick="checkAnswer()" id="checkButton">Check Answer</button>
+            <button onclick="nextQuestion()" id="nextButton" class="hidden">Next Question</button>
+            <div id="explanationDisplay" class="hidden"></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
