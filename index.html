@@ -10,6 +10,7 @@
     <div id="quizApp">
         <h1>Certification Quiz Tool</h1>
         
+        <!-- Exam Management -->
         <div class="card">
             <select id="examSelect" onchange="changeExam()">
                 <option value="">Select an exam...</option>
@@ -21,6 +22,32 @@
             <button onclick="showNewExam()">Add New Exam</button>
         </div>
 
+        <!-- Practice Quiz Setup -->
+        <div class="card" id="quizSetup">
+            <h3>Practice Quiz</h3>
+            <div class="form-group">
+                <label for="questionCount">Number of Questions:</label>
+                <input type="number" id="questionCount" min="5" max="50" value="10">
+            </div>
+            <button onclick="startPracticeQuiz()">Start Practice Quiz</button>
+        </div>
+
+        <!-- Progress Dashboard -->
+        <div class="card" id="progressDashboard">
+            <h3>Your Progress</h3>
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <h4>Overall Progress</h4>
+                    <div id="overallStats"></div>
+                </div>
+                <div class="stat-box">
+                    <h4>Recent Quizzes</h4>
+                    <div id="recentQuizzes"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Forms -->
         <div id="newExamForm" class="card hidden">
             <h3>Add New Exam</h3>
             <input type="text" id="newExamName" placeholder="Enter exam name (e.g., AWS-SAA, CCNA)">
@@ -58,15 +85,28 @@
             <button onclick="hideAddQuestion()">Cancel</button>
         </div>
 
+        <!-- Quiz Container -->
         <div id="quizContainer" class="card hidden">
+            <div id="quizHeader">
+                <div id="questionCounter"></div>
+                <div id="quizTimer"></div>
+            </div>
             <div id="questionDisplay"></div>
             <div id="optionsDisplay"></div>
             <button onclick="checkAnswer()" id="checkButton">Check Answer</button>
             <button onclick="nextQuestion()" id="nextButton" class="hidden">Next Question</button>
             <div id="explanationDisplay" class="hidden"></div>
         </div>
-    </div>
 
+        <!-- Quiz Results -->
+        <div id="quizResults" class="card hidden">
+            <h3>Quiz Results</h3>
+            <div id="resultsContent"></div>
+            <div id="resultsSummary"></div>
+            <button onclick="returnToMain()">Return to Main</button>
+            <button onclick="reviewQuiz()">Review Answers</button>
+        </div>
+    </div>
     <script src="script.js"></script>
 </body>
 </html>
