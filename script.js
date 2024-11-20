@@ -581,29 +581,26 @@ function startPracticeQuiz() {
 function updateQuizDisplay() {
     const container = document.getElementById('quizContainer');
     container.classList.remove('hidden');
-    
+   
     let question, totalQuestions;
-    
+   
+    // Determine if we're in practice quiz mode or review mode
     if (quizSessionData.currentQuiz) {
-        // Practice quiz mode
         question = quizSessionData.questions[quizSessionData.currentIndex];
         totalQuestions = quizSessionData.questions.length;
-        
-        document.getElementById('questionCounter').textContent = 
+        document.getElementById('questionCounter').textContent =
             `Question ${quizSessionData.currentIndex + 1} of ${totalQuestions}`;
     } else {
-        // Regular review mode
         if (!currentExam || !examData[currentExam].length) {
             container.classList.add('hidden');
             return;
         }
         question = examData[currentExam][currentQuestionIndex];
         totalQuestions = examData[currentExam].length;
-        
-        document.getElementById('questionCounter').textContent = 
+        document.getElementById('questionCounter').textContent =
             `Question ${currentQuestionIndex + 1} of ${totalQuestions}`;
     }
-    
+
     // Create array of option objects with original indices
     const optionsWithIndices = question.options.map((option, index) => ({
         text: option,
@@ -612,22 +609,41 @@ function updateQuizDisplay() {
 
     // Shuffle the options
     currentQuestionOrder = shuffleArray([...optionsWithIndices]);
-    
+
+    // Generate letters based on number of options
+    const letters = generateOptionLetters(question.options.length);
+   
     document.getElementById('questionDisplay').innerHTML = `
         <h3>${question.question}</h3>
     `;
 
     const optionsHtml = currentQuestionOrder.map((option, index) => `
-        <div class="option" onclick="selectAnswer(${index})" data-index="${index}" data-original-index="${option.originalIndex}">
-            ${['A', 'B', 'C', 'D'][index]}. ${option.text}
+        <div class="option" 
+             onclick="selectAnswer(${index})" 
+             data-index="${index}" 
+             data-original-index="${option.originalIndex}">
+            ${letters[index]}. ${option.text}
         </div>
     `).join('');
-    
+   
     document.getElementById('optionsDisplay').innerHTML = optionsHtml;
     document.getElementById('checkButton').classList.remove('hidden');
     document.getElementById('nextButton').classList.add('hidden');
     document.getElementById('explanationDisplay').classList.add('hidden');
     selectedAnswer = null;
+}
+
+// Helper function to generate option letters based on number of options
+function generateOptionLetters(count) {
+    // Handle up to 26 options (A-Z)
+    if (count > 26) {
+        console.warn('Warning: More than 26 options may not display properly');
+    }
+    
+    // Generate array of letters starting from 'A'
+    return Array.from({ length: count }, (_, i) => 
+        String.fromCharCode(65 + i) // 65 is ASCII for 'A'
+    );
 }
 
 let quizTimer = null;
