@@ -1,0 +1,17 @@
+[
+    {
+      "id": "AWS-SAA-C03",
+      "name": "AWS Solutions Architect - Associate",
+      "path": "/exams/AWS-SAA-C03.json"
+    },
+    {
+        "id": "AWS-DVA-C02",
+        "name": "AWS Developer - Associate",
+        "path": "/exams/AWS-DVA-C02.json"
+    },
+    {
+      "id": "PSM-I",
+      "name": "Professional Scrum Master - Scrum.org",
+      "path": "/exams/PSM-I.json"
+    }
+  ]
