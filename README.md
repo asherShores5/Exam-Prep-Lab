@@ -1,4 +1,4 @@
-# Study-Buddy
+# Exam Prep Lab
 
 A modern React application for exam preparation, featuring interactive study modes, progress tracking, and performance analytics.
 
