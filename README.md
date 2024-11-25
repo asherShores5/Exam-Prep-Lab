@@ -1,71 +1,100 @@
 # Study-Buddy
 
-A lightweight, browser-based application for creating and practicing certification exam questions. This tool allows users to create custom question banks for various certification exams, practice with them, and import/export exam data.
+A modern React application for exam preparation, featuring interactive study modes, progress tracking, and performance analytics.
 
-### Features
+## Features
 
-- 📝 Create and manage multiple certification exam question banks
-- ❓ Add custom questions with multiple-choice answers
-- 📋 Include detailed explanations for each answer
-- 💾 Import and export exam data in JSON format
-- ✨ Clean, intuitive user interface
-- 📱 Responsive design for desktop and mobile devices
+- **Multiple Study Modes**
+  - Review Mode: Study questions with detailed explanations
+  - Quiz Mode: Timed assessments with configurable settings
+  - Flashcard Mode: Quick memorization and recall practice
+
+- **Advanced Quiz Features**
+  - Configurable question count (10-50 questions)
+  - Adjustable time limits (15-90 minutes)
+  - Support for multiple correct answers
+  - Real-time progress tracking
+  - Automatic scoring
+
+- **Performance Analytics**
+  - Progress tracking across attempts
+  - Score trends visualization
+  - Average performance metrics
+  - Time spent analysis
+  - Best score tracking
+
+- **User Experience**
+  - Modern, responsive interface
+  - Dark mode design
+  - Question shuffling
+  - Persistent progress saving
+  - Cross-device compatibility
+
+## Technical Stack
+
+- React
+- TypeScript
+- Tailwind CSS
+- shadcn/ui components
+- Recharts for data visualization
+- Local Storage for data persistence
+
+## Project Structure
+
+```
+src/
+├── components/
+│   └── ui/           # shadcn/ui components
+├── types/
+│   └── index.ts      # TypeScript interfaces
+├── public/
+│   └── exams/        # Exam JSON files
+└── QuizApp.tsx       # Main application component
+```
+
+## Data Structure
+
+Exams are stored as JSON files with the following structure:
+
+```typescript
+interface Question {
+  question: string;
+  options: string[];
+  correctAnswers: number[];
+  explanation: string;
+}
+
+interface ExamIndex {
+  id: string;
+  name: string;
+  path: string;
+}
+```
 
 ## Getting Started
 
-### Prerequisites
+1. **Installation**
+   ```bash
+   npm install
+   ```
 
-No special installation is required. You just need:
+2. **Add Exam Data**
+   - Create exam JSON files in `public/exams/`
+   - Update `index.json` with exam metadata
 
-- A modern web browser (Chrome, Firefox, Safari, or Edge)
-- A local web server (optional, for development)
-
-### Installation
-
-1. Clone or download this repository to your local machine
-2. Open index.html in your web browser
-3. For development, you may want to use a local web server to avoid CORS issues
-
-## Usage
-
-1. **Select or Create an Exam**
-
-   - Choose an existing exam from the dropdown menu
-   - Or click "Add New Exam" to create a new question bank
-
-2. **Add Questions**
-
-   - Click "Add Question" to open the question form
-   - Enter the question text
-   - Add four possible answers (A, B, C, D)
-   - Select the correct answer
-   - Optionally add an explanation
-   - Click "Save Question" to add it to the exam
-
-3. Import/Export
-
-   - Use "Export Current Exam" to save your question bank as JSON
-   - Use "Import Exam" to load previously exported question banks
-
-
-
-File Structure
-
-```bash
-certification-quiz-tool/
-├── index.html
-├── styles.css
-└── script.js
-```
+3. **Development**
+   ```bash
+   npm run dev
+   ```
 
 ## Contributing
 
-Feel free to fork this repository and submit pull requests. Some areas for potential improvement:
-
-- Add support for multiple correct answers
-- Implement question categories/tags
-- Add a study mode with flashcards
-- Include a progress tracking system
+Contributions welcome! Some areas for enhancement:
+- Question categorization/tagging
+- Study schedules and reminders
+- Expanded analytics features
+- Additional study modes
 
 ## License
-This project is open source and available under the Apache 2.0 License.
+
+Apache 2.0

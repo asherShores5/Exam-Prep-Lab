@@ -9,9 +9,9 @@ Get-Content .env | ForEach-Object {
 }
 
 Write-Host "Building project..." -ForegroundColor Green
-# npm run build
+npm run build
 
-if ($LASTEXITCODE -eq 1) {
+if ($LASTEXITCODE -eq 0) {
     Write-Host "Build successful! Syncing to S3..." -ForegroundColor Green
     
     # Sync dist folder with S3 bucket
