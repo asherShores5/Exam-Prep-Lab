@@ -15,37 +15,22 @@ from typing import List, Dict, Optional
 class ExamScraper:
     def __init__(self, base_url: str, output_file: str = None, append: bool = False,
                  delay: float = 1.0, timeout: int = 30):
-        """
-        Initialize the exam scraper.
-        
-        Args:
-            base_url: Starting URL to scrape
-            output_file: JSON file to save results
-            append: Whether to append to existing output file
-            delay: Delay between actions in seconds
-            timeout: Maximum time to wait for elements in seconds
-        """
         self.base_url = base_url
         self.output_file = output_file
         self.append = append
         self.delay = delay
         self.timeout = timeout
         
-        # Set up logging
         logging.basicConfig(
             level=logging.INFO,
             format='%(asctime)s - %(levelname)s - %(message)s'
         )
         self.logger = logging.getLogger(__name__)
         
-        # Initialize browser
         self.setup_browser()
 
     def setup_browser(self):
-        """Set up the Selenium WebDriver with Chrome."""
         options = webdriver.ChromeOptions()
-        # Uncomment the line below to run in headless mode (no GUI)
-        # options.add_argument('--headless')
         options.add_argument('--no-sandbox')
         options.add_argument('--window-size=1420,1080')
         options.add_argument('--disable-gpu')
@@ -53,58 +38,20 @@ class ExamScraper:
         self.driver = webdriver.Chrome(options=options)
         self.wait = WebDriverWait(self.driver, self.timeout)
 
-    def handle_captcha(self):
-        """Look for and click any 'I'm not a robot' buttons or similar captcha elements."""
-        try:
-            # Common patterns for captcha/verification buttons
-            captcha_patterns = [
-                "//button[contains(text(), 'not a robot')]",
-                "//button[contains(text(), 'verify')]",
-                "//button[contains(text(), 'continue')]",
-                "//div[contains(@class, 'captcha')]//button",
-                # Add more XPath patterns as needed
-            ]
-            
-            for pattern in captcha_patterns:
-                try:
-                    button = self.wait.until(
-                        EC.element_to_be_clickable((By.XPATH, pattern))
-                    )
-                    self.logger.info(f"Found captcha button using pattern: {pattern}")
-                    button.click()
-                    time.sleep(self.delay)  # Wait for any animations/transitions
-                    return True
-                except TimeoutException:
-                    continue
-            
-            self.logger.warning("No captcha button found with known patterns")
-            return False
-            
-        except Exception as e:
-            self.logger.error(f"Error handling captcha: {str(e)}")
-            return False
-
-    def wait_for_content(self):
-        """Wait for exam content to load."""
-        try:
-            # Wait for question cards to be present
-            self.wait.until(
-                EC.presence_of_element_located((By.CLASS_NAME, "exam-question-card"))
-            )
-            return True
-        except TimeoutException:
-            self.logger.error("Timeout waiting for exam content to load")
-            return False
+    def convert_letters_to_indices(self, answer_letters: str) -> List[int]:
+        """Convert answer letters (e.g., 'CE') to zero-based indices."""
+        return [ord(letter) - ord('A') for letter in answer_letters]
 
     def parse_question_card(self, card_element) -> Optional[Dict]:
-        """Parse a single question card from Selenium element."""
         try:
-            # Convert to string and use BeautifulSoup for easier parsing
             card_html = card_element.get_attribute('outerHTML')
             soup = BeautifulSoup(card_html, 'html.parser')
             
             # Extract question text
-            question_text = soup.find('p', class_='card-text').get_text(strip=True)
+            question_text = soup.find('p', class_='card-text')
+            if not question_text:
+                return None
+            question_text = question_text.get_text(strip=True)
             
             # Extract options
             options = []
@@ -112,15 +59,15 @@ class ExamScraper:
             if choices_container:
                 for li in choices_container.find_all('li', class_='multi-choice-item'):
                     option_text = li.get_text(strip=True)
-                    option_text = re.sub(r'^[A-D]\.\s*', '', option_text)
+                    option_text = re.sub(r'^[A-F]\.\s*', '', option_text)
                     options.append(option_text)
             
-            # Find correct answer
-            correct_answer = None
+            # Find correct answers (now handling multiple)
+            correct_answers = []
             correct_answer_span = soup.find('span', class_='correct-answer')
             if correct_answer_span:
-                correct_letter = correct_answer_span.get_text(strip=True)
-                correct_answer = ord(correct_letter) - ord('A')
+                answer_letters = correct_answer_span.get_text(strip=True)
+                correct_answers = self.convert_letters_to_indices(answer_letters)
             
             # Extract explanation
             explanation = ""
@@ -131,7 +78,7 @@ class ExamScraper:
             return {
                 "question": question_text,
                 "options": options,
-                "correctAnswer": correct_answer,
+                "correctAnswers": correct_answers,
                 "explanation": explanation
             }
         except Exception as e:
@@ -139,7 +86,6 @@ class ExamScraper:
             return None
 
     def load_existing_json(self) -> List[Dict]:
-        """Load existing JSON file if it exists."""
         try:
             if self.output_file and os.path.exists(self.output_file):
                 with open(self.output_file, 'r', encoding='utf-8') as f:
@@ -149,7 +95,6 @@ class ExamScraper:
         return []
 
     def save_questions(self, questions: List[Dict]):
-        """Save questions to JSON file."""
         if self.output_file:
             if self.append:
                 existing_questions = self.load_existing_json()
@@ -157,35 +102,34 @@ class ExamScraper:
                 self.logger.info(f"Appending {len(questions) - len(existing_questions)} new questions to existing {len(existing_questions)} questions.")
             
             with open(self.output_file, 'w', encoding='utf-8') as f:
-                json.dump(questions, f, indent=2)
+                json.dump(questions, f, indent=2, ensure_ascii=False)
             self.logger.info(f"Saved {len(questions)} questions to {self.output_file}")
         else:
-            print(json.dumps(questions, indent=2))
+            print(json.dumps(questions, indent=2, ensure_ascii=False))
 
     def scrape(self):
-        """Main scraping method."""
         try:
             self.logger.info(f"Starting scrape of {self.base_url}")
             
-            # Load the page
             self.driver.get(self.base_url)
-            time.sleep(self.delay)  # Wait for initial load
             
-            # Handle captcha if present
-            self.handle_captcha()
-            
-            # Wait for content to load
-            if not self.wait_for_content():
-                self.logger.error("Failed to load exam content")
-                return
+            # Add pause for captcha
+            self.logger.info("Please complete the captcha if present.")
+            input("Press Enter after completing the captcha to continue...")
             
             # Find all question cards
             question_cards = self.driver.find_elements(By.CLASS_NAME, "exam-question-card")
             self.logger.info(f"Found {len(question_cards)} question cards")
             
-            # Parse questions
+            if len(question_cards) == 0:
+                self.logger.info("No questions found. Waiting a bit longer...")
+                time.sleep(5)  # Wait a bit more
+                question_cards = self.driver.find_elements(By.CLASS_NAME, "exam-question-card")
+                self.logger.info(f"Found {len(question_cards)} question cards after waiting")
+            
             questions = []
-            for card in question_cards:
+            for i, card in enumerate(question_cards, 1):
+                self.logger.info(f"Parsing question {i} of {len(question_cards)}")
                 question_data = self.parse_question_card(card)
                 if question_data:
                     questions.append(question_data)

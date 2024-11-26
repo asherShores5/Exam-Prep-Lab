@@ -3,49 +3,48 @@ import json
 def merge_json_files(file1_path, file2_path, output_path):
     """
     Merge two JSON files containing quiz questions, avoiding duplicates based on question text.
-    
-    Parameters:
-    file1_path (str): Path to first JSON file
-    file2_path (str): Path to second JSON file
-    output_path (str): Path to save merged JSON file
-    
-    Returns:
-    tuple: (int, int) - (total questions in merged file, number of duplicates found)
+    Handles domain entries (entries with empty options) separately.
     """
-    # Read both JSON files
-    with open(file1_path, 'r') as f1:
+    # Read both JSON files with UTF-8 encoding
+    with open(file1_path, 'r', encoding='utf-8') as f1:
         data1 = json.load(f1)
     
-    with open(file2_path, 'r') as f2:
+    with open(file2_path, 'r', encoding='utf-8') as f2:
         data2 = json.load(f2)
     
-    # Create a dictionary using questions as keys to handle duplicates
+    # Create separate dictionaries for questions and domains
     question_dict = {}
+    domain_dict = {}
     duplicates = 0
     
-    # Process first file
-    for item in data1:
-        question_dict[item['question']] = item
+    # Helper function to process items
+    def process_items(items):
+        nonlocal duplicates
+        for item in items:
+            # Check if it's a domain entry
+            is_domain = len(item['options']) == 0 and len(item['correctAnswers']) == 0
+            
+            if is_domain:
+                domain_dict[item['question']] = item
+            else:
+                if item['question'] in question_dict:
+                    duplicates += 1
+                else:
+                    question_dict[item['question']] = item
     
-    # Process second file, counting duplicates
-    for item in data2:
-        if item['question'] in question_dict:
-            duplicates += 1
-            # If you want to keep the second file's version of duplicates,
-            # uncomment the next line
-            # question_dict[item['question']] = item
-        else:
-            question_dict[item['question']] = item
+    # Process both files
+    process_items(data1)
+    process_items(data2)
     
-    # Convert back to list
-    merged_data = list(question_dict.values())
+    # Combine questions and domains
+    merged_data = list(question_dict.values()) + list(domain_dict.values())
     
     # Sort by question text for consistency
     merged_data.sort(key=lambda x: x['question'])
     
-    # Write merged data to output file - FIXED THIS LINE
-    with open(output_path, 'w') as outfile:
-        json.dump(merged_data, outfile, indent=2)
+    # Write merged data to output file with UTF-8 encoding
+    with open(output_path, 'w', encoding='utf-8') as outfile:
+        json.dump(merged_data, outfile, indent=2, ensure_ascii=False)
     
     return len(merged_data), duplicates
 
@@ -53,10 +52,10 @@ def print_merge_stats(file1_path, file2_path, output_path):
     """
     Print statistics about the merge operation
     """
-    with open(file1_path, 'r') as f1:
+    with open(file1_path, 'r', encoding='utf-8') as f1:
         count1 = len(json.load(f1))
     
-    with open(file2_path, 'r') as f2:
+    with open(file2_path, 'r', encoding='utf-8') as f2:
         count2 = len(json.load(f2))
     
     total_merged, duplicates = merge_json_files(file1_path, file2_path, output_path)
@@ -69,9 +68,15 @@ def print_merge_stats(file1_path, file2_path, output_path):
     print(f"Merged file saved to: {output_path}")
 
 if __name__ == "__main__":
-    # Example usage
-    file1_path = "output.json"
-    file2_path = "da.json"
-    output_path = "merged_questions.json"
-    
-    print_merge_stats(file1_path, file2_path, output_path)
+    try:
+        file1_path = "parsed_udemy_multiple_answers.json"
+        file2_path = "out.json"
+        output_path = "merged_questions.json"
+        
+        print_merge_stats(file1_path, file2_path, output_path)
+    except Exception as e:
+        print(f"An error occurred: {str(e)}")
+        # If it's a specific encoding error, print a helpful message
+        if isinstance(e, UnicodeDecodeError):
+            print("\nThis appears to be an encoding issue. Try checking your JSON files are properly UTF-8 encoded.")
+            print("You can convert them using a text editor like Notepad++ or VSCode by opening the file and saving it with UTF-8 encoding.")

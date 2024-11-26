@@ -13,5 +13,10 @@
       "id": "PSM-I",
       "name": "Professional Scrum Master - Scrum.org",
       "path": "/exams/PSM-I.json"
+    },
+    {
+      "id": "CompTIA-SYO-701",
+      "name": "CompTIA Security+",
+      "path": "/exams/CompTIA-SYO-701.json"
     }
   ]
