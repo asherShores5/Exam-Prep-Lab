@@ -18,5 +18,10 @@
       "id": "CompTIA-SYO-701",
       "name": "CompTIA Security+",
       "path": "/exams/CompTIA-SYO-701.json"
+    },
+    {
+      "id": "AWS-ADC-Prep",
+      "name": "AWS ADC Prep",
+      "path": "/exams/AWS-ADC-Prep.json"
     }
   ]
