@@ -563,5 +563,265 @@
         ],
         "correctAnswers": [1],
         "explanation": "GP2 provides burst performance using credits that accumulate during idle periods and deplete during sustained activity."
+    },
+    {
+      "question": "What is the key difference between BIOS and UEFI firmware?",
+      "options": [
+        "BIOS is faster but less secure than UEFI",
+        "BIOS uses 16-bit mode and MBR, while UEFI uses 32/64-bit mode and supports GPT with secure boot",
+        "UEFI is only used for Windows systems, while BIOS is for Linux",
+        "There is no practical difference between BIOS and UEFI"
+      ],
+      "correctAnswers": [
+        1
+      ],
+      "explanation": "UEFI is modern firmware that supports 32/64-bit architecture, GPT partitioning, secure boot capabilities, and faster boot times compared to legacy BIOS which uses 16-bit mode and MBR."
+    },
+    {
+      "question": "In the TCP 3-way handshake, what is the correct sequence of flags?",
+      "options": [
+        "SYN → ACK → SYN-ACK",
+        "SYN → SYN-ACK → ACK",
+        "ACK → SYN → SYN-ACK",
+        "SYN-ACK → SYN → ACK"
+      ],
+      "correctAnswers": [
+        1
+      ],
+      "explanation": "The TCP 3-way handshake follows: Client sends SYN, Server responds with SYN-ACK, Client sends final ACK to establish the connection."
+    },
+    {
+      "question": "What does the CIDR notation /12 represent in terms of subnet mask?",
+      "options": [
+        "255.255.0.0",
+        "255.240.0.0",
+        "255.255.240.0",
+        "255.255.255.0"
+      ],
+      "correctAnswers": [
+        1
+      ],
+      "explanation": "/12 means the first 12 bits are network bits. This translates to 255.240.0.0 (11111111.11110000.00000000.00000000)."
+    },
+    {
+      "question": "What is the correct order of the DHCP DORA process?",
+      "options": [
+        "Discover → Offer → Acknowledge → Request",
+        "Discover → Offer → Request → Acknowledge",
+        "Offer → Discover → Request → Acknowledge",
+        "Request → Discover → Offer → Acknowledge"
+      ],
+      "correctAnswers": [
+        1
+      ],
+      "explanation": "DHCP follows DORA: Discover (client broadcasts), Offer (server responds), Request (client requests specific offer), Acknowledge (server confirms lease)."
+    },
+    {
+      "question": "Which private IP address range corresponds to 172.16.0.0/12?",
+      "options": [
+        "172.0.0.0 - 172.255.255.255",
+        "172.16.0.0 - 172.31.255.255",
+        "172.16.0.0 - 172.16.255.255",
+        "172.1.0.0 - 172.32.255.255"
+      ],
+      "correctAnswers": [
+        1
+      ],
+      "explanation": "The /12 subnet mask gives us 172.16.0.0 through 172.31.255.255 as the private IP range for Class B addresses."
+    },
+    {
+      "question": "What command would you use to test SSL/TLS connectivity to a specific host and port?",
+      "options": [
+        "telnet hostname 443",
+        "nc -zv hostname 443",
+        "openssl s_client -connect hostname:443",
+        "curl -I hostname:443"
+      ],
+      "correctAnswers": [
+        2
+      ],
+      "explanation": "openssl s_client -connect hostname:443 specifically tests SSL/TLS handshake and shows certificate details, while other options test basic connectivity."
+    },
+    {
+      "question": "In DNS resolution, what does the '+trace' option in dig command show?",
+      "options": [
+        "Only the final DNS response",
+        "The complete path from root servers through TLD to authoritative servers",
+        "DNS cache entries",
+        "Reverse DNS lookups only"
+      ],
+      "correctAnswers": [
+        1
+      ],
+      "explanation": "dig +trace shows the complete DNS resolution path: root nameserver → TLD nameserver → authoritative nameserver, displaying each step."
+    },
+    {
+      "question": "What is the main advantage of GP3 EBS volumes over GP2?",
+      "options": [
+        "GP3 volumes are always faster than GP2",
+        "GP3 provides baseline 3000 IOPS with independently configurable throughput, while GP2 provides 3 IOPS per GB with burstable performance",
+        "GP3 volumes are cheaper but slower than GP2",
+        "GP3 only works with specific instance types"
+      ],
+      "correctAnswers": [
+        1
+      ],
+      "explanation": "GP3 offers consistent baseline performance (3000 IOPS) and allows independent configuration of IOPS and throughput, providing better price/performance predictability."
+    },
+    {
+      "question": "What does PXE (Preboot Execution Environment) enable?",
+      "options": [
+        "Faster local boot times",
+        "Network-based booting without local storage",
+        "Secure boot verification",
+        "Dual-boot configuration"
+      ],
+      "correctAnswers": [
+        1
+      ],
+      "explanation": "PXE allows computers to boot from network resources using DHCP and TFTP, enabling diskless workstations and automated OS deployments."
+    },
+    {
+      "question": "Which command shows listening TCP ports along with the process IDs?",
+      "options": [
+        "netstat -an",
+        "netstat -tlnp",
+        "ss -a",
+        "lsof -n"
+      ],
+      "correctAnswers": [
+        1
+      ],
+      "explanation": "netstat -tlnp shows TCP (-t) listening (-l) ports in numeric format (-n) with process IDs (-p)."
+    },
+    {
+      "question": "What is the difference between MBR and GPT partition tables?",
+      "options": [
+        "MBR supports larger drives but fewer partitions than GPT",
+        "GPT supports drives larger than 2TB and unlimited partitions, while MBR is limited to 2TB and 4 primary partitions",
+        "GPT is older technology compared to MBR",
+        "MBR provides better security features than GPT"
+      ],
+      "correctAnswers": [
+        1
+      ],
+      "explanation": "GPT (GUID Partition Table) overcomes MBR limitations by supporting drives >2TB, virtually unlimited partitions, and includes redundancy and CRC protection."
+    },
+    {
+      "question": "In network troubleshooting, what does 'mtr' command provide that 'traceroute' doesn't?",
+      "options": [
+        "DNS resolution capabilities",
+        "Real-time continuous monitoring with packet loss statistics per hop",
+        "Port scanning functionality",
+        "SSL certificate verification"
+      ],
+      "correctAnswers": [
+        1
+      ],
+      "explanation": "mtr (My TraceRoute) combines traceroute and ping functionality, providing continuous real-time monitoring with packet loss and latency statistics for each hop."
+    },
+    {
+      "question": "What DNS record type is used for reverse DNS lookups (IP to hostname)?",
+      "options": [
+        "A record",
+        "CNAME record",
+        "PTR record",
+        "MX record"
+      ],
+      "correctAnswers": [
+        2
+      ],
+      "explanation": "PTR (Pointer) records are used for reverse DNS lookups, mapping IP addresses back to hostnames in the in-addr.arpa domain."
+    },
+    {
+      "question": "Which command combination would you use to capture network traffic on interface eth0 for HTTP traffic?",
+      "options": [
+        "wireshark -i eth0 port 80",
+        "tcpdump -i eth0 port 80",
+        "netstat -i eth0 | grep 80",
+        "ss -i eth0 port 80"
+      ],
+      "correctAnswers": [
+        1
+      ],
+      "explanation": "tcpdump -i eth0 port 80 captures packets on interface eth0 for HTTP traffic (port 80). Wireshark has different syntax and netstat/ss don't capture packets."
+    },
+    {
+      "question": "What is the correct boot process order for a Linux system?",
+      "options": [
+        "Kernel → POST → Bootloader → Init System → User Space",
+        "POST → Firmware → Bootloader → Kernel → Init System → User Space",
+        "Bootloader → POST → Kernel → User Space → Init System",
+        "Firmware → Kernel → POST → Init System → User Space"
+      ],
+      "correctAnswers": [
+        1
+      ],
+      "explanation": "Linux boot sequence: POST (Power-On Self Test) → Firmware (BIOS/UEFI) → Bootloader (GRUB) → Kernel → Init System (systemd) → User Space processes."
+    },
+    {
+      "question": "When troubleshooting DNS, what does an iterative query mean?",
+      "options": [
+        "The client repeatedly queries the same server until it gets an answer",
+        "The DNS resolver queries multiple servers step-by-step, following referrals to find the authoritative answer",
+        "The query is automatically repeated if it fails",
+        "Multiple DNS servers are queried simultaneously"
+      ],
+      "correctAnswers": [
+        1
+      ],
+      "explanation": "In iterative queries, the DNS resolver follows referrals from root to TLD to authoritative servers, querying each step until it finds the final answer."
+    },
+    {
+      "question": "What does the 'ss' command do in Linux networking?",
+      "options": [
+        "Scans for open SSL certificates",
+        "Shows socket statistics and is the modern replacement for netstat",
+        "Starts SSH connections",
+        "Manages systemd services"
+      ],
+      "correctAnswers": [
+        1
+      ],
+      "explanation": "ss (socket statistics) is the modern replacement for netstat, providing faster and more detailed information about network connections and listening ports."
+    },
+    {
+      "question": "In the context of AWS EBS, what does IOPS stand for and why is it important?",
+      "options": [
+        "Internet Operations Per Second - measures network throughput",
+        "Input/Output Operations Per Second - measures storage performance for database and application workloads",
+        "Integrated Operating Performance Standard - a security certification",
+        "Instance Optimization Protocol System - for EC2 performance"
+      ],
+      "correctAnswers": [
+        1
+      ],
+      "explanation": "IOPS (Input/Output Operations Per Second) measures storage performance, critical for applications requiring high disk I/O like databases. It determines how many read/write operations storage can handle per second."
+    },
+    {
+      "question": "What information does 'dig +short' provide compared to regular 'dig' command?",
+      "options": [
+        "More detailed information including all DNS records",
+        "Only the IP address or answer without additional details",
+        "Shortened domain names only",
+        "Quick network connectivity test"
+      ],
+      "correctAnswers": [
+        1
+      ],
+      "explanation": "dig +short returns only the essential answer (like IP address) without the verbose output, headers, and additional sections that regular dig provides."
+    },
+    {
+      "question": "When using 'netcat (nc)' for network troubleshooting, what does the '-zv' flag combination do?",
+      "options": [
+        "Enables encryption and verbose logging",
+        "Zero I/O mode for port scanning with verbose output",
+        "Sets timeout and enables IPv6",
+        "Compresses data and validates certificates"
+      ],
+      "correctAnswers": [
+        1
+      ],
+      "explanation": "nc -zv enables zero I/O mode (-z) for port scanning without sending data, and verbose mode (-v) to show connection status, making it perfect for testing port connectivity."
     }
-]
+  ]
