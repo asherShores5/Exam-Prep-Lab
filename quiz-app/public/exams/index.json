@@ -1,5 +1,10 @@
 [
     {
+      "id": "AWS-SA{-C02",
+      "name": "AWS Solutions Architect - Professional",
+      "path": "/exams/AWS-SAP-C02.json"
+    },
+    {
       "id": "AWS-SAA-C03",
       "name": "AWS Solutions Architect - Associate",
       "path": "/exams/AWS-SAA-C03.json"
