@@ -1,0 +1,1505 @@
+Mini Practice Test #1 - AWS Certified Solutions Architect Professional - Results
+Attempt 3
+
+Question 1Skipped
+
+A financial services company had a security incident recently and wants to review the security of its two-tier server architecture. The company wants to ensure that it follows the principle of least privilege while configuring the security groups for access between the EC2 instance-based app servers and RDS MySQL database servers. The security group for the EC2 instances as well as the security group for the MySQL database servers has no inbound and outbound rules configured currently.
+
+As an AWS Certified Solutions Architect Professional, which of the following options would you recommend to adhere to the given requirements? (Select two)
+
+Create an outbound rule in the security group for the MySQL DB servers using TCP protocol on the ephemeral port range. Set the destination as the security group for the EC2 instance app servers
+Correct selection
+
+Create an inbound rule in the security group for the MySQL DB servers using TCP protocol on port 3306. Set the source as the security group for the EC2 instance app servers
+
+Create an outbound rule in the security group for the EC2 instance app servers using TCP protocol on the ephemeral port range. Set the destination as the security group for the MySQL DB servers
+
+Create an outbound rule in the security group for the MySQL DB servers using TCP protocol on port 3306. Set the destination as the security group for the EC2 instance app servers
+Correct selection
+
+Create an outbound rule in the security group for the EC2 instance app servers using TCP protocol on port 3306. Set the destination as the security group for the MySQL DB servers
+Overall explanation
+
+Correct options:
+
+Create an outbound rule in the security group for the EC2 instance app servers using TCP protocol on port 3306. Set the destination as the security group for the MySQL DB servers
+
+Create an inbound rule in the security group for the MySQL DB servers using TCP protocol on port 3306. Set the source as the security group for the EC2 instance app servers
+
+A security group controls the traffic that is allowed to reach and leave the resources that it is associated with. For example, after you associate a security group with an EC2 instance, it controls the inbound and outbound traffic for the instance. Security groups are stateful. For example, if you send a request from an instance, the response traffic for that request is allowed to reach the instance regardless of the inbound security group rules. Responses to allowed inbound traffic are allowed to leave the instance, regardless of the outbound rules.
+
+When you first create a security group, it has no inbound rules. Therefore, no inbound traffic is allowed until you add inbound rules to the security group. When you first create a security group, it has an outbound rule that allows all outbound traffic from the resource. You can remove the rule and add outbound rules that allow specific outbound traffic only. If your security group has no outbound rules, no outbound traffic is allowed.
+
+via - https://docs.aws.amazon.com/vpc/latest/userguide/VPC_SecurityGroups.html
+
+For the given use case, you need to set up an outbound rule in the security group for the EC2 instance app servers using TCP protocol on port 3306 and then select the destination as the security group for the MySQL DB servers. Further, you need to set up an inbound rule in the security group for the MySQL DB servers using TCP protocol on port 3306 and then select the source as the security group for the EC2 instance app servers. This combination would let the request be initiated from the EC2 instances and allowed into the DB servers. Since the security groups are stateful, the response from the DB servers would be allowed out of the DB servers (even though no outbound rules are configured in the DB security group) and further into the EC2 instances (even though no inbound rules are configured in the EC2 instance security group)
+
+Incorrect options:
+
+Create an outbound rule in the security group for the EC2 instance app servers using TCP protocol on the ephemeral port range. Set the destination as the security group for the MySQL DB servers - As explained above, you need to set up an outbound rule in the security group for the EC2 instance app servers using TCP protocol on port 3306 and NOT on the ephemeral port range because the MySQL DB is configured to process requests on port 3306. A common use-case for ephemeral ports: these are used in NACLs to handle response traffic. Consider a custom network ACL for a VPC that supports IPv4 only. It includes rules that allow HTTP and HTTPS traffic in (inbound rules 100 and 110). There's a corresponding outbound rule that enables responses to that inbound traffic (outbound rule 140, which covers ephemeral ports 32768-65535). So this option is incorrect.
+
+via - https://docs.aws.amazon.com/vpc/latest/userguide/vpc-network-acls.html#nacl-ephemeral-ports
+
+Create an outbound rule in the security group for the MySQL DB servers using TCP protocol on the ephemeral port range. Set the destination as the security group for the EC2 instance app servers
+
+Create an outbound rule in the security group for the MySQL DB servers using TCP protocol on port 3306. Set the destination as the security group for the EC2 instance app servers
+
+There is no need to create an outbound rule in the security group for the MySQL DB servers either on the ephemeral port range or port 3306 since the security groups are stateful therefore the response from the DB servers would be allowed out of the DB servers. Hence both these options are incorrect.
+
+References:
+
+https://docs.aws.amazon.com/vpc/latest/userguide/VPC_SecurityGroups.html
+
+https://docs.aws.amazon.com/vpc/latest/userguide/vpc-network-acls.html#nacl-ephemeral-ports
+Domain
+Continuous Improvement for Existing Solutions
+Question 2Skipped
+
+A team has recently created a secret using AWS Secrets Manager to access their private Amazon Relational Database Service (Amazon RDS) instance. When the team tried to rotate the AWS Secrets Manager secret in an Amazon Virtual Private Cloud (Amazon VPC), the operation failed. On analyzing the Amazon CloudWatch Logs, the team realized that the AWS Lambda task timed out.
+
+Which of the following solutions needs to be implemented for rotating the secret successfully?
+Correct answer
+
+Configure an Amazon VPC interface endpoint for the Secrets Manager service to enable access for your Secrets Manager Lambda rotation function and private Amazon Relational Database Service (Amazon RDS) instance
+
+Your Lambda rotation function might be based on an older template that doesn't support SSL/TLS. To support connections that use SSL/TLS, you must recreate your Lambda rotation function
+
+Interface VPC endpoints support traffic only over HTTP. If this is incorrectly configured, the AWS Lambda function can timeout
+
+Configure an Amazon VPC interface endpoint for the Lambda service to enable access for your Secrets Manager Lambda rotation function and private Amazon Relational Database Service (Amazon RDS) instance
+Overall explanation
+
+Correct option:
+
+Configure an Amazon VPC interface endpoint to access your Secrets Manager Lambda rotation function and private Amazon Relational Database Service (Amazon RDS) instance
+
+Secrets Manager can't rotate secrets for AWS services running in Amazon VPC private subnets because these subnets don't have internet access. To rotate the keys successfully you need to configure an Amazon VPC interface endpoint to access your Secrets Manager Lambda function and private Amazon Relational Database Service (Amazon RDS) instance.
+
+Steps that need to be followed: 1. Create security groups for the Secrets Manager VPC endpoint, Amazon RDS instance, and the Lambda rotation function 2. Add rules to Amazon VPC endpoint and Amazon RDS instance security groups 3. Attach security groups to AWS resources 4. Create an Amazon VPC interface endpoint for the Secrets Manager service and associate it with a security group 5. Verify that the Secrets Manager can rotate the secret
+
+Incorrect options:
+
+Configure an Amazon VPC interface endpoint for the Lambda service to enable access for your Secrets Manager Lambda rotation function and private Amazon Relational Database Service (Amazon RDS) instance - As explained above, you need to create an Amazon VPC interface endpoint for the Secrets Manager and not for the Lambda service. This option has been added as a distractor.
+
+Interface VPC endpoints support traffic only over HTTP. If this is incorrectly configured, the AWS Lambda function can timeout - This statement is incorrect. Interface VPC endpoints support traffic only over TCP.
+
+Your Lambda rotation function might be based on an older template that doesn't support SSL/TLS. To support connections that use SSL/TLS, you must recreate your Lambda rotation function - Rotation functions for Amazon RDS (except Amazon RDS for Oracle) and Amazon DocumentDB automatically use SSL/TLS to connect to your database if it's available. If you set up secret rotation before December 20, 2021, then your rotation function might be based on an older template that doesn't support SSL/TLS. To support connections that use SSL/TLS, you must recreate your rotation function. If this is the issue then the following error crops up ": setSecret: Unable to log into the database with previous, current, or the pending secret of secret".
+
+References:
+
+https://aws.amazon.com/premiumsupport/knowledge-center/rotate-secrets-manager-secret-vpc/
+
+https://docs.aws.amazon.com/vpc/latest/privatelink/create-interface-endpoint.html#vpce-interface-limitations
+
+https://aws.amazon.com/premiumsupport/knowledge-center/rotate-secret-db-ssl/
+Domain
+Accelerate Workload Migration and Modernization
+Question 3Skipped
+
+A social media company manages a multi-AZ VPC environment consisting of public subnets and private subnets. Each public subnet contains a NAT Gateway as well as an Internet Gateway. Most of the company's applications are deployed in the private subnets and these applications read and write data to Kinesis Data Streams. The company has hired you as an AWS Certified Solutions Architect Professional to reduce costs and optimize the applications. Upon analysis in the AWS Cost Explorer, you notice that the cost in the EC2-Other category is consistently high due to the increasing NAT Gateway data transfer charges.
+
+What do you recommend to address this requirement?
+Correct answer
+
+Set up an interface VPC endpoint for Kinesis Data Streams in the VPC. Ensure that the VPC endpoint policy allows traffic from the applications
+
+Set up a gateway VPC endpoint for Kinesis Data Streams in the VPC. Ensure that the VPC endpoint policy allows traffic from the applications
+
+Set up an interface VPC endpoint for Kinesis Data Streams in the VPC. Ensure that the applications have the required IAM permissions to use the interface VPC endpoint
+
+Set up a gateway VPC endpoint for Kinesis Data Streams in the VPC. Ensure that the applications have the required IAM permissions to use the gateway VPC endpoint
+Overall explanation
+
+Correct option:
+
+Set up an interface VPC endpoint for Kinesis Data Streams in the VPC. Ensure that the VPC endpoint policy allows traffic from the applications
+
+You can use an interface VPC endpoint to keep traffic between your Amazon VPC and Kinesis Data Streams from leaving the Amazon network. Interface VPC endpoints don't require an internet gateway, NAT device, VPN connection, or AWS Direct Connect connection. Interface VPC endpoints are powered by AWS PrivateLink, an AWS technology that enables private communication between AWS services using an elastic network interface with private IPs in your Amazon VPC. You do not need to change the settings for your streams, producers, or consumers. Simply create an interface VPC endpoint for your Kinesis Data Streams traffic from and to your Amazon VPC-based applications to start flowing through the interface VPC endpoint.
+
+VPC endpoint policies enable you to control access by either attaching a policy to a VPC endpoint or by using additional fields in a policy that is attached to an IAM user, group, or role to restrict access to only occur via the specified VPC endpoint. These policies can be used to restrict access to specific streams to a specified VPC endpoint when used in conjunction with the IAM policies to only grant access to Kinesis data stream actions via the specified VPC endpoint.
+
+via - https://docs.aws.amazon.com/streams/latest/dev/vpc.html
+
+Incorrect options:
+
+Set up an interface VPC endpoint for Kinesis Data Streams in the VPC. Ensure that the applications have the required IAM permissions to use the interface VPC endpoint - Although you can use an IAM policy to restrict access to specific streams to a specified VPC endpoint by only granting access to Kinesis data stream actions via the specified VPC endpoint. However, you need to make changes in the code for the different applications to assume the relevant IAM role and then make changes in the permissions policy attached to the IAM role to grant access to Kinesis Data Streams via the VPC endpoint. This is not an elegant solution when compared to just using the VPC endpoint policy.
+
+Set up a gateway VPC endpoint for Kinesis Data Streams in the VPC. Ensure that the VPC endpoint policy allows traffic from the applications
+
+Set up a gateway VPC endpoint for Kinesis Data Streams in the VPC. Ensure that the applications have the required IAM permissions to use the gateway VPC endpoint
+
+There are three types of VPC endpoints. You must create the type of VPC endpoint that's required by the endpoint service.
+
+Interface - Create an interface endpoint to send traffic to endpoint services that use a Network Load Balancer to distribute traffic. Traffic destined for the endpoint service is resolved using DNS.
+
+GatewayLoadBalancer - Create a Gateway Load Balancer endpoint to send traffic to a fleet of virtual appliances using private IP addresses. You route traffic from your VPC to the Gateway Load Balancer endpoint using route tables. The Gateway Load Balancer distributes traffic to the virtual appliances and can scale with demand.
+
+Gateway - Create a gateway endpoint to send traffic to Amazon S3 or DynamoDB using private IP addresses. You route traffic from your VPC to the gateway endpoint using route tables. Gateway endpoints do not enable AWS PrivateLink.
+
+You cannot set up a gateway VPC endpoint for Kinesis Data Streams. Gateway VPC endpoint is only supported for S3 and DynamoDB. Therefore, both these options are incorrect.
+
+References:
+
+https://docs.aws.amazon.com/streams/latest/dev/vpc.html
+
+https://docs.aws.amazon.com/vpc/latest/privatelink/vpc-endpoints-access.html
+Domain
+Continuous Improvement for Existing Solutions
+Question 4Skipped
+
+A multinational financial services organization operates a mission critical trading platform that processes real time transactions and market data in the us-west-1 Region. The platform consists of stateless application tiers running on Amazon EC2 behind an Application Load Balancer, a relational database that stores transactional records, and an event driven ingestion layer that must preserve strict ordering of incoming data.
+
+Due to new regulatory requirements, the company must implement a cross Region disaster recovery strategy that ensures near instantaneous failover with no data loss. Business stakeholders have defined a Recovery Time Objective (RTO) of less than 10 minutes and a Recovery Point Objective (RPO) of zero. The solution must automatically maintain synchronized data across Regions, minimize operational overhead, and provide a deterministic failover mechanism that avoids manual intervention during an outage.
+
+What do you recommend?
+Correct answer
+
+Implement an active-active architecture with real-time data replication across both Regions and configure Route 53 with health checks and weighted routing
+
+Implement a warm standby architecture with scheduled data replication to the secondary Region and configure Route 53 health checks with automated DNS failover
+
+Enable cross-Region read replicas for the database and manually promote the replica in the secondary Region if a failure occurs
+
+Implement a pilot light architecture with continuous data replication in the secondary Region and configure Route 53 health checks with automated DNS failover
+Overall explanation
+
+Correct option:
+
+Implement an active-active architecture with real-time data replication across both Regions and configure Route 53 with health checks and weighted routing
+
+An active-active architecture runs production workloads simultaneously in multiple Regions. Real-time replication ensures that both Regions process live traffic and maintain synchronized data. Because both Regions are active, failover can occur almost immediately, satisfying an RTO of less than 10 minutes. With synchronous or real-time replication, no committed transactions are lost, achieving a zero RPO.
+
+Using Route 53 health checks with weighted routing enables automatic traffic shifting to the healthy Region if one Region fails. This architecture provides the highest level of availability and meets both strict RTO and RPO requirements.
+
+via - https://docs.aws.amazon.com/whitepapers/latest/disaster-recovery-workloads-on-aws/disaster-recovery-options-in-the-cloud.html
+
+via - https://docs.aws.amazon.com/whitepapers/latest/disaster-recovery-workloads-on-aws/disaster-recovery-options-in-the-cloud.html
+
+Incorrect options:
+
+Implement a pilot light architecture with continuous data replication in the secondary Region and configure Route 53 health checks with automated DNS failover - A pilot light architecture maintains core infrastructure and data replication in the secondary Region but does not run the full production workload. Additional resources must be launched during failover. Although pilot light can achieve low RPO with continuous replication, the time required to scale infrastructure can exceed the required RTO of less than 10 minutes. This architecture does not guarantee near-instantaneous failover.
+
+via - https://docs.aws.amazon.com/whitepapers/latest/disaster-recovery-workloads-on-aws/disaster-recovery-options-in-the-cloud.html
+
+Implement a warm standby architecture with scheduled data replication to the secondary Region and configure Route 53 health checks with automated DNS failover - A warm standby architecture maintains scaled-down but functional infrastructure in the secondary Region. However, the option specifies regular data replication rather than real-time replication. Regular replication introduces potential replication lag, which prevents achieving a zero RPO. Any lag results in possible data loss during failover. Therefore, this solution does not meet the strict zero RPO requirement.
+
+via - https://docs.aws.amazon.com/whitepapers/latest/disaster-recovery-workloads-on-aws/disaster-recovery-options-in-the-cloud.html
+
+Enable cross-Region read replicas for the database and manually promote the replica in the secondary Region if a failure occurs - Cross-Region read replicas use asynchronous replication. Because replication is not synchronous, there is always a possibility of replication lag, which prevents achieving a zero RPO. Additionally, manual promotion introduces operational delay and increases recovery time. Even if promotion is quick, this solution cannot guarantee both zero RPO and sub-10-minute RTO.
+
+Reference:
+
+https://docs.aws.amazon.com/whitepapers/latest/disaster-recovery-workloads-on-aws/disaster-recovery-options-in-the-cloud.html
+Domain
+Design for New Solutions
+Question 5Skipped
+
+An e-commerce company is investigating user reports of its Java-based web application errors on the day of the Thanksgiving sale. The development team recovered the logs created by the EC2 instance-hosted web servers and reviewed Aurora DB cluster performance metrics. Some of the web servers were terminated before logs could be collected and the Aurora metrics were inadequate for query performance analysis.
+
+Which of the following steps would you recommend to make the monitoring process more reliable to troubleshoot any future events due to traffic spikes? (Select three)
+
+Use CloudTrail and configure a trail to deliver Amazon Aurora query activity to an Amazon S3 bucket. Process and analyze these real-time log streams using Amazon Kinesis Data Streams
+
+Enable detailed monitoring for Amazon EC2 instances to send data points to CloudWatch every minute. Track the metric 'CPUUtilization' to know when the auto-scaling process can kick in
+Correct selection
+
+Configure the Aurora MySQL DB cluster to publish slow query and error logs to Amazon CloudWatch Logs
+Correct selection
+
+Install and configure an Amazon CloudWatch Logs agent on the EC2 instances to send the application logs to CloudWatch Logs
+
+Enable Aurora lab mode which will then publish all logs and activity on Aurora DB to CloudWatch logs
+Correct selection
+
+Set up the AWS X-Ray SDK to trace incoming HTTP requests on the EC2 instances as well as set up tracing of SQL queries with the X-Ray SDK for Java
+Overall explanation
+
+Correct options:
+
+Configure the Aurora MySQL DB cluster to publish slow query and error logs to Amazon CloudWatch Logs
+
+You can configure your Aurora MySQL DB cluster to publish general, slow, audit, and error log data to a log group in Amazon CloudWatch Logs. With CloudWatch Logs, you can perform real-time analysis of the log data, and use CloudWatch to create alarms and view metrics. You can use CloudWatch Logs to store your log records in highly durable storage.
+
+To publish logs to CloudWatch Logs, the respective logs must be enabled. Error logs are enabled by default, but you must enable the other types of logs explicitly. The slow query logs and error logs can be used to identify the root cause behind the given issue.
+
+Install and configure an Amazon CloudWatch Logs agent on the EC2 instances to send the application logs to CloudWatch Logs
+
+You can collect metrics and logs from Amazon EC2 instances and on-premises servers with the CloudWatch agent. The unified CloudWatch agent enables you to collect internal system-level metrics from Amazon EC2 instances across operating systems. The metrics can include in-guest metrics, in addition to the metrics for EC2 instances. You can collect logs from Amazon EC2 instances and on-premises servers, running either Linux or Windows Server. The application logs (via the CloudWatch logs) can be used to identify the root cause behind the given issue.
+
+Set up the AWS X-Ray SDK to trace incoming HTTP requests on the EC2 instances as well as set up tracing of SQL queries with the X-Ray SDK for Java
+
+You can use the X-Ray SDK to trace incoming HTTP requests that your application serves on an EC2 instance. Use a Filter to instrument incoming HTTP requests. When you add the X-Ray servlet filter to your application, the X-Ray SDK for Java creates a segment for each sampled request. This segment includes timing, method, and disposition of the HTTP request. You can also instrument your SQL database queries by adding the X-Ray SDK for Java JDBC interceptor to your data source configuration. X-Ray tracing for the HTTP requests as well as the SQL queries can help in identifying the root cause behind the given issue.
+
+Incorrect options:
+
+Use CloudTrail and configure a trail to deliver Amazon Aurora query activity to an Amazon S3 bucket. Process and analyze these real-time log streams using Amazon Kinesis Data Streams - You can use CloudTrail to view, search, download, archive, analyze, and respond to account activity across your AWS infrastructure. You can identify who or what took which action, what resources were acted upon, when the event occurred, and other details to help you analyze and respond to activity in your AWS account. CloudTrail provides a record of actions taken by a user, role, or AWS service in Amazon Aurora. However, CloudTrail does not capture any query activity in Aurora, so this option is incorrect.
+
+Enable detailed monitoring for Amazon EC2 instances to send data points to CloudWatch every minute. Track the metric 'CPUUtilization' to know when the auto-scaling process can kick in - Tracking the 'CPUUtilization' parameter is irrelevant to the given use case as it would not point to the root cause behind the given issue.
+
+Enable Aurora lab mode which will then publish all logs and activity on Aurora DB to CloudWatch logs - Aurora lab mode is used to enable Aurora features that are available in the current Aurora database version but are not enabled by default. These features are tested in development/test environments. Aurora lab mode is not relevant for capturing the log activity of Aurora DB. This option has been added as a distractor.
+
+References:
+
+https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/Install-CloudWatch-Agent.html
+
+https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/AuroraMySQL.Integrating.CloudWatch.html
+
+https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/viewing_metrics_with_cloudwatch.html
+
+https://docs.aws.amazon.com/xray/latest/devguide/xray-sdk-java-filters.html
+
+https://docs.aws.amazon.com/xray/latest/devguide/xray-sdk-java-sqlclients.html
+Domain
+Continuous Improvement for Existing Solutions
+Question 6Skipped
+
+A company manages a stateful web application that persists data on a MySQL database. The application stack is hosted in the company's on-premises data center using a single server. The company is looking at increasing its market presence through promotions and campaigns. While the user experience has been good so far, the current application architecture will not support the growth that the company envisages. The company has hired you as an AWS Certified Solutions Architect Professional to migrate the current architecture to AWS which should continue to support SQL-based queries. The proposed solution should offer maximum reliability with better performance.
+
+What would you recommend?
+Correct answer
+
+Set up database migration to Amazon Aurora MySQL. Deploy the application in an Auto Scaling group for Amazon EC2 instances that are fronted by an Application Load Balancer. Store sessions in an Amazon ElastiCache for Redis with replication group
+
+Set up database migration to an Amazon RDS MySQL DB instance using read replicas. Deploy the application in an Auto Scaling group for Amazon EC2 instances that are fronted by an Application Load Balancer. Store sessions using Amazon Neptune
+
+Set up database migration to an Amazon RDS MySQL Multi-AZ DB instance. Deploy the application in an Auto Scaling group for Amazon EC2 instances that are fronted by an Application Load Balancer. Store sessions in Amazon ElastiCache for Memcached
+
+Set up database migration to an Amazon DocumentDB instance. Deploy the application in an Auto Scaling group for Amazon EC2 instances that are fronted by a Network Load Balancer. Store sessions in an Amazon ElastiCache for Redis with replication group
+Overall explanation
+
+Correct option:
+
+Set up database migration to Amazon Aurora MySQL. Deploy the application in an Auto Scaling group for Amazon EC2 instances that are fronted by an Application Load Balancer. Store sessions in an Amazon ElastiCache for Redis with replication group
+
+Amazon Aurora is designed for unparalleled high performance and availability at a global scale with full MySQL and PostgreSQL compatibility.
+
+Amazon ElastiCache for Redis is a Redis-compatible in-memory service that delivers the ease of use and power of Redis along with the availability, reliability, and performance suitable for the most demanding applications. Both single-node and up to 15-shard clusters are available, enabling scalability to up to 3.55 TiB of in-memory data. Amazon ElastiCache for Redis is fully managed, scalable, and secure. This makes it an ideal candidate to power high-performance use cases such as web, mobile apps, gaming, ad tech, and IoT.
+
+Redis and Memcached are popular, open-source, in-memory data stores. Although they are both easy to use and offer high performance, there are important differences to consider when choosing an engine. Memcached is designed for simplicity while Redis offers a rich set of features that make it effective for a wide range of use cases.
+
+Redis lets you create multiple replicas of a Redis primary. This allows you to scale database reads and to have highly available clusters. The replication support makes Redis a more reliable solution than Memcached.
+
+via - https://aws.amazon.com/elasticache/redis-vs-memcached/
+
+Incorrect options:
+
+Set up database migration to an Amazon RDS MySQL Multi-AZ DB instance. Deploy the application in an Auto Scaling group for Amazon EC2 instances that are fronted by an Application Load Balancer. Store sessions in Amazon ElastiCache for Memcached - As explained above, the replication support makes Redis a more reliable solution than Memcached. So this option is not the best fit.
+
+Set up database migration to an Amazon RDS MySQL DB instance using read replicas. Deploy the application in an Auto Scaling group for Amazon EC2 instances that are fronted by an Application Load Balancer. Store sessions using Amazon Neptune - Amazon Neptune is a fast, fully managed database service powering graph use cases such as identity graphs, knowledge graphs, and fraud detection. You cannot use Neptune as a caching layer for storing user sessions.
+
+Set up database migration to an Amazon DocumentDB instance. Deploy the application in an Auto Scaling group for Amazon EC2 instances that are fronted by a Network Load Balancer. Store sessions in an Amazon ElastiCache for Redis with replication group - Amazon DocumentDB is a scalable, highly durable, and fully managed database service for operating mission-critical MongoDB workloads. For the given use case, you cannot migrate the relational database (MySQL) into a document database (DocumentDB) as DocumentDB does not support SQL-based queries.
+
+References:
+
+https://aws.amazon.com/elasticache/redis-vs-memcached/
+
+https://docs.aws.amazon.com/whitepapers/latest/aws-overview/database.html
+
+https://docs.aws.amazon.com/AmazonElastiCache/latest/red-ug/Replication.Redis.Groups.html
+Domain
+Accelerate Workload Migration and Modernization
+Question 7Skipped
+
+An Amazon S3 bucket is shared by three different teams (managing their own separate AWS accounts) for document uploads. Initially, the S3 bucket settings were set to default. Later, the bucket sees the following updates:
+
+After week 1, S3 Object Ownership bucket-level settings were used and all Access Control Lists (ACLs) were disabled. The three teams uploaded their documents to the shared bucket with this new setting.
+
+After week 2, S3 bucket level settings were again set back to default and the ACLs were enabled once more
+
+What is the outcome of these action(s) on the documents uploaded after week 1 and what are the key points of consideration for future S3 bucket configurations? (Select two)
+Correct selection
+
+You, as the bucket owner, still own any objects that were written to the bucket while the bucket owner enforced setting was applied. These objects are not owned by the object writer, even if you re-enable ACLs
+
+If you used object ACLs for permissions management before you applied the bucket owner enforced setting and you didn't migrate these object ACL permissions to your bucket policy after you re-enable ACLs, these permissions are not restored
+
+To simplify permissions management and auditing, use the Bucket owner preferred S3 bucket setting
+Correct selection
+
+If you used object ACLs for permissions management before you applied the bucket owner enforced setting and you didn't migrate these object ACL permissions to your bucket policy after you re-enable ACLs, these permissions are restored
+
+You, as the bucket owner, will not own the objects that were written to the bucket while the bucket owner enforced setting was applied. These objects will again be owned by the object writer when you re-enable the ACLs
+Overall explanation
+
+Correct options:
+
+You, as the bucket owner, still own any objects that were written to the bucket while the bucket owner enforced setting was applied. These objects are not owned by the object writer, even if you re-enable ACLs
+
+If you used object ACLs for permissions management before you applied the bucket owner enforced setting and you didn't migrate these object ACL permissions to your bucket policy after you re-enable ACLs, these permissions are restored -
+
+You can re-enable ACLs by changing from the bucket owner-enforced setting to another Object Ownership setting at any time. If you used object ACLs for permissions management before you applied the bucket owner-enforced setting and you didn't migrate these object ACL permissions to your bucket policy, after you re-enable ACLs, these permissions are restored. Additionally, objects written to the bucket while the bucket owner enforced setting was applied are still owned by the bucket owner.
+
+For example, if you change from the bucket owner-enforced setting back to object writer, you, as the bucket owner, no longer own and have full control over objects that were previously owned by other AWS accounts. Instead, the uploading accounts again own these objects. Objects owned by other accounts use ACLs for permissions, so you can't use policies to grant permissions to these objects. However, you, as the bucket owner, still own any objects that were written to the bucket while the bucket owner-enforced setting was applied. These objects are not owned by the object writer, even if you re-enable ACLs.
+
+Changes introduced by disabling ACLs:
+via - https://docs.aws.amazon.com/AmazonS3/latest/userguide/about-object-ownership.html
+
+Incorrect options:
+
+If you used object ACLs for permissions management before you applied the bucket owner enforced setting and you didn't migrate these object ACL permissions to your bucket policy after you re-enable ACLs, these permissions are not restored - As explained above, the permissions are restored for this scenario. So this option is incorrect.
+
+To simplify permissions management and auditing, use the Bucket owner preferred S3 bucket setting - This statement is incorrect. AWS recommends that you disable ACLs by choosing the bucket owner enforced setting and use your bucket policy to share data with users outside of your account as needed. This approach simplifies permissions management and auditing. You can disable ACLs on both newly created and already existing buckets.
+
+You, as the bucket owner, will not own the objects that were written to the bucket while the bucket owner enforced setting was applied. These objects will again be owned by the object writer, when you re-enable the ACLs - This statement is incorrect. You, as the bucket owner, still own any objects that were written to the bucket while the bucket owner-enforced setting was applied. These objects are not owned by the object writer, even if you re-enable ACLs.
+
+Reference:
+
+https://docs.aws.amazon.com/AmazonS3/latest/userguide/about-object-ownership.html
+Domain
+Design Solutions for Organizational Complexity
+Question 8Skipped
+
+A company uses Elastic Load Balancing to distribute traffic across multiple Amazon EC2 instances. Auto Scaling groups start and stop Amazon EC2 machines based on the number of incoming requests. The company has recently started operations in a new AWS Region and is setting up an Application Load Balancer for its fleet of EC2 instances spread across two Availability Zones, with one instance as a target in Availability Zone X and four instances as targets in Availability Zone Y. The company is doing benchmarking for server performance in the new Region for the case when cross-zone load balancing is enabled compared to the case when cross-zone load balancing is disabled.
+
+As a Solutions Architect Professional, which of the following traffic distribution outcomes would you identify as correct?
+
+With cross-zone load balancing enabled, one instance in Availability Zone X receives 50% traffic and four instances in Availability Zone Y receive 12.5% traffic each. With cross-zone load balancing disabled, one instance in Availability Zone X receives 20% traffic and four instances in Availability Zone Y receive 20% traffic each
+
+With cross-zone load balancing enabled, one instance in Availability Zone X receives no traffic and four instances in Availability Zone Y receive 25% traffic each. With cross-zone load balancing disabled, one instance in Availability Zone X receives 50% traffic and four instances in Availability Zone Y receive 12.5% traffic each
+Correct answer
+
+With cross-zone load balancing enabled, one instance in Availability Zone X receives 20% traffic and four instances in Availability Zone Y receive 20% traffic each. With cross-zone load balancing disabled, one instance in Availability Zone X receives 50% traffic and four instances in Availability Zone Y receive 12.5% traffic each
+
+With cross-zone load balancing enabled, one instance in Availability Zone X receives 20% traffic and four instances in Availability Zone Y receive 20% traffic each. With cross-zone load balancing disabled, one instance in Availability Zone X receives no traffic and four instances in Availability Zone Y receive 25% traffic each
+Overall explanation
+
+Correct option:
+
+With cross-zone load balancing enabled, one instance in Availability Zone X receives 20% traffic and four instances in Availability Zone Y receive 20% traffic each. With cross-zone load balancing disabled, one instance in Availability Zone X receives 50% traffic and four instances in Availability Zone Y receive 12.5% traffic each
+
+The nodes for your load balancer distribute requests from clients to registered targets. When cross-zone load balancing is enabled, each load balancer node distributes traffic across the registered targets in all enabled Availability Zones. Therefore, one instance in Availability Zone X receives 20% traffic and four instances in Availability Zone Y receive 20% traffic each. When cross-zone load balancing is disabled, each load balancer node distributes traffic only across the registered targets in its Availability Zone. Therefore, one instance in Availability Zone X receives 50% traffic and four instances in Availability Zone Y receive 12.5% traffic each.
+
+Consider the following diagrams (the scenario illustrated in the diagrams involves 10 target instances split across 2 AZs) to understand the effect of cross-zone load balancing.
+
+If cross-zone load balancing is enabled, each of the 10 targets receives 10% of the traffic. This is because each load balancer node can route its 50% of the client traffic to all 10 targets.
+
+via - https://docs.aws.amazon.com/elasticloadbalancing/latest/userguide/how-elastic-load-balancing-works.html
+
+If cross-zone load balancing is disabled:
+
+Each of the two targets in Availability Zone X receives 25% of the traffic.
+
+Each of the eight targets in Availability Zone Y receives 6.25% of the traffic.
+
+This is because each load balancer node can route its 50% of the client traffic only to targets in its Availability Zone
+
+via - https://docs.aws.amazon.com/elasticloadbalancing/latest/userguide/how-elastic-load-balancing-works.html
+
+Incorrect options:
+
+With cross-zone load balancing enabled, one instance in Availability Zone X receives 50% traffic and four instances in Availability Zone Y receive 12.5% traffic each. With cross-zone load balancing disabled, one instance in Availability Zone X receives 20% traffic and four instances in Availability Zone Y receive 20% traffic each
+
+With cross-zone load balancing enabled, one instance in Availability Zone X receives no traffic and four instances in Availability Zone Y receive 25% traffic each. With cross-zone load balancing disabled, one instance in Availability Zone X receives 50% traffic and four instances in Availability Zone Y receive 12.5% traffic each
+
+With cross-zone load balancing enabled, one instance in Availability Zone X receives 20% traffic and four instances in Availability Zone Y receive 20% traffic each. With cross-zone load balancing disabled, one instance in Availability Zone X receives no traffic and four instances in Availability Zone Y receive 25% traffic each
+
+These three options contradict the description provided in the explanation above, so these options are incorrect.
+
+Reference:
+
+https://docs.aws.amazon.com/elasticloadbalancing/latest/userguide/how-elastic-load-balancing-works.html
+Domain
+Design Solutions for Organizational Complexity
+Question 9Skipped
+
+A company manages a healthcare diagnostics application that writes thousands of lab images to a mounted NFS file system each night from 10 PM - 5 AM. The company wants to migrate this application from its on-premises data center to AWS Cloud over a private network. The company has already established an AWS Direct Connect connection to AWS to facilitate this migration. This application is slated to be moved to Amazon EC2 instances with the Elastic File System (Amazon EFS) file system as the storage service.
+
+Which of the following represents the MOST optimal way of replicating all images to the cloud before the application is fully migrated to the cloud?
+
+Deploy an AWS DataSync agent to an on-premises server that has access to the NFS file system. Connect to AWS VPC endpoint for EFS over a public VIF of the Direct Connect connection. Configure a DataSync scheduled task to send the images to the EFS file system every night
+
+Create an NFS file share using AWS Storage Gateway file gateway. Mount your NFS file share on a drive on your client and map it to your Amazon S3 bucket. Configure an AWS Lambda function to process event notifications from Amazon S3 and copy the images from Amazon S3 to the EFS file system
+
+Define a cron job on the on-premises system to run the AWS s3 sync command from the on-premises file system to Amazon S3. Use the Amazon S3 Event Notifications to call a Lambda function that will copy the images from the S3 bucket to the EFS file system
+Correct answer
+
+Deploy an AWS DataSync agent to an on-premises server that has access to the NFS file system. Send data over the Direct Connect connection to an AWS PrivateLink interface VPC endpoint for Amazon EFS by using a private VIF. Configure a DataSync scheduled task to send the images to the EFS file system every night
+Overall explanation
+
+Correct option:
+
+Deploy an AWS DataSync agent to an on-premises server that has access to the NFS file system. Send data over the Direct Connect connection to an AWS PrivateLink interface VPC endpoint for Amazon EFS by using a private VIF. Configure a DataSync scheduled task to send the images to the EFS file system every night
+
+You can use VPC endpoints to ensure data transferred between your AWS DataSync agent, either deployed on-premises or in-cloud, doesn't traverse the public internet or need public IP addresses. Using VPC endpoints increases the security of your data by keeping network traffic within your Amazon Virtual Private Cloud (Amazon VPC). VPC endpoints for DataSync are powered by AWS PrivateLink, a highly available, scalable technology that enables you to privately connect your VPC to supported AWS services.
+
+The DataSync agent transfers data between your storage and AWS. In most situations, you deploy the agent as a virtual machine in the same local network as your source storage. This approach minimizes network overhead associated with transferring data by using network protocols such as Network File System (NFS) and Server Message Block (SMB) or when accessing your object storage that's compatible with the Amazon S3 API. This setup is common regardless of the endpoint type you use to connect your agent to AWS.
+
+When you use a VPC endpoint, your DataSync agent communicates directly with AWS without crossing the public internet. Data is transferred using AWS Direct Connect or a virtual private network (VPN). The private IP addresses that DataSync creates for the transfer are accessible only from inside your VPC.
+
+Reference architecture of using DataSync with VPC endpoints:
+via - https://docs.aws.amazon.com/datasync/latest/userguide/datasync-in-vpc.html
+
+Incorrect options:
+
+Create an NFS file share using the AWS Storage Gateway file gateway. Mount your NFS file share on a drive on your client and map it to your Amazon S3 bucket. Configure an AWS Lambda function to process event notifications from Amazon S3 and copy the images from Amazon S3 to the EFS file system - AWS Storage Gateway provides seamless access to data in hybrid architectures. When the entire application is being moved to AWS Cloud, AWS Storage Gateway is not the best fit for the given use case. In addition, the data is initially copied to S3 and then replicated into EFS, thereby making the process inefficient.
+
+Define a cron job on the on-premises system to run the AWS s3 sync command from the on-premises file system to Amazon S3. Use the Amazon S3 Event Notifications to call a Lambda function that will copy the images from the S3 bucket to the EFS file system - The data is initially copied to S3 and then replicated into EFS, thereby making the process inefficient.
+
+Deploy an AWS DataSync agent to an on-premises server that has access to the NFS file system. Connect to AWS VPC endpoint for EFS over a public VIF of the Direct Connect connection. Configure a DataSync scheduled task to send the images to the EFS file system every night - A VPC endpoint allows you to privately connect your VPC to supported AWS services without requiring an internet gateway or a NAT device, VPN connection, or AWS Direct Connect connection. A public virtual interface (VIF) can access all AWS public services using public IP addresses. You cannot leverage public VIF to access the VPC endpoint for EFS. Therefore this option is incorrect.
+
+References:
+
+https://docs.aws.amazon.com/datasync/latest/userguide/datasync-in-vpc.html
+
+https://aws.amazon.com/blogs/storage/transferring-files-from-on-premises-to-aws-and-back-without-leaving-your-vpc-using-aws-datasync/
+Domain
+Accelerate Workload Migration and Modernization
+Question 10Skipped
+
+Recently, an Amazon CloudFront distribution has been configured with an Amazon S3 bucket as the origin. However, users are getting an HTTP 307 Temporary Redirect response from Amazon S3.
+
+What could be the reason for this behavior and how will you resolve the issue? (Select two)
+
+Configure CloudFront Cache-Control and Expires headers to a value of zero, to fetch new objects immediately from the S3 bucket
+
+Enable Amazon S3 Transfer Acceleration to help CloudFront access data faster over long distances from the S3 bucket
+Correct selection
+
+When a new Amazon S3 bucket is created, it takes up to 24 hours before the bucket name propagates across all AWS Regions
+
+Enable Cross-Region replication for the S3 bucket so that CloudFront can retrieve the data immediately after the creation of the bucket
+Correct selection
+
+CloudFront by default, forwards the requests to the default S3 endpoint. Change the origin domain name of the distribution to include the Regional endpoint of the bucket
+Overall explanation
+
+Correct options:
+
+When a new Amazon S3 bucket is created, it takes up to 24 hours before the bucket name propagates across all AWS Regions
+
+CloudFront by default, forwards the requests to the default S3 endpoint. Change the origin domain name of the distribution to include the Regional endpoint of the bucket
+
+After you create an Amazon S3 bucket, up to 24 hours can pass before the bucket name propagates across all AWS Regions. During this time, you might receive the 307 Temporary Redirect response for requests to Regional endpoints that aren't in the same Region as your bucket.
+
+To avoid the 307 Temporary Redirect response, send requests only to the Regional endpoint in the same Region as your S3 bucket. If you're using an Amazon CloudFront distribution with an Amazon S3 origin, CloudFront forwards requests to the default S3 endpoint ( s3.amazonaws.com). The default S3 endpoint is in the us-east-1 Region. If you must access Amazon S3 within the first 24 hours of creating the bucket, you can change the origin domain name of the distribution. The domain name must include the Regional endpoint of the bucket. For example, if the bucket is in us-west-2, you can change the origin domain name from awsexamplebucketname.s3.amazonaws.com to awsexamplebucket.s3.us-west-2.amazonaws.com.
+
+Incorrect options:
+
+Enable Cross-Region replication for the S3 bucket so that CloudFront can retrieve the data immediately after the creation of the bucket - S3 Cross-Region Replication (CRR) is used to copy objects across Amazon S3 buckets in different AWS Regions. CRR can help you do the following - meet compliance requirements, minimize latency and increase operational efficiency. CRR however, cannot resolve the HTTP 307 error.
+
+Configure CloudFront Cache-Control and Expires headers to a value of zero, to fetch new objects immediately from the S3 bucket - You can use the Cache-Control and Expires headers to control how long objects stay in the CloudFront cache. This option has been added as a distractor and is unrelated to the HTTP 307 error.
+
+Enable Amazon S3 Transfer Acceleration to help CloudFront access data faster over long distances from the S3 bucket - Amazon S3 Transfer Acceleration is a bucket-level feature that enables fast, easy, and secure transfers of files over long distances between your client and an S3 bucket. Transfer Acceleration is designed to optimize transfer speeds from across the world into S3 buckets. This option has been added as a distractor and is unrelated to the HTTP 307 error.
+
+Reference:
+
+https://aws.amazon.com/premiumsupport/knowledge-center/s3-http-307-response/
+Domain
+Continuous Improvement for Existing Solutions
+Question 11Skipped
+
+A financial services company wants to set up an AWS WAF-based solution to manage AWS WAF rules across multiple AWS accounts that are structured under different Organization Units (OUs) in AWS Organizations. The solution should automatically update and remediate noncompliant AWS WAF rules in all accounts. The solution should also facilitate adding or removing accounts or OUs from managed AWS WAF rule sets as needed.
+
+Which of the following solutions is the most operationally efficient to address the given use case?
+
+Use AWS Firewall Manager to manage AWS WAF rules across accounts in the organization. Leverage AWS Systems Manager Parameter Store to store account numbers and OUs. Update AWS Systems Manager Parameter Store as needed to add or remove accounts or OUs. Create cross-account IAM roles in member accounts with permissions to create and update AWS WAF rules. Create a Lambda function to assume IAM roles in the management account to create and update AWS WAF rules in the member accounts
+
+Use AWS Security Hub to manage AWS WAF rules across accounts in the organization. Leverage AWS KMS to store account numbers and OUs. Update AWS KMS as needed to add or remove accounts or OUs. Create IAM users in member accounts. Allow AWS Firewall Manager in the management account to use the access key and secret access key to create and update AWS WAF rules in the member accounts
+Correct answer
+
+Create an AWS Organizations organization-wide AWS Config rule that mandates all resources in the selected OUs to be associated with the AWS WAF rules. Configure automated remediation actions by using AWS Systems Manager Automation documents to fix non-compliant resources. Set up AWS WAF rules by using an AWS CloudFormation stack set to target the same OUs where the AWS Config rule is applied
+
+Use AWS Control Tower to manage AWS WAF rules across accounts in the organization. Leverage AWS Secrets Manager to store account numbers and OUs. Update AWS Secrets Manager as needed to add or remove accounts or OUs. Create cross-account IAM roles in member accounts with permissions to create and update AWS WAF rules. Create a Lambda function to assume IAM roles in the management account to create and update AWS WAF rules in the member accounts
+Overall explanation
+
+Correct option:
+
+Create an AWS Organizations organization-wide AWS Config rule that mandates all resources in the selected OUs to be associated with the AWS WAF rules. Configure automated remediation actions by using AWS Systems Manager Automation documents to fix non-compliant resources. Set up AWS WAF rules by using an AWS CloudFormation stack set to target the same OUs where the AWS Config rule is applied
+
+AWS Config allows you to manage AWS Config rules across all AWS accounts within an organization. You can:
+
+Centrally create, update, and delete AWS Config rules across all accounts in your organization.
+
+Deploy a common set of AWS Config rules across all accounts and specify accounts where AWS Config rules should not be created.
+
+Use the APIs from the management account in AWS Organizations to enforce governance by ensuring that the underlying AWS Config rules are not modifiable by your organization’s member accounts.
+
+If a new account joins an organization, the rule or conformance pack is deployed to that account. When an account leaves an organization, the rule or conformance pack is removed.
+
+via - https://docs.aws.amazon.com/config/latest/developerguide/config-rule-multi-account-deployment.html
+
+AWS Config allows you to remediate noncompliant resources that are evaluated by AWS Config Rules. AWS Config applies remediation using AWS Systems Manager Automation documents. These documents define the actions to be performed on noncompliant AWS resources evaluated by AWS Config Rules. You can associate SSM documents by using AWS Management Console or by using APIs. To apply remediation on non-compliant resources, you can either choose the remediation action you want to associate from a prepopulated list or create your own custom remediation actions using SSM documents. AWS Config provides a recommended list of remediation actions in the AWS Management Console.
+
+AWS CloudFormation StackSets extends the capability of CloudFormation stacks by enabling you to create, update, or delete stacks across multiple accounts and AWS Regions with a single operation. Using an administrator account, you define and manage an AWS CloudFormation template, and use the template as the basis for provisioning stacks into selected target accounts across specified AWS Regions.
+
+Incorrect options:
+
+Use AWS Firewall Manager to manage AWS WAF rules across accounts in the organization. Leverage AWS Systems Manager Parameter Store to store account numbers and OUs. Update AWS Systems Manager Parameter Store as needed to add or remove accounts or OUs. Create cross-account IAM roles in member accounts with permissions to create and update AWS WAF rules. Create a Lambda function to assume IAM roles in the management account to create and update AWS WAF rules in the member accounts - This option involves significant manual work every time an account is added/removed from the organization. You need to update the items in Systems Manager Parameter Store and further update the Lambda to assume the role for the new account. Hence this option is incorrect.
+
+Use AWS Control Tower to manage AWS WAF rules across accounts in the organization. Leverage AWS Secrets Manager to store account numbers and OUs. Update AWS Secrets Manager as needed to add or remove accounts or OUs. Create cross-account IAM roles in member accounts with permissions to create and update AWS WAF rules. Create a Lambda function to assume IAM roles in the management account to create and update AWS WAF rules in the member accounts - This option involves significant manual work every time an account is added/removed from the organization. You need to update the items in Secrets Manager and further update the Lambda to assume the role for the new account. Hence this option is incorrect.
+
+Use AWS Security Hub to manage AWS WAF rules across accounts in the organization. Leverage AWS KMS to store account numbers and OUs. Update AWS KMS as needed to add or remove accounts or OUs. Create IAM users in member accounts. Allow AWS Firewall Manager in the management account to use the access key and secret access key to create and update AWS WAF rules in the member accounts - This option has been added as a distractor. You cannot use AWS Security Hub to manage AWS WAF rules across accounts in the organization, rather you need to use AWS Firewall Manager to accomplish this. AWS KMS is a managed service that helps you more easily create and control the keys used for cryptographic operations. The service provides a highly available key generation, storage, management, and auditing solution for you to encrypt or digitally sign data within your own applications or control the encryption of data across AWS services. You cannot use AWS KMS to store account numbers and OUs.
+
+References:
+
+https://docs.aws.amazon.com/config/latest/developerguide/config-rule-multi-account-deployment.html
+
+https://aws.amazon.com/about-aws/whats-new/2019/12/aws-security-hub-integrates-with-aws-firewall-manager/
+
+https://docs.aws.amazon.com/config/latest/developerguide/remediation.html
+
+https://aws.amazon.com/premiumsupport/knowledge-center/lambda-function-assume-iam-role/
+Domain
+Design Solutions for Organizational Complexity
+Question 12Skipped
+
+The development team at a company needs to implement a client-side encryption mechanism for objects that will be stored in a new Amazon S3 bucket. The team created a CMK that is stored in AWS Key Management Service (AWS KMS) for this purpose. The team created the following IAM policy and attached it to an IAM role:
+
+{
+  "Version": "2012-10-17",
+  "Id": "key-policy-1",
+  "Statement": [
+    {
+      "Sid": "GetPut",
+      "Effect": "Allow",
+      "Action": [
+        "s3:GetObject",
+        "s3:PutObject"
+      ],
+      "Resource": "arn:aws:s3:::ExampleBucket/*"
+    },
+    {
+      "Sid": "KMS",
+      "Effect": "Allow",
+      "Action": [
+        "kms:Decrypt",
+        "kms:Encrypt"
+      ],
+      "Resource": "arn:aws:kms:us-west-1:111122223333:key/keyid-12345"
+    }
+  ]
+}
+
+The team was able to successfully get existing objects from the S3 bucket while testing. But any attempts to upload a new object resulted in an error. The error message stated that the action was forbidden.
+
+Which IAM policy action should be added to the IAM policy to resolve the error?
+Correct answer
+
+kms:GenerateDataKey
+
+kms:GetDataKey
+
+kms:GetPublicKey
+
+kms:GetKeyPolicy
+Overall explanation
+
+Correct option:
+
+kms:GenerateDataKey
+
+GenerateDataKey returns a unique symmetric data key for use outside of AWS KMS. This operation returns a plaintext copy of the data key and a copy that is encrypted under a symmetric encryption KMS key that you specify. The bytes in the plaintext key are random; they are not related to the caller or the KMS key. You can use the plaintext key to encrypt your data outside of AWS KMS and store the encrypted data key with the encrypted data.
+
+via - https://docs.aws.amazon.com/kms/latest/APIReference/API_GenerateDataKey.html
+
+Incorrect options:
+
+kms:GetPublicKey - This option returns the public key of an asymmetric KMS key. Unlike the private key of an asymmetric KMS key, which never leaves AWS KMS unencrypted, callers with kms:GetPublicKey permission can download the public key of an asymmetric KMS key. It cannot be used for a client-side encryption mechanism.
+
+kms:GetKeyPolicy - This option gets a key policy attached to the specified KMS key. It cannot be used for a client-side encryption mechanism.
+
+kms:GetDataKey - This is a made-up option that serves as a distractor.
+
+References:
+
+https://docs.aws.amazon.com/kms/latest/APIReference/API_GenerateDataKey.html
+
+https://docs.aws.amazon.com/kms/latest/APIReference/API_GetKeyPolicy.html
+
+https://docs.aws.amazon.com/kms/latest/APIReference/API_GetPublicKey.html
+Domain
+Design for New Solutions
+Question 13Skipped
+
+A SaaS company delivers a multi-tenant platform for healthcare record management using shared Amazon DynamoDB tables and AWS Lambda functions. Each healthcare provider (tenant) sends a unique provider_id as part of every request. The company wants to implement a tiered pricing model that bills each tenant based on their actual consumption of DynamoDB resources, including both read and write activity. The team already collects AWS Cost and Usage Reports (CUR) in a centralized billing account and wants to use this data to drive tenant-level chargebacks. They are looking for the most accurate, cost-effective, and low-maintenance approach for tracking and allocating DynamoDB usage costs per tenant.
+
+Which solution best meets the company's requirements with the least operational effort?
+
+Enable DynamoDB Streams and configure a separate Lambda function to consume the stream, extracting the provider_id and size of each write. Aggregate write-based activity per tenant and map it against total DynamoDB spend
+Correct answer
+
+Update Lambda function logic to log provider_id, estimated RCUs and WCUs per request, and metadata in structured JSON format to Amazon CloudWatch Logs. Schedule a separate Lambda function to process these logs, aggregate usage per tenant, and retrieve the total monthly DynamoDB spend via the AWS Cost Explorer API. Use the proportion of per-tenant usage to allocate DynamoDB costs accurately
+
+Enhance the Lambda functions to emit custom metrics to Amazon CloudWatch using the PutMetricData API. Track provider_id, estimated RCUs and WCUs per request, and create metric filters for each tenant. Use CloudWatch metric math and dashboards to aggregate usage. Combine this with DynamoDB pricing to estimate tenant-level cost
+
+Add cost allocation tags with provider_id to each DynamoDB table and activate the tag in the Billing and Cost Management console. Modify the Lambda functions to log the provider_id in CloudWatch Logs. Use the Cost and Usage Reports (CUR) to filter by tags and analyze tenant-level consumption and cost
+Overall explanation
+
+Correct option:
+
+Update Lambda function logic to log provider_id, estimated RCUs and WCUs per request, and metadata in structured JSON format to Amazon CloudWatch Logs. Schedule a separate Lambda function to process these logs, aggregate usage per tenant, and retrieve the total monthly DynamoDB spend via the AWS Cost Explorer API. Use the proportion of per-tenant usage to allocate DynamoDB costs accurately
+
+This is the only option that offers both granularity and minimal operational effort. Here, the Lambda functions are instrumented to log structured JSON entries for each request, including the provider_id, RCUs, WCUs, and any relevant metadata. These logs are stored in Amazon CloudWatch Logs. A scheduled Lambda function is then used to parse the logs, aggregate the read/write usage for each tenant, and retrieve the total monthly DynamoDB charges via the AWS Cost Explorer API. The proportional usage per tenant is applied to the overall cost to calculate precise tenant-wise expenses. This method ensures high accuracy, supports long-term traceability through structured logs, leverages the CUR for total spend, and avoids the need for complex data pipelines or tagging hacks. It’s cost-effective, scalable, and aligns perfectly with the company’s goals.
+
+Optimizing Cost Per Tenant Visibility in SaaS Solutions:
+via - https://aws.amazon.com/blogs/apn/optimizing-cost-per-tenant-visibility-in-saas-solutions/
+
+Incorrect options:
+
+Enhance the Lambda functions to emit custom metrics to Amazon CloudWatch using the PutMetricData API. Track provider_id, estimated RCUs and WCUs per request, and create metric filters for each tenant. Use CloudWatch metric math and dashboards to aggregate usage. Combine this with DynamoDB pricing to estimate tenant-level cost - This approach suggests using the PutMetricData API in AWS Lambda to emit custom CloudWatch metrics for each tenant, with dimensions like provider_id, read capacity units (RCUs), and write capacity units (WCUs) consumed. CloudWatch dashboards and metric math can be configured to visualize tenant-specific usage patterns. While this method provides near real-time observability and minimal architectural changes, it is not ideal for long-term cost allocation and billing purposes. CloudWatch metrics are not integrated with AWS Cost and Usage Reports (CUR), making it difficult to validate historical billing data or maintain auditability. Additionally, there is added cost and complexity associated with storing and querying high-cardinality metrics over long retention periods. Hence, this solution lacks the robustness and long-term traceability needed for accurate chargeback.
+
+Add cost allocation tags with provider_id to each DynamoDB table and activate the tag in the Billing and Cost Management console. Modify the Lambda functions to log the provider_id in CloudWatch Logs. Use the Cost and Usage Reports (CUR) to filter by tags and analyze tenant-level consumption and cost - This solution proposes assigning cost allocation tags with the key provider_id to DynamoDB tables and activating those tags in the AWS Billing and Cost Management console. The idea is to then use these tags within the CUR to analyze tenant-specific DynamoDB usage. However, this approach is flawed because all tenants share the same DynamoDB table, and AWS tagging is applied at the resource level, not at the per-request or per-tenant level. As a result, tagging the table does not distinguish between different tenants’ usage patterns. Logging provider_id in CloudWatch Logs does not influence cost allocation in CUR either. Therefore, while the approach sounds simple, it fundamentally fails to provide the tenant-level granularity that the billing system requires.
+
+Enable DynamoDB Streams and configure a separate Lambda function to consume the stream, extracting the provider_id and size of each write. Aggregate write-based activity per tenant and map it against total DynamoDB spend - This option involves enabling DynamoDB Streams to capture write operations and using a separate Lambda function to extract the provider_id and relevant write metadata from each stream record. The data is then aggregated to estimate tenant-wise write activity, which is mapped to the total DynamoDB bill. While this method provides insight into write-heavy workloads, it has a critical flaw: it does not account for read activity, which is also a major component of DynamoDB billing. Consequently, tenants with significant read activity could be underbilled or overlooked entirely. Moreover, integrating Streams adds complexity and overhead, and the analysis is limited to write operations only. As such, this solution provides an incomplete and potentially inaccurate view of tenant costs, making it unsuitable for a fair and comprehensive billing model.
+
+References:
+
+https://aws.amazon.com/blogs/apn/optimizing-cost-per-tenant-visibility-in-saas-solutions/
+
+https://aws.amazon.com/aws-cost-management/aws-cost-explorer/
+
+https://docs.aws.amazon.com/lambda/latest/dg/monitoring-cloudwatchlogs.html
+
+https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/publishingMetrics.html
+
+https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/using-metric-math.html
+
+https://docs.aws.amazon.com/cur/latest/userguide/what-is-cur.html
+Domain
+Design for New Solutions
+Question 14Skipped
+
+A data analytics company uses Amazon S3 as the data lake to store the input data that is ingested from the IoT field devices on an hourly basis. The ingested data has attributes such as the device type, ID of the device, the status of the device, the timestamp of the event, the source IP address, etc. The data runs into millions of records per day and the company wants to run complex analytical queries on this data daily for product improvements for each device type.
+
+Which is the most optimal way to save this data to get the best performance from the millions of data points processed daily?
+
+Store the data in compressed .csv, partitioned by date and sorted by the status of the device
+Correct answer
+
+Store the data in Apache ORC, partitioned by date and sorted by device type of the device
+
+Store the data in compressed .csv, partitioned by date and sorted by device type
+
+Store the data in Apache Parquet, partitioned by device type and sorted by date
+Overall explanation
+
+Correct option:
+
+Store the data in Apache ORC, partitioned by date and sorted by device type of the device - Apache Parquet and ORC are columnar storage formats that are optimized for fast retrieval of data and used in AWS analytical applications.
+
+By partitioning your data, you can restrict the amount of data scanned by each query, thus improving performance and reducing cost. You can partition your data by any key. A common practice is to partition the data based on time, often leading to a multi-level partitioning scheme. For example, a customer who has data coming in every hour might decide to partition by year, month, date, and hour. Another customer, who has data coming from many different sources but that is loaded only once per day, might partition by a data source identifier and date.
+
+For the given use case, as the company does daily analysis, so it only needs to look at the data generated for a given date. Hence partitioning by date offers significant performance and cost advantages. Since the company also wants to analyze product improvements for each device type, it is better to keep the data sorted by device type, so it allows for faster query execution.
+
+Incorrect options:
+
+Store the data in Apache Parquet, partitioned by device type and sorted by date - Apache Parquet is a columnar storage format that is optimized for fast retrieval of data and used in AWS analytical applications. However, partitioning by device type is incorrect for this use case, and partitioning by date is optimal.
+
+Store the data in compressed .csv, partitioned by date and sorted by the status of the device
+
+Store the data in compressed .csv, partitioned by date and sorted by device type
+
+Both the above options are not columnar storage formats, they are row-based formats that are not optimal for big data retrievals for complex analytical queries.
+
+Reference:
+
+https://docs.aws.amazon.com/athena/latest/ug/partitions.html
+Domain
+Continuous Improvement for Existing Solutions
+Question 15Skipped
+
+A team uses an Amazon S3 bucket to store the client data. After updating the S3 bucket with a few file deletes and some new file additions, the team has just realized that these changes have not been propagated to the AWS Storage Gateway file share.
+
+What is the underlying issue? Which method can be used to resolve it?
+
+Configure correct permissions in Amazon S3 bucket policy to allow automatic refresh of cache
+
+Uploading files from your file gateway to Amazon S3 when S3 Versioning is enabled results in cache update issues. Disable versioning on the S3 bucket
+Correct answer
+
+Storage Gateway doesn't automatically update the cache when you upload a file directly to Amazon S3. Perform a RefreshCache operation to see the changes on the file share
+
+Storage Gateway doesn't automatically update the cache when you upload a file directly to Amazon S3. Perform a ResetCache operation to see the changes on the file share
+Overall explanation
+
+Correct option:
+
+Storage Gateway doesn't automatically update the cache when you upload a file directly to Amazon S3. Perform a RefreshCache operation to see the changes on the file share
+
+Storage Gateway updates the file share cache automatically when you write files to the cache locally using the file share. However, Storage Gateway doesn't automatically update the cache when you upload a file directly to Amazon S3. When you do this, you must perform a RefreshCache operation to see the changes on the file share. If you have more than one file share, then you must run the RefreshCache operation on each file share.
+
+You can refresh the cache using the Storage Gateway console and the AWS Command Line Interface (AWS CLI).
+
+Incorrect options:
+
+Uploading files from your file gateway to Amazon S3 when S3 Versioning is enabled results in cache update issues. Disable versioning on the S3 bucket - Carefully consider the use of S3 Versioning and Cross-Region Replication (CRR) in Amazon S3 when you're uploading data from your file gateway. Uploading files from your file gateway to Amazon S3 when S3 Versioning is enabled results in at least two versions of an S3 object. This option is not relevant to the given issue and has just been added as a distractor.
+
+Storage Gateway doesn't automatically update the cache when you upload a file directly to Amazon S3. Perform a ResetCache operation to see the changes on the file share - 'ResetCache', resets all cache disks that have encountered an error, and make the disks available for reconfiguration as cache storage. When a cache is reset, the gateway loses its cache storage. At this point, you can reconfigure the disks as cache disks. This operation is only supported in the cached volume and tape gateway types.
+
+Configure correct permissions in Amazon S3 bucket policy to allow automatic refresh of cache - This statement is incorrect and has just been added as a distractor.
+
+References:
+
+https://docs.aws.amazon.com/filegateway/latest/files3/GettingStartedCreateFileShare.html
+
+https://aws.amazon.com/premiumsupport/knowledge-center/storage-gateway-s3-changes-not-showing/
+
+https://docs.aws.amazon.com/filegateway/latest/files3/refresh-cache.html
+
+https://docs.aws.amazon.com/storagegateway/latest/APIReference/API_RefreshCache.html
+Domain
+Design for New Solutions
+Question 16Skipped
+
+A multi-national company operates hundreds of AWS accounts and the CTO wants to rationalize the operational costs. The CTO has mandated a centralized process for purchasing new Reserved Instances (RIs) or modifying existing RIs. Whereas earlier the business units (BUs) would directly purchase or modify RIs in their own AWS accounts independently, now all BUs must be denied independent purchase and the BUs must submit requests to a dedicated central team for purchasing RIs.
+
+As an AWS Certified Solutions Architect Professional, which of the following solutions would you combine to enforce the new process most efficiently? (Select two)
+
+Make sure that all AWS accounts are assigned organizational units (OUs) within an AWS Organizations structure operating in the consolidated billing features mode
+Correct selection
+
+Make sure that all AWS accounts are assigned organizational units (OUs) within an AWS Organizations structure operating in all features mode
+
+Set up an IAM policy in each AWS account with a deny rule to the ec2:PurchaseReservedInstancesOffering and ec2:ModifyReservedInstances actions
+
+Leverage AWS Config to notify on the attachment of an IAM policy that allows access to the ec2:PurchaseReservedInstancesOffering and ec2:ModifyReservedInstances actions
+Correct selection
+
+Set up a Service Control Policy (SCP) that contains a deny rule to the ec2:PurchaseReservedInstancesOffering and ec2:ModifyReservedInstances actions. Attach the SCP to each organizational unit (OU) of the AWS Organizations structure
+Overall explanation
+
+Correct options:
+
+Make sure that all AWS accounts are assigned organizational units (OUs) within an AWS Organizations structure operating in all features mode
+
+AWS Organizations has two available feature sets:
+
+All features – This feature set is the preferred way to work with AWS Organizations, and it includes Consolidating Billing features. When you create an organization, enabling all features is the default. With all features enabled, you can use the advanced account management features available in AWS Organizations such as integration with supported AWS services and organization management policies. Policies in AWS Organizations enable you to apply additional types of management to the AWS accounts in your organization. You can use policies when all features are enabled in your organization. Service control policies (SCPs) offer central control over the maximum available permissions for all of the accounts in your organization.
+
+Consolidated Billing features – All organizations support this subset of features, which provides basic management tools that you can use to centrally manage the accounts in your organization. You cannot leverage SCPs in this feature mode.
+
+Set up a Service Control Policy (SCP) that contains a deny rule to the ec2:PurchaseReservedInstancesOffering and ec2:ModifyReservedInstances actions. Attach the SCP to each organizational unit (OU) of the AWS Organizations structure
+
+Service control policies (SCPs) are a type of organizational policy that you can use to manage permissions in your organization. SCPs offer central control over the maximum available permissions for all accounts in your organization. SCPs help you to ensure your accounts stay within your organization’s access control guidelines. SCPs alone are not sufficient to grant permissions to the accounts in your organization. No permissions are granted by an SCP. An SCP defines a guardrail or sets limits, on the actions that the account's administrator can delegate to the IAM users and roles in the affected accounts. The administrator must still attach identity-based or resource-based policies to IAM users or roles, or the resources in your accounts to actually grant permissions. SCPs don't affect users or roles in the management account. They affect only the member accounts in your organization.
+
+For the given use case, you can set up an SCP that contains a deny rule to the ec2:PurchaseReservedInstancesOffering and ec2:ModifyReservedInstances actions.
+
+Incorrect options:
+
+Make sure that all AWS accounts are assigned organizational units (OUs) within an AWS Organizations structure operating in the consolidated billing features mode - You cannot leverage SCPs in this feature mode, so this option is incorrect.
+
+Leverage AWS Config to notify on the attachment of an IAM policy that allows access to the ec2:PurchaseReservedInstancesOffering and ec2:ModifyReservedInstances actions - AWS Config cannot prevent the attachment of an IAM policy that allows access to the ec2:PurchaseReservedInstancesOffering and ec2:ModifyReservedInstances actions. So this option is incorrect for the given requirements.
+
+Set up an IAM policy in each AWS account with a deny rule to the ec2:PurchaseReservedInstancesOffering and ec2:ModifyReservedInstances actions - This is a cumbersome and inefficient solution to prevent each of the member AWS accounts from purchasing the RIs. This is not the best fit solution.
+
+References:
+
+https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_org_support-all-features.html
+
+https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_policies.html
+
+https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_policies_scps.html
+Domain
+Design Solutions for Organizational Complexity
+Question 17Skipped
+
+A company has its flagship application fronted by an Application Load Balancer that is targeting several EC2 Linux instances running in an Auto Scaling group in a private subnet. AWS Systems Manager Agent is installed on all the EC2 instances. The company recently released a new version of the application, however, some of the EC2 instances are now being marked as unhealthy and are being terminated, thereby causing the application to run at reduced capacity. You have been tasked to ascertain the root cause by analyzing Amazon CloudWatch logs that are collected from the application, but you find that the logs are inconclusive.
+
+Which of the following options would you propose to get access to an EC2 instance to troubleshoot the issue?
+
+Suspend the Auto Scaling group's Launch process. Use Session Manager to log in to an instance that is marked as unhealthy and analyze the system logs to figure out the root cause
+Correct answer
+
+Suspend the Auto Scaling group's Terminate process. Use Session Manager to log in to an instance that is marked as unhealthy and analyze the system logs to figure out the root cause
+
+Suspend the Auto Scaling group's HealthCheck process. Use EC2 instance connect to log in to an instance that is marked as unhealthy and analyze the system logs to figure out the root cause
+
+Enable EC2 instance termination protection. Use Session Manager to log In to an instance that is marked as unhealthy and analyze the system logs to figure out the root cause
+Overall explanation
+
+Correct option:
+
+Suspend the Auto Scaling group's Terminate process. Use Session Manager to log in to an instance that is marked as unhealthy and analyze the system logs to figure out the root cause
+
+The Terminate process removes instances from the Auto Scaling group when the group scales in, or when Amazon EC2 Auto Scaling chooses to terminate instances for other reasons, such as when an instance is terminated for exceeding its maximum lifetime duration or failing a health check. You need to suspend the Terminate process which will allow you to get access to the instance without it being terminated even if it is marked as unhealthy. You should note that another way to prevent Amazon EC2 Auto Scaling from terminating unhealthy instances, is to suspend the ReplaceUnhealthy process. You can then leverage the Session Manager to log in to the instance that is marked as unhealthy and analyze the system logs to figure out the root cause.
+
+via - https://docs.aws.amazon.com/AWSEC2/latest/WindowsGuide/terminating-instances.html#Using_ChangingDisableAPITermination
+
+via - https://docs.aws.amazon.com/AWSEC2/latest/WindowsGuide/terminating-instances.html#Using_ChangingDisableAPITermination
+
+Incorrect options:
+
+Suspend the Auto Scaling group's HealthCheck process. Use EC2 instance connect to log in to an instance that is marked as unhealthy and analyze the system logs to figure out the root cause - The HealthCheck process checks the health of the instances and marks an instance as unhealthy if Amazon EC2 or Elastic Load Balancing tells Amazon EC2 Auto Scaling that the instance is unhealthy. This process can override the health status of an instance that you set manually. If you suspend the HealthCheck process, then none of the instances would be marked as unhealthy. Therefore, you cannot suspend the HealthCheck process for the given use case, since you must identify the root cause behind some of the instances being marked as unhealthy.
+
+Suspend the Auto Scaling group's Launch process. Use Session Manager to log in to an instance that is marked as unhealthy and analyze the system logs to figure out the root cause - The Launch process adds instances to the Auto Scaling group when the group scales out, or when Amazon EC2 Auto Scaling chooses to launch instances for other reasons, such as when it adds instances to a warm pool. Suspending the Launch process will not help in identifying the root cause behind some instances being marked as unhealthy as those instances would still be terminated.
+
+Enable EC2 instance termination protection. Use Session Manager to log In to an instance that is marked as unhealthy and analyze the system logs to figure out the root cause - Enabling EC2 instance termination (DisableApiTermination attribute) does not prevent Amazon EC2 Auto Scaling from terminating an instance.
+
+References:
+
+https://docs.aws.amazon.com/AWSEC2/latest/WindowsGuide/terminating-instances.html#Using_ChangingDisableAPITermination
+
+https://docs.aws.amazon.com/autoscaling/ec2/userguide/as-suspend-resume-processes.html
+Domain
+Design for New Solutions
+Question 18Skipped
+
+An ed-tech company needs to deliver its video-on-demand (VOD) content to approximately 1 million users in a cost-effective way. The learning material is in the form of videos with a maximum size of 10 GB each. The videos are highly watched when initially uploaded and subsequently have very less views after 6-8 months. While the old videos might not be accessed regularly, they need to be immediately accessible when needed. With trainers and material doubling every few months, the number of videos has exploded over the last few months, dramatically increasing the cost of storage for the company.
+
+Which is the most cost-effective way of storing these videos to address the given use case?
+
+Use Amazon Elastic File System (Amazon EFS) Intelligent-Tiering storage class to store the video files. Configure an Amazon EC2 instance to deliver this content from EFS to viewers through an Amazon CloudFront distribution
+
+Use AWS Elemental MediaConvert and store the transcoded videos in S3. Configure an AWS Elemental MediaPackage endpoint to deliver the content from S3
+
+Use Amazon Elastic File System (Amazon EFS) Standard storage class to store the video files. Move these video files to EFS Standard–Infrequent Access (Standard-IA) through lifecycle management configuration. Configure a CloudFront custom distribution to deliver content from the EFS origin
+Correct answer
+
+Use Amazon S3 Intelligent-Tiering storage class to store the video files. Configure this S3 bucket as the origin of an Amazon CloudFront distribution for delivering the contents to the customers
+Overall explanation
+
+Correct option:
+
+Use Amazon S3 Intelligent-Tiering storage class to store the video files. Configure this S3 bucket as the origin of an Amazon CloudFront distribution for delivering the contents to the customers
+
+S3 Intelligent-Tiering is the only cloud storage class that delivers automatic storage cost savings when data access patterns change, without performance impact or operational overhead. The Amazon S3 Intelligent-Tiering storage class is designed to optimize storage costs by automatically moving data to the most cost-effective access tier when access patterns change. For a small monthly object monitoring and automation charge, S3 Intelligent-Tiering monitors access patterns and automatically moves objects that have not been accessed to lower-cost access tiers.
+
+S3 Intelligent-Tiering is the ideal storage class for data with unknown, changing, or unpredictable access patterns, independent of object size or retention period. You can use S3 Intelligent-Tiering as the default storage class for virtually any workload, especially data lakes, data analytics, new applications, and user-generated content.
+
+S3 Intelligent-Tiering storage class:
+via - https://aws.amazon.com/s3/storage-classes/intelligent-tiering/
+
+When you store your objects in an Amazon S3 bucket, you can either have users get your objects directly from S3, or you can configure CloudFront to get your objects from S3 and then distribute them to your users. Using CloudFront can be more cost-effective if your users access your objects frequently because, at higher usage, the price for CloudFront data transfer is lower than the price for Amazon S3 data transfer. In addition, downloads are faster with CloudFront than with Amazon S3 alone since the cached content is served from the edge locations that are closer to the end users.
+
+Incorrect options:
+
+Use Amazon Elastic File System (Amazon EFS) standard storage class to store the video files. Move these video files to EFS Standard–Infrequent Access (Standard-IA) through lifecycle management configuration. Configure a CloudFront custom distribution to deliver content from the EFS origin - Amazon Elastic File System (Amazon EFS) cannot be configured as an origin for a CloudFront distribution.
+
+Use AWS Elemental MediaConvert and store the transcoded videos in S3. Configure an AWS Elemental MediaPackage endpoint to deliver the content from S3 - The main use case for AWS Media Services is to deliver live content to a global audience. For the given scenario, the content is primarily served via video on demand (VOD), so there is no need to incur extra costs for using the suite of AWS Media Services, so this option is incorrect.
+
+Use Amazon Elastic File System (Amazon EFS) Intelligent-Tiering storage class to store the video files. Configure an Amazon EC2 instance to deliver this content from EFS to viewers through an Amazon CloudFront distribution - EFS is about three times costlier than S3. In addition, using EC2 as the origin for Cloudfront imposes additional costs for running the infrastructure. Therefore, this option is incorrect.
+
+References:
+
+https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/DownloadDistS3AndCustomOrigins.html
+
+https://docs.aws.amazon.com/efs/latest/ug/storage-classes.html
+
+https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/live-streaming.html
+
+https://docs.aws.amazon.com/mediapackage/latest/ug/what-is-terms.html
+Domain
+Design for New Solutions
+Question 19Skipped
+
+The security team at a company has put forth a requirement to track the external IP address when a customer or a third party uploads files to the Amazon Simple Storage Service (Amazon S3) bucket owned by the company.
+
+How will you track the external IP address used for each upload? (Select two)
+Correct selection
+
+Enable AWS CloudTrail data events to enable object-level logging for S3 bucket
+
+Enable AWS Systems Manager Agent (SSM Agent) that writes information about executions, commands, scheduled actions on all AWS resources
+
+Enable VPC Flow Logs to capture all object-level events occurring on the S3 bucket
+
+CloudWatch Logs centrally maintain the logs from all of your systems, applications, and AWS services that you use. Use these logs to capture the IP address at the object level for the S3 bucket
+Correct selection
+
+Enable Amazon S3 server access logging to capture all bucket-level and object-level events
+Overall explanation
+
+Correct options:
+
+Enable Amazon S3 server access logging to capture all bucket-level and object-level events
+
+Enable AWS CloudTrail data events to enable object-level logging for S3 bucket
+
+To find the IP addresses for object-level requests to Amazon S3 (uploads and downloads), you must first enable one of the following logging methods:
+
+    Amazon S3 server access logging captures all bucket-level and object-level events. These logs use a format similar to Apache web server logs. After you enable server access logging, review the logs to find the IP addresses used with each upload to your bucket.
+
+    AWS CloudTrail data events capture the last 90 days of bucket-level events (for example, PutBucketPolicy and DeleteBucketPolicy), and you can enable object-level logging. These logs use a JSON format. After you enable object-level logging with data events, review the logs to find the IP addresses used with each upload to your bucket. It might take a few hours for AWS CloudTrail to start creating logs.
+
+Incorrect options:
+
+Enable VPC Flow Logs to capture all object-level events occurring on the S3 bucket - VPC Flow Logs is a feature that enables you to capture information about the IP traffic going to and from network interfaces in your VPC, so it does not apply to S3. Flow log data can be published to Amazon CloudWatch Logs or Amazon S3.
+
+Enable AWS Systems Manager Agent (SSM Agent) that writes information about executions, commands, scheduled actions on all AWS resources - AWS Systems Manager Agent (SSM Agent) writes information about executions, commands, scheduled actions, errors, and health statuses to log files on each managed node. You can view log files by manually connecting to a managed node, or you can automatically send logs to Amazon CloudWatch Logs. AWS Systems Manager Agent (SSM Agent) is Amazon software that runs on Amazon Elastic Compute Cloud (Amazon EC2) instances, edge devices, and on-premises servers and virtual machines (VMs), so it does not apply to S3.
+
+CloudWatch Logs centrally maintain the logs from all of your systems, applications, and AWS services that you use. Use these logs to capture the IP address at the object level for the S3 bucket - You can use Amazon CloudWatch Logs to monitor, store, and access your log files from Amazon Elastic Compute Cloud (Amazon EC2) instances, AWS CloudTrail, Route 53, and other sources. CloudWatch Logs enables you to see all of your logs, regardless of their source, as a single and consistent flow of events ordered by time, and you can query them and sort them based on other dimensions, group them by specific fields, create custom computations with a powerful query language, and visualize log data in dashboards. CloudWatch Logs cannot be used to track the external IP address used for uploads to S3.
+
+Reference:
+
+https://aws.amazon.com/premiumsupport/knowledge-center/external-ip-address-s3-bucket/
+Domain
+Continuous Improvement for Existing Solutions
+Question 20Skipped
+
+The engineering team at a retail company wants to establish a dedicated, encrypted, low latency, and high throughput connection between its data center and AWS Cloud. The engineering team has set aside sufficient time to account for the operational overhead of establishing this connection.
+
+Which of the following options represents the MOST optimal solution with the LEAST infrastructure set up required for provisioning the end to end connection?
+
+Use VPC transit gateway to establish a connection between the data center and AWS Cloud
+Correct answer
+
+Use AWS Direct Connect along with a site-to-site VPN to establish a connection between the data center and AWS Cloud
+
+Use AWS Direct Connect to establish a connection between the data center and AWS Cloud
+
+Use site-to-site VPN to establish a connection between the data center and AWS Cloud
+Overall explanation
+
+Correct option: Use AWS Direct Connect along with a site-to-site VPN to establish a connection between the data center and AWS Cloud
+
+AWS Direct Connect is a cloud service solution that makes it easy to establish a dedicated network connection from your premises to AWS. AWS Direct Connect lets you establish a dedicated network connection between your network and one of the AWS Direct Connect locations.
+
+With AWS Direct Connect plus VPN, you can combine one or more AWS Direct Connect dedicated network connections with the Amazon VPC VPN. This combination provides an IPsec-encrypted private connection that also reduces network costs, increases bandwidth throughput, and provides a more consistent network experience than internet-based VPN connections. This solution combines the AWS managed benefits of the VPN solution with low latency, increased bandwidth, more consistent benefits of the AWS Direct Connect solution, and an end-to-end, secure IPsec connection. Therefore, AWS Direct Connect plus VPN is the correct solution for this use-case.
+
+AWS Direct Connect Plus VPN:
+via - https://docs.aws.amazon.com/whitepapers/latest/aws-vpc-connectivity-options/aws-direct-connect-vpn.html
+
+Incorrect options: Use site-to-site VPN to establish a connection between the data center and AWS Cloud - AWS Site-to-Site VPN enables you to securely connect your on-premises network or branch office site to your Amazon Virtual Private Cloud (Amazon VPC). A VPC VPN Connection utilizes IPSec to establish encrypted network connectivity between your intranet and Amazon VPC over the Internet. VPN Connections are a good solution if you have an immediate need, have low to modest bandwidth requirements, and can tolerate the inherent variability in Internet-based connectivity.
+
+However, Site-to-site VPN cannot provide low latency and high throughput connection, therefore this option is ruled out.
+
+Use VPC transit gateway to establish a connection between the data center and AWS Cloud - A transit gateway is a network transit hub that you can use to interconnect your virtual private clouds (VPC) and on-premises networks. A transit gateway by itself cannot establish a low latency and high throughput connection between a data center and AWS Cloud. Hence this option is incorrect.
+
+Use AWS Direct Connect to establish a connection between the data center and AWS Cloud - AWS Direct Connect by itself cannot provide an encrypted connection between a data center and AWS Cloud, so this option is ruled out.
+
+References: https://aws.amazon.com/directconnect/
+
+https://docs.aws.amazon.com/directconnect/latest/UserGuide/encryption-in-transit.html
+
+https://docs.aws.amazon.com/whitepapers/latest/aws-vpc-connectivity-options/aws-direct-connect-vpn.html
+Domain
+Continuous Improvement for Existing Solutions
+Question 21Skipped
+
+A leading pharmaceutical company has significant investments in running Oracle and PostgreSQL services on Amazon RDS which provide their scientists with near real-time analysis of millions of rows of manufacturing data generated by continuous manufacturing equipment with 1,600 data points per row. The business analytics team has been running ad-hoc queries on these databases to prepare daily reports for senior management. The engineering team has observed that the database performance takes a hit whenever these reports are run by the analytics team. To facilitate the business analytics reporting, the engineering team now wants to replicate this data with high availability and consolidate these databases into a petabyte-scale data warehouse by streaming data to Amazon Redshift.
+
+As a Solutions Architect Professional, which of the following would you recommend as the MOST resource-efficient solution that requires the LEAST amount of development time without the need to manage the underlying infrastructure?
+
+Use Amazon EMR to replicate the data from the databases into Amazon Redshift
+
+Use AWS Glue to replicate the data from the databases into Amazon Redshift
+Correct answer
+
+Use AWS Database Migration Service to replicate the data from the databases into Amazon Redshift
+
+Use Amazon Kinesis Data Streams to replicate the data from the databases into Amazon Redshift
+Overall explanation
+
+Correct option:
+
+Use AWS Database Migration Service to replicate the data from the databases into Amazon Redshift
+
+AWS Database Migration Service helps you migrate databases to AWS quickly and securely. The source database remains fully operational during the migration, minimizing downtime to applications that rely on the database. With AWS Database Migration Service, you can continuously replicate your data with high availability and consolidate databases into a petabyte-scale data warehouse by streaming data to Amazon Redshift and Amazon S3.
+
+Continuous Data Replication
+via - https://aws.amazon.com/dms/
+
+You can migrate data to Amazon Redshift databases using AWS Database Migration Service. Amazon Redshift is a fully managed, petabyte-scale data warehouse service in the cloud. With an Amazon Redshift database as a target, you can migrate data from all of the other supported source databases.
+
+The Amazon Redshift cluster must be in the same AWS account and the same AWS Region as the replication instance. During a database migration to Amazon Redshift, AWS DMS first moves data to an Amazon S3 bucket. When the files reside in an Amazon S3 bucket, AWS DMS then transfers them to the proper tables in the Amazon Redshift data warehouse. AWS DMS creates the S3 bucket in the same AWS Region as the Amazon Redshift database. The AWS DMS replication instance must be located in that same region.
+
+Incorrect options:
+
+Use AWS Glue to replicate the data from the databases into Amazon Redshift - AWS Glue is a fully managed extract, transform, and load (ETL) service that makes it easy for customers to prepare and load their data for analytics. AWS Glue job is meant to be used for batch ETL data processing.
+
+Using AWS Glue involves significant development efforts to write custom migration scripts to copy the database data into Redshift.
+
+Use Amazon EMR to replicate the data from the databases into Amazon Redshift - Amazon EMR is the industry-leading cloud big data platform for processing vast amounts of data using open source tools such as Apache Spark, Apache Hive, Apache HBase, Apache Flink and Presto. With EMR you can run Petabyte-scale analysis at less than half of the cost of traditional on-premises solutions and over 3x faster than standard Apache Spark. For short-running jobs, you can spin up and spin down clusters and pay per second for the instances used. For long-running workloads, you can create highly available clusters that automatically scale to meet demand. Amazon EMR uses Hadoop, an open-source framework, to distribute your data and processing across a resizable cluster of Amazon EC2 instances.
+
+Using EMR involves significant infrastructure management efforts to set up and maintain the EMR cluster. Additionally, this option involves a major development effort to write custom migration jobs to copy the database data into Redshift.
+
+Use Amazon Kinesis Data Streams to replicate the data from the databases into Amazon Redshift - Amazon Kinesis Data Streams (KDS) is a massively scalable and durable real-time data streaming service. KDS can continuously capture gigabytes of data per second from hundreds of thousands of sources such as website clickstreams, database event streams, financial transactions, social media feeds, IT logs, and location-tracking events.
+
+However, the user is expected to manually provision an appropriate number of shards to process the expected volume of the incoming data stream. The throughput of an Amazon Kinesis data stream is designed to scale without limits via increasing the number of shards within a data stream. Therefore Kinesis Data Streams is not the right fit for this use-case.
+
+References:
+
+https://docs.aws.amazon.com/dms/latest/userguide/CHAP_Target.Redshift.html
+
+https://aws.amazon.com/dms/
+Domain
+Continuous Improvement for Existing Solutions
+Question 22Skipped
+
+An e-commerce company manages its flagship application on a load-balanced EC2 instance fleet for web hosting, database API services, and business logic. This tightly coupled architecture makes it inflexible for new feature additions while also making the architecture less scalable.
+
+Which of the following options can be used to decouple the architecture, improve scalability and provide the ability to track the failed orders?
+Correct answer
+
+Configure Amazon S3 for hosting the web application while using AWS AppSync for database access services. Use Amazon Simple Queue Service (Amazon SQS) for queuing orders and AWS Lambda for business logic. Use Amazon SQS dead-letter queue for tracking and re-processing failed orders
+
+Use AWS Elastic Beanstalk for hosting the web application and Amazon API Gateway for database API services. Use Kinesis Data Streams for queuing orders and AWS Lambda to build business logic. Configure an Amazon S3 bucket for retaining failed orders on an hourly basis
+
+Use Amazon Lightsail for web hosting with AWS AppSync for database API services. Use Simple Queue Service (Amazon SQS) for order queuing. Use Amazon Elastic Container Service (Amazon ECS) for business logic and use the visibility timeout parameter of Amazon SQS to retain the failed orders
+
+Configure Amazon CloudFront for hosting the website and Amazon API Gateway for database API services. Use Amazon Simple Queue Service (Amazon SQS) for order queuing and AWS Lambda for business logic. Use Amazon SQS long polling for retaining failed orders
+Overall explanation
+
+Correct option:
+
+Configure Amazon S3 for hosting the web application while using AWS AppSync for database access services. Use Amazon Simple Queue Service (Amazon SQS) for queuing orders and AWS Lambda for business logic. Use Amazon SQS dead-letter queue for tracking and re-processing failed orders
+
+Amazon S3 can be configured to host a web application.
+
+AWS AppSync creates serverless GraphQL and Pub/Sub APIs that simplify application development through a single endpoint to securely query, update, or publish data. AWS AppSync creates serverless GraphQL and Pub/Sub APIs that simplify application development through a single endpoint to securely query, update, or publish data.
+
+How AWS AppSync works:
+via - https://aws.amazon.com/appsync/
+
+Amazon SQS supports dead-letter queues (DLQ), which other queues (source queues) can target for messages that can't be processed (consumed) successfully. Dead-letter queues are useful for debugging your application or messaging system because they let you isolate unconsumed messages to determine why their processing doesn't succeed.
+
+SQS dead-letter queues:
+via - https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-dead-letter-queues.html
+
+Incorrect options:
+
+Configure Amazon CloudFront for hosting the website and Amazon API Gateway for database API services. Use Amazon Simple Queue Service (Amazon SQS) for order queuing and AWS Lambda for business logic. Use Amazon SQS long polling for retaining failed orders - You cannot use Amazon CloudFront for hosting a website as the website is hosted on the Cloudfront distribution's underlying origin (such as S3 or an EC2 instance). You cannot use Amazon SQS long polling for retaining failed orders. When the wait time for the ReceiveMessage API action is greater than 0, long polling is in effect. Long polling helps reduce the cost of using Amazon SQS by eliminating the number of empty responses and false empty responses. Long polling is a configurable parameter of SQS queues and not a temporary storage space to hold failed orders.
+
+Use Amazon Lightsail for web hosting with AWS AppSync for database API services. Use Simple Queue Service (Amazon SQS) for order queuing. Use Amazon Elastic Container Service (Amazon ECS) for business logic and use the visibility timeout parameter of Amazon SQS to retain the failed orders - You cannot use the visibility timeout parameter of Amazon SQS to retain the failed orders. Immediately after a message is received in an SQS queue, it remains in the queue. To prevent other consumers from processing the message again, Amazon SQS sets a visibility timeout, a period during which Amazon SQS prevents other consumers from receiving and processing the message. Visibility timeout is a configurable parameter of SQS queues and not a temporary storage space to hold failed orders.
+
+Use AWS Elastic Beanstalk for hosting the web application and Amazon API Gateway for database API services. Use Kinesis Data Streams for queuing orders and AWS Lambda to build business logic. Configure an Amazon S3 bucket for retaining failed orders on an hourly basis - Amazon Kinesis Streams allows real-time processing of streaming big data and the ability to read and replay records to multiple Amazon Kinesis Applications. Amazon SQS offers a reliable, highly-scalable hosted queue for storing messages as they travel between applications or microservices. It moves data between distributed application components and helps you decouple these components.
+
+You should not use S3 to retain failed orders on an hourly basis. This would result in too many small objects (1 object for each failed order) on S3 which need to be written and read multiple times. In addition, it would be cumbersome to keep track of the failed orders and do the root cause analysis. You could run SQL queries via Athena on this underlying data in S3. However, it would turn out to be costly and inefficient while querying small objects via Athena. Therefore, this use case is an anti-pattern for S3.
+
+References:
+
+https://docs.aws.amazon.com/AmazonS3/latest/userguide/WebsiteHosting.html
+
+https://aws.amazon.com/appsync/
+
+https://aws.amazon.com/sqs/faqs/
+
+https://aws.amazon.com/blogs/big-data/top-10-performance-tuning-tips-for-amazon-athena/
+
+https://docs.aws.amazon.com/AmazonS3/latest/userguide/optimizing-performance-design-patterns.html
+Domain
+Design for New Solutions
+Question 23Skipped
+
+A financial services company has multiple AWS accounts hosting its portfolio of IT applications that serve the company's retail and enterprise customers. A CloudWatch Logs agent is installed on each of the EC2 instances running these IT applications. The company wants to aggregate all security events in a centralized AWS account dedicated to log storage. The centralized operations team at the company needs to perform near-real-time gathering and collating events across multiple AWS accounts.
+
+As a Solutions Architect Professional, which of the following solutions would you suggest to meet these requirements?
+
+Set up CloudWatch Logs agents to publish data to a Kinesis Data Firehose stream in the centralized logging AWS account. Create a Lambda function to read messages from the stream and push messages to Kinesis Data Firehose and then store the data in S3
+Correct answer
+
+Set up Kinesis Data Firehose in the logging account and then subscribe the delivery stream to CloudWatch Logs streams in each application AWS account via subscription filters. Persist the log data in an Amazon S3 bucket inside the logging AWS account
+
+Set up a new IAM role in each application AWS account with permissions to view CloudWatch Logs. Create a Lambda function to assume this new role and perform an hourly export of each AWS account's CloudWatch Logs data to an S3 bucket in the centralized logging AWS account
+
+Set up CloudWatch Logs streams in each application AWS account to forward events to CloudWatch Logs in the centralized logging AWS account. In the centralized logging AWS account, subscribe a Kinesis Data Firehose stream to Amazon EventBridge events and further use the Firehose stream to store the log data in S3
+Overall explanation
+
+Correct option:
+
+Set up Kinesis Data Firehose in the logging account and then subscribe the delivery stream to CloudWatch Logs streams in each application AWS account via subscription filters. Persist the log data in an Amazon S3 bucket inside the logging AWS account
+
+You can configure Amazon Kinesis Data Firehose to aggregate and collate CloudWatch Logs from different AWS accounts and receive their log events in a centralized logging AWS Account (this is known as cross-account data sharing) by using a CloudWatch Logs destination and then creating a Subscription Filter. This log event data can be read from a centralized Amazon Kinesis Firehose delivery stream to perform downstream processing and analysis.
+
+You can collaborate with an owner of a different AWS account and receive their log events on your AWS resources, such as an Amazon Kinesis or Amazon Kinesis Data Firehose stream (this is known as cross-account data sharing). You can use a subscription filter with Kinesis Streams, Lambda, or Kinesis Data Firehose. Logs that are sent to a receiving service through a subscription filter are Base64 encoded and compressed with the gzip format.
+
+Incorrect options:
+
+Set up a new IAM role in each application AWS account with permissions to view CloudWatch Logs. Create a Lambda function to assume this new role and perform an hourly export of each AWS account's CloudWatch Logs data to an S3 bucket in the centralized logging AWS account - As the Lambda function is performing an hourly export, so it's not a near-real time soluton. In addition, Lambda is not the right choice to build a high volume and high-velocity streaming solution which is better handled by using the Kinesis Family of services.
+
+Set up CloudWatch Logs agents to publish data to a Kinesis Data Firehose stream in the centralized logging AWS account. Create a Lambda function to read messages from the stream and push messages to Kinesis Data Firehose and then store the data in S3 - The CloudWatch Logs agent (on the path to deprecation) supports the collection of logs from only servers running Linux. It is recommended to use the unified CloudWatch agent. It enables you to collect both logs and advanced metrics with one agent. It offers support across operating systems, including servers running Windows Server. This agent also provides better performance. CloudWatch Logs agent cannot publish data to a Kinesis Data Firehose stream, so this option is incorrect.
+
+Set up CloudWatch Logs streams in each application AWS account to forward events to CloudWatch Logs in the centralized logging AWS account. In the centralized logging AWS account, subscribe a Kinesis Data Firehose stream to Amazon EventBridge events and further use the Firehose stream to store the log data in S3 - You can use a subscription filter with Kinesis Streams, Lambda, or Kinesis Data Firehose. So you cannot just forward events directly to CloudWatch Logs in another account. In addition, Kinesis Data Firehose stream cannot subscribe to EventBridge events, so this option is incorrect.
+
+References:
+
+https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/CrossAccountSubscriptions.html
+
+https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/SubscriptionFilters.html
+
+https://aws.amazon.com/blogs/architecture/stream-amazon-cloudwatch-logs-to-a-centralized-account-for-audit-and-analysis/
+Domain
+Continuous Improvement for Existing Solutions
+Question 24Skipped
+
+A social learning platform allows students to connect with other students as well as experts and professionals from academic, research institutes and industry. The engineering team at the company manages 5 Amazon EC2 instances that make read-heavy database requests to the Amazon RDS for PostgreSQL DB cluster. As an AWS Certified Solutions Architect Professional, you have been asked to make the database cluster resilient from a disaster recovery perspective.
+
+Which of the following features will help you prepare for database disaster recovery? (Select two)
+
+Use RAID 1 configuration for the RDS DB cluster
+
+Use RDS Provisioned IOPS (SSD) Storage in place of General Purpose (SSD) Storage
+Correct selection
+
+Enable the automated backup feature of Amazon RDS in a multi-AZ deployment that creates backups in a single or multiple AWS Region(s)
+Correct selection
+
+Use cross-Region Read Replicas
+
+Use database cloning feature of the RDS DB cluster
+Overall explanation
+
+Correct option:
+
+Use cross-Region Read Replicas
+
+In addition to using Read Replicas to reduce the load on your source DB instance, you can also use Read Replicas to implement a DR solution for your production DB environment. If the source DB instance fails, you can promote your Read Replica to a standalone source server. Read Replicas can also be created in a different Region than the source database. Using a cross-Region Read Replica can help ensure that you get back up and running if you experience a regional availability issue.
+
+Enable the automated backup feature of Amazon RDS in a multi-AZ deployment that creates backups in a single or multiple AWS Region(s)
+
+Amazon RDS provides high availability and failover support for DB instances using Multi-AZ deployments. Amazon RDS uses several different technologies to provide failover support. Multi-AZ deployments for MariaDB, MySQL, Oracle, and PostgreSQL DB instances use Amazon's failover technology.
+
+The automated backup feature of Amazon RDS enables point-in-time recovery for your database instance. Amazon RDS will backup your database and transaction logs and store both for a user-specified retention period. If it’s a Multi-AZ configuration, backups occur on the standby to reduce I/O impact on the primary. Amazon RDS supports single Region or cross-Region automated backups.
+
+Incorrect options:
+
+Use RAID 1 configuration for the RDS DB cluster - This option has been added as a distractor. RAID configuration options can only be used for EC2 instance–hosted databases. By using EBS storage volumes with EC2 instances, you can configure volumes with any RAID levels. For example, for greater I/O performance, you can opt for RAID 0, which can stripe multiple volumes together. RAID 1 can be used for data redundancy because it mirrors two volumes together.
+
+Use RDS Provisioned IOPS (SSD) Storage in place of General Purpose (SSD) Storage - Amazon RDS Provisioned IOPS Storage is an SSD-backed storage option designed to deliver fast, predictable, and consistent I/O performance. This storage type enhances the performance of the RDS database, but this isn't a disaster recovery option.
+
+Use database cloning feature of the RDS DB cluster - This option has been added as a distractor. Database cloning is only available for Aurora and not for RDS.
+
+References:
+
+https://aws.amazon.com/rds/features/
+
+https://aws.amazon.com/blogs/database/implementing-a-disaster-recovery-strategy-with-amazon-rds/
+
+https://aws.amazon.com/about-aws/whats-new/2021/07/amazon-rds-cross-region-automated-backups-regional-expansion/
+
+https://aws.amazon.com/blogs/database/best-storage-practices-for-running-production-workloads-on-hosted-databases-with-amazon-rds-or-amazon-ec2/
+Domain
+Continuous Improvement for Existing Solutions
+Question 25Skipped
+
+A company uses Amazon FSx for Windows File Server with deployment type of Single-AZ 2 as its file storage service for its non-core functions. With a change in the company's policy that mandates high availability of data for all its functions, the company needs to change the existing configuration. The company also needs to monitor the file system activity as well as the end-user actions on the Amazon FSx file server.
+
+Which solutions will you combine to implement these requirements? (Select two)
+
+You can monitor the file system activity using AWS CloudTrail and monitor end-user actions with file access auditing using Amazon CloudWatch Logs
+
+Configure a new Amazon FSx for Windows file system with a deployment type of Multi-AZ. Transfer data to the newly created file system using the AWS DataSync service. Point all the file system users to the new location. You can test the failover of your Multi-AZ file system by modifying the elastic network interfaces associated with your file system
+Correct selection
+
+Configure a new Amazon FSx for Windows file system with a deployment type of Multi-AZ. Transfer data to the newly created file system using the AWS DataSync service. Point all the file system users to the new location. You can test the failover of your Multi-AZ file system by modifying its throughput capacity
+
+Configure a new Amazon FSx for Windows file system with a deployment type of Single-AZ 1. Transfer data to the newly created file system using the AWS DataSync service. Point all the file system users to the new location
+Correct selection
+
+You can monitor storage capacity and file system activity using Amazon CloudWatch, and monitor end-user actions with file access auditing using Amazon CloudWatch Logs and Amazon Kinesis Data Firehose
+Overall explanation
+
+Correct options:
+
+Configure a new Amazon FSx for Windows file system with a deployment type of Multi-AZ. Transfer data to the newly created file system using the AWS DataSync service. Point all the file system users to the new location. You can test the failover of your Multi-AZ file system by modifying its throughput capacity
+
+In a Multi-AZ deployment, Amazon FSx automatically provisions and maintains a standby file server in a different Availability Zone. Any changes written to disk in your file system are synchronously replicated across Availability Zones to the standby. If there is planned file system maintenance or unplanned service disruption, Amazon FSx automatically fails over to the secondary file server, allowing you to continue accessing your data without manual intervention. Multi-AZ file systems are recommended for most production workloads that require high availability of shared Windows file data.
+
+To migrate your existing files to FSx for Windows File Server file systems, AWS recommends using AWS DataSync, an online data transfer service designed to simplify, automate, and accelerate copying large amounts of data to and from AWS storage services. DataSync copies data over the internet or AWS Direct Connect.
+
+You can test the failover of your Multi-AZ file system by modifying its throughput capacity. When you modify your file system's throughput capacity, Amazon FSx switches out the file system's file server. Multi-AZ file systems automatically fail over to the secondary server while Amazon FSx replaces the preferred server file server first. Then the file system automatically fails back to the new primary server and Amazon FSx replaces the secondary file server.
+
+via - https://docs.aws.amazon.com/fsx/latest/WindowsGuide/high-availability-multiAZ.html
+
+You can monitor storage capacity and file system activity using Amazon CloudWatch, and monitor end-user actions with file access auditing using Amazon CloudWatch Logs and Amazon Kinesis Data Firehose
+
+You can monitor storage capacity and file system activity using Amazon CloudWatch. You can monitor end-user actions with file access auditing at any time (during or after the creation of a file system) via the AWS Management Console or the Amazon FSx CLI or API. You can also change the destination for publishing user access events by logging these events to CloudWatch Logs or streaming to Kinesis Data Firehose.
+
+Incorrect options:
+
+Configure a new Amazon FSx for Windows file system with a deployment type of Single-AZ 1. Transfer data to the newly created file system using the AWS DataSync service. Point all the file system users to the new location - With Single-AZ file systems, Amazon FSx automatically replicates your data within an Availability Zone (AZ) to protect it from component failure. It continuously monitors for hardware failures and automatically replaces infrastructure components in the event of a failure. Single-AZ 2 is the latest generation of Single-AZ file systems, and it supports both SSD and HDD storage. Single-AZ 1 file systems support SSD storage, Microsoft Distributed File System Replication (DFSR), and the use of custom DNS names. Single-AZ file systems will experience unavailability during file system maintenance, infrastructure component replacement, and when an Availability Zone is unavailable.
+
+Multi-AZ file systems are recommended for most production workloads that require high availability of shared Windows file data. Single-AZ file systems offer a lower price point for workloads that don’t require the high availability of a Multi-AZ solution and that can recover from the most recent file system backup if data is lost.
+
+You can monitor the file system activity using AWS CloudTrail and monitor end-user actions with file access auditing using Amazon CloudWatch Logs - This statement is incorrect. You can monitor storage capacity and file system activity using Amazon CloudWatch, monitor all Amazon FSx API calls using AWS CloudTrail, and monitor end-user actions with file access auditing using Amazon CloudWatch Logs and Amazon Kinesis Data Firehose.
+
+Configure a new Amazon FSx for Windows file system with a deployment type of Multi-AZ. Transfer data to the newly created file system using the AWS DataSync service. Point all the file system users to the new location. You can test the failover of your Multi-AZ file system by modifying the elastic network interfaces associated with your file system - You must not modify or delete the elastic network interfaces associated with your file system. Modifying or deleting the network interface can cause a permanent loss of connection between your VPC and your file system. Therefore this option is incorrect.
+
+References:
+
+https://docs.aws.amazon.com/fsx/latest/WindowsGuide/high-availability-multiAZ.html
+
+https://docs.aws.amazon.com/fsx/latest/WindowsGuide/migrate-files-fsx.html
+
+https://aws.amazon.com/fsx/windows/faqs/
+
+https://docs.aws.amazon.com/fsx/latest/WindowsGuide/limit-access-security-groups.html
+
+https://aws.amazon.com/blogs/aws/file-access-auditing-is-now-available-for-amazon-fsx-for-windows-file-server/
+Domain
+Continuous Improvement for Existing Solutions
+Question 26Skipped
+
+A social media company has VPC Flow Logs enabled for its NAT gateway. The security team is seeing Action = ACCEPT for inbound traffic that comes from the public IP address 198.21.200.1 destined for a private EC2 instance. The team must determine whether the traffic represents unsolicited inbound connections from the internet. The first two octets of the VPC CIDR block are 205.1.
+
+Which of the following options can address this requirement?
+
+Inspect the VPC Flow Logs using the CloudWatch console and select the log group that contains the NAT gateway's ENI and the EC2 instance's ENI. Leverage a query filter with the source address set as like 205.1 and the destination address set as like 198.21.200.1. Execute the stats command to filter the sum of bytes transferred by the source address and the destination address
+
+Inspect the VPC Flow Logs using the CloudTrail console and select the log group that contains the NAT gateway's ENI and the EC2 instance's ENI. Leverage a query filter with the destination address set as like 205.1 and the source address set as like 198.21.200.1. Execute the stats command to filter the sum of bytes transferred by the source address and the destination address
+
+Inspect the VPC Flow Logs using the CloudTrail console and select the log group that contains the NAT gateway's ENI and the EC2 instance's ENI. Leverage a query filter with the source address set as like 205.1 and the destination address set as like 198.21.200.1. Execute the stats command to filter the sum of bytes transferred by the source address and the destination address
+Correct answer
+
+Inspect the VPC Flow Logs using the CloudWatch console and select the log group that contains the NAT gateway's ENI and the EC2 instance's ENI. Leverage a query filter with the destination address set as like 205.1 and the source address set as like 198.21.200.1. Execute the stats command to filter the sum of bytes transferred by the source address and the destination address
+Overall explanation
+
+Correct option:
+
+Inspect the VPC Flow Logs using the CloudWatch console and select the log group that contains the NAT gateway's ENI and the EC2 instance's ENI. Leverage a query filter with the destination address set as like 205.1 and the source address set as like 198.21.200.1. Execute the stats command to filter the sum of bytes transferred by the source address and the destination address
+
+NAT gateways managed by AWS don't accept traffic initiated from the internet. However, there are two reasons why the information in your VPC flow logs might appear to indicate that inbound traffic is being accepted from the internet.
+
+1: Inbound internet traffic is permitted by your security group or network access control lists (ACL)
+
+VPC flow logs show inbound internet traffic as accepted if the traffic is permitted by your security group or network ACLs. If network ACLs attached to a NAT gateway don’t explicitly deny traffic from the internet, then the traffic to the NAT gateway appears accepted. However, the traffic isn't actually accepted by the NAT gateway and is dropped. You can use just the first two octets in the search filter to analyze all network interfaces in the VPC, like so:
+
+filter (dstAddr like 'xxx.xxx' and srcAddr like 'public IP')
+| stats sum(bytes) as bytesTransferred by srcAddr, dstAddr
+| limit 10
+
+If the query results show traffic on the NAT gateway private IP from the public IP, but not traffic on other private IPs in the VPC. These results confirm that the incoming traffic was unsolicited.
+
+via - https://aws.amazon.com/premiumsupport/knowledge-center/vpc-analyze-inbound-traffic-nat-gateway/
+
+via - https://aws.amazon.com/premiumsupport/knowledge-center/vpc-analyze-inbound-traffic-nat-gateway/
+
+Incorrect options:
+
+Inspect the VPC Flow Logs using the CloudTrail console and select the log group that contains the NAT gateway's ENI and the EC2 instance's ENI. Leverage a query filter with the destination address set as like 205.1 and the source address set as like 198.21.200.1. Execute the stats command to filter the sum of bytes transferred by the source address and the destination address
+
+Inspect the VPC Flow Logs using the CloudTrail console and select the log group that contains the NAT gateway's ENI and the EC2 instance's ENI. Leverage a query filter with the source address set as like 205.1 and the destination address set as like 198.21.200.1. Execute the stats command to filter the sum of bytes transferred by the source address and the destination address
+
+You cannot use the CloudTrail console to analyze the VPC Flow Logs. You need to use the CloudWatch console for this analysis. Therefore both these options are incorrect.
+
+Inspect the VPC Flow Logs using the CloudWatch console and select the log group that contains the NAT gateway's ENI and the EC2 instance's ENI. Leverage a query filter with the source address set as like 205.1 and the destination address set as like 198.21.200.1. Execute the stats command to filter the sum of bytes transferred by the source address and the destination address - For the query filter, you need to use the destination address set as like 205.1 with the source address set as like 198.21.200.1 and NOT vice-versa.
+
+References:
+
+https://docs.aws.amazon.com/vpc/latest/userguide/flow-logs.html
+
+https://aws.amazon.com/premiumsupport/knowledge-center/vpc-analyze-inbound-traffic-nat-gateway/
+Domain
+Design Solutions for Organizational Complexity
+Question 27Skipped
+
+A retail company offers its services to the customers via APIs that leverage Amazon API Gateway and Lambda functions. The company also has a legacy API hosted on an Amazon EC2 instance that is used by the company's supply chain partners. The security and audit team at the company has raised concerns over the use of these APIs and wants a solution to secure them all from any vulnerabilities, DDoS attacks, and malicious exploits.
+
+Which of the following options would you use to address the security requirements of the company?
+Correct answer
+
+Use AWS Web Application Firewall (WAF) as the first line of defense to protect the API Gateway APIs against malicious exploits and DDoS attacks. Install Amazon Inspector on the EC2 instance to check for vulnerabilities. Configure Amazon GuardDuty to monitor any malicious attempts to access the APIs illegally
+
+Use AWS Web Application Firewall (WAF) as the first line of defense to protect the API Gateway APIs against malicious exploits and DDoS attacks. Install Amazon Inspector on the EC2 instance to check for vulnerabilities. Configure Amazon GuardDuty to block any malicious attempts to access the APIs illegally
+
+Configure Amazon CloudFront in front of the APIs to protect against malicious exploits and DDoS attacks. Install Amazon GuardDuty on the EC2 instances to assess any vulnerabilities
+
+Enable AWS Network Firewall on API Gateway as well as the Amazon EC2 instances to check for vulnerabilities and protect against DDoS attacks as well as malicious exploits
+Overall explanation
+
+Correct option:
+
+Use AWS Web Application Firewall (WAF) as the first line of defense to protect the API Gateway APIs against malicious exploits and DDoS attacks. Install Amazon Inspector on the EC2 instance to check for vulnerabilities. Configure Amazon GuardDuty to monitor any malicious attempts to access the APIs illegally
+
+AWS WAF is a web application firewall that helps protect web applications and APIs from attacks. It enables you to configure a set of rules (called a web access control list (web ACL)) that allow, block, or count web requests based on customizable web security rules and conditions that you define. You can protect the following resource types:
+
+    Amazon CloudFront distribution
+    Amazon API Gateway REST API
+    Application Load Balancer
+    AWS AppSync GraphQL API
+    Amazon Cognito user pool
+
+You can use AWS WAF to protect your API Gateway API from common web exploits, such as SQL injection and cross-site scripting (XSS) attacks. These could affect API availability and performance, compromise security, or consume excessive resources. For example, you can create rules to allow or block requests from specified IP address ranges, requests from CIDR blocks, requests that originate from a specific country or region, requests that contain malicious SQL code, or requests that contain malicious scripts.
+
+DDoS attacks are attempts by an attacker to disrupt the availability of targeted systems. For infrastructure layer attacks, you can use AWS services such as Amazon CloudFront and Elastic Load Balancing (ELB) to provide automatic DDoS protection. For application layer attacks, you can use AWS WAF as the primary mitigation. AWS WAF web access control lists (web ACLs) minimize the effects of a DDoS attack at the application layer.
+
+How WAF works:
+via - https://aws.amazon.com/waf/
+
+GuardDuty is an intelligent threat detection service that continuously monitors your AWS accounts, Amazon Elastic Compute Cloud (EC2) instances, Amazon Elastic Kubernetes Service (EKS) clusters, and data stored in Amazon Simple Storage Service (S3) for malicious activity without the use of security software or agents. If potential malicious activity, such as anomalous behavior, credential exfiltration, or command and control infrastructure (C2) communication is detected, GuardDuty generates detailed security findings that can be used for security visibility and assisting in remediation. GuardDuty can monitor reconnaissance activities by an attacker such as unusual API activity, intra-VPC port scanning, unusual patterns of failed login requests, or unblocked port probing from a known bad IP.
+
+How GuardDuty works:
+via - https://aws.amazon.com/guardduty/
+
+Amazon Inspector is an automated vulnerability management service that continually scans Amazon Elastic Compute Cloud (EC2) and container workloads for software vulnerabilities and unintended network exposure.
+
+How Amazon Inspector works:
+via - https://aws.amazon.com/inspector
+
+Incorrect options:
+
+Configure Amazon CloudFront in front of the APIs to protect against malicious exploits and DDoS attacks. Install Amazon GuardDuty on the EC2 instances to assess any vulnerabilities - This statement is incorrect. GuardDuty cannot assess vulnerabilities in the EC2 instances. Amazon Inspector is the automated vulnerability management service that continually scans Amazon Elastic Compute Cloud (EC2) and container workloads for software vulnerabilities and unintended network exposure.
+
+Enable AWS Network Firewall on API Gateway as well as the Amazon EC2 instances to check for vulnerabilities and protect against DDoS attacks as well as malicious exploits - AWS Network Firewall is a managed service that makes it easy to deploy essential network protections for all of your Amazon Virtual Private Clouds (VPCs). AWS Network Firewall works with AWS Firewall Manager to centrally manage security policies and automatically enforce mandatory security policies across existing and newly created accounts and VPCs. This service works at the VPC level and not at the API Gateway or the EC2 instance level.
+
+How AWS Network Firewall works:
+via - https://aws.amazon.com/network-firewall/
+
+Use AWS Web Application Firewall (WAF) as the first line of defense to protect the API Gateway APIs against malicious exploits and DDoS attacks. Install Amazon Inspector on the EC2 instance to check for vulnerabilities. Configure Amazon GuardDuty to block any malicious attempts to access the APIs illegally - GuardDuty cannot block any malicious attempts to access the APIs illegally. Rather, it can only monitor/detect such attempts.
+
+References:
+
+https://aws.amazon.com/guardduty/faqs/
+
+https://aws.amazon.com/premiumsupport/knowledge-center/waf-mitigate-ddos-attacks/
+Domain
+Design for New Solutions
+Question 28Skipped
+
+A bioinformatics company leverages multiple open source tools to manage data analysis workflows running on its on-premises servers to process biological data which is generated and stored on a Network Attached Storage (NAS). The existing workflow receives around 100 GB of input biological data for each job run and individual jobs can take several hours to process the data. The CTO at the company wants to re-architect its proprietary analytics workflow on AWS to meet the workload demands and reduce the turnaround time from months to days. The company has provisioned a high-speed AWS Direct Connect connection. The final result needs to be stored in Amazon S3. The company is expecting approximately 20 job requests each day.
+
+Which of the following options would you recommend for the given use case?
+
+Leverage AWS Data Pipeline to transfer the biological data to Amazon S3. Use S3 events to trigger an Amazon EC2 Auto Scaling group to launch custom-AMI EC2 instances to process the biological data
+
+Leverage AWS Storage Gateway file gateway to transfer the biological data to Amazon S3. Use S3 events to trigger an AWS Lambda function that starts an AWS Step Functions workflow for orchestrating an AWS Batch job that processes the biological data
+Correct answer
+
+Leverage AWS DataSync to transfer the biological data to Amazon S3. Use S3 events to trigger an AWS Lambda function that starts an AWS Step Functions workflow for orchestrating an AWS Batch job that processes the biological data
+
+Leverage AWS Data Pipeline to transfer the biological data to Amazon S3. Use S3 events to trigger an AWS Step Functions workflow for orchestrating an AWS Batch job that processes the biological data
+Overall explanation
+
+Correct option:
+
+Leverage AWS DataSync to transfer the biological data to Amazon S3. Use S3 events to trigger an AWS Lambda function that starts an AWS Step Functions workflow for orchestrating an AWS Batch job that processes the biological data
+
+AWS DataSync is an online data movement and discovery service that simplifies and accelerates data migrations to AWS as well as moving data between on-premises storage, edge locations, other clouds, and AWS Storage. You can use DataSync to migrate active data to AWS, archive data to free up on-premises storage capacity, replicate data to AWS for business continuity, or transfer data to the cloud for analysis and processing.
+
+For data transfer between on-premises and AWS Storage services, a single DataSync task is capable of fully utilizing a 10 Gbps network link. Since each workflow job consumes around 100GB of data and the company sees approximately 20 runs every day, DataSync can easily handle such active data transfer workloads. For the given use case, you can then configure an S3 event to trigger an AWS Lambda function that starts an AWS Step Functions workflow for orchestrating an AWS Batch job that processes the biological data.
+
+via - https://aws.amazon.com/datasync/faqs/
+
+via - https://aws.amazon.com/datasync/faqs/
+
+Incorrect options:
+
+Leverage AWS Data Pipeline to transfer the biological data to Amazon S3. Use S3 events to trigger an AWS Step Functions workflow for orchestrating an AWS Batch job that processes the biological data - You cannot trigger an AWS Step Function directly from an S3 event, so this option is incorrect.
+
+Leverage AWS Data Pipeline to transfer the biological data to Amazon S3. Use S3 events to trigger an Amazon EC2 Auto Scaling group to launch custom-AMI EC2 instances to process the biological data - You cannot trigger an Amazon EC2 Auto Scaling group directly from an S3 event, so this option is incorrect.
+
+Leverage AWS Storage Gateway file gateway to transfer the biological data to Amazon S3. Use S3 events to trigger an AWS Lambda function that starts an AWS Step Functions workflow for orchestrating an AWS Batch job that processes the biological data - You should use AWS DataSync to migrate existing or active data to Amazon S3 and use the File Gateway configuration of AWS Storage Gateway to retain access to the migrated data and for ongoing updates from your on-premises file-based applications. Since the data processing workflow/application is being migrated from on-premises to AWS Cloud, you no longer have any on-premises applications that need to access the processed data from AWS Cloud. So this option is incorrect.
+
+References:
+
+https://aws.amazon.com/datasync/
+
+https://aws.amazon.com/datasync/faqs/
+Domain
+Accelerate Workload Migration and Modernization
+Question 29Skipped
+
+A retail company is introducing multiple business units as part of its expansion plans. To implement this change, the company will be building several new business-unit-specific workloads by leveraging a variety of AWS services. The company wants to track the expenses of each business unit and limit the spending to a pre-defined threshold. In addition, the solution should allow the security team to identify and respond to threats as quickly as possible for all the workloads across the business units. Also, workload accounts may need to be pulled off into a temporary holding area due to resource audit reasons.
+
+Which of the following can be combined to build a solution for the given requirements? (Select three)
+
+Use AWS Organizations to set up a multi-account environment. Organize the accounts into the following Service Control Policies (SCPs): Security, Infrastructure, Workloads, Suspended, and Exceptions. Grant necessary permissions to the accounts by using the SCP guardrails
+
+Configure GuardDuty in all member accounts within the AWS Organizations organization. Create an SNS topic in each account. Subscribe the security team to the topic so that the security team can receive alerts from GuardDuty via SNS
+Correct selection
+
+Designate an account within the AWS Organizations organization to be the GuardDuty delegated administrator. Create an SNS topic in this account. Subscribe the security team to the topic so that the security team can receive alerts from GuardDuty via SNS
+Correct selection
+
+Configure an AWS Budget alert to move an AWS account to Exceptions OU if the account reaches a predefined budget threshold. Use Service Control Policies (SCPs) to limit/block resource usage in the Exceptions OU. Configure a Suspended OU to hold workload accounts with retired resources. Use Service Control Policies (SCPs) to limit/block resource usage in the Suspended OU
+Correct selection
+
+Use AWS Organizations to set up a multi-account environment. Organize the accounts into the following Organizational Units (OUs): Security, Infrastructure, Workloads, Suspended and Exceptions
+
+Configure an AWS Cost Explorer alert to move an AWS account to Exceptions OU if the account reaches a predefined budget threshold. Use Service Control Policies (SCPs) to limit/block resource usage in the Exceptions OU. Configure a Suspended OU to hold workload accounts with retired resources. Use Service Control Policies (SCPs) to limit/block resource usage in the Suspended OU
+Overall explanation
+
+Correct options:
+
+Use AWS Organizations to set up a multi-account environment. Organize the accounts into the following Organizational Units (OUs): Security, Infrastructure, Workloads, Suspended and Exceptions - AWS categorizes the Security OU and the Infrastructure OU as foundational. The foundational OUs contain accounts, workloads, and other AWS resources that provide common security and infrastructure capabilities to secure and support your overall AWS environment.
+
+The Suspended OU is used as a temporary holding area for accounts that are required to have their use suspended either temporarily or permanently.
+
+The Exceptions OU houses an account that requires an exception to the security policies that are applied to your Workloads OU.
+
+AWS recommended OUs and accounts:
+via - https://docs.aws.amazon.com/whitepapers/latest/organizing-your-aws-environment/recommended-ous-and-accounts.html
+
+Configure an AWS Budget alert to move an AWS account to Exceptions OU if the account reaches a predefined budget threshold. Use Service Control Policies (SCPs) to limit/block resource usage in the Exceptions OU. Configure a Suspended OU to hold workload accounts with retired resources. Use Service Control Policies (SCPs) to limit/block resource usage in the Suspended OU - AWS Budgets provides the capability to configure cost-saving controls, or actions, that run either automatically on your behalf or by using a workflow approval process. You can use actions to define an explicit response that you want to take when a budget exceeds its action threshold. You can trigger these alerts on actual or forecasted cost and usage budgets.
+
+For the given scenario, the management account can move the member account to restrictive OU (Exceptions OU) after the budget threshold for the member account is met.
+
+Using AWS Budgets actions to move an AWS account to an OU:
+via - https://aws.amazon.com/blogs/mt/manage-cost-overruns-part-1/
+
+Designate an account within the AWS Organizations organization to be the GuardDuty delegated administrator. Create an SNS topic in this account. Subscribe the security team to the topic so that the security team can receive alerts from GuardDuty via SNS
+
+When you use GuardDuty with an AWS Organizations organization, you can designate any account within the organization to be the GuardDuty delegated administrator. Only the organization management account can designate GuardDuty delegated administrators.
+
+An account that is designated as a delegated administrator becomes a GuardDuty administrator account, has GuardDuty automatically enabled in the designated Region and is granted permission to enable and manage GuardDuty for all accounts in the organization within that Region. The other accounts in the organization can be viewed and added as GuardDuty member accounts associated with the delegated administrator account.
+
+For the given use case, you can set up an SNS topic in this account and then subscribe the security team to the topic so that the security team can receive alerts from GuardDuty.
+
+Incorrect options:
+
+Use AWS Organizations to set up a multi-account environment. Organize the accounts into the following Service Control Policies (SCPs): Security, Infrastructure, Workloads, Suspended, and Exceptions. Grant necessary permissions to the accounts by using the SCP guardrails - Service control policies (SCPs) are a type of organization policy that you can use to manage permissions in your organization. SCPs offer central control over the maximum available permissions for all accounts in your organization. SCPs alone are not sufficient to grant permissions to the accounts in your organization. No permissions are granted by an SCP. You cannot organize AWS accounts into Service Control Policies (SCPs). You organize AWS accounts into Organization Units by using AWS Organizations.
+
+Configure an AWS Cost Explorer alert to move an AWS account to Exceptions OU if the account reaches a predefined budget threshold. Use Service Control Policies (SCPs) to limit/block resource usage in the Exceptions OU. Configure a Suspended OU to hold workload accounts with retired resources. Use Service Control Policies (SCPs) to limit/block resource usage in the Suspended OU - AWS Cost Explorer lets you explore your AWS costs and usage at both a high level and at a detailed level of analysis, empowering you to dive deeper using several filtering dimensions (e.g., AWS Service, Region, Member Account, etc.). It is not possible to define actionable alerts in AWS Cost Explorer.
+
+Configure GuardDuty in all member accounts within the AWS Organizations organization. Create an SNS topic in each account. Subscribe the security team to the topic so that the security team can receive alerts from GuardDuty via SNS - It is inefficient and cumbersome to configure GuardDuty in all member accounts within the AWS Organizations organization. It's better to centrally manage GuardDuty for all AWS accounts by using a GuardDuty delegated administrator account within the AWS Organizations organization.
+
+References:
+
+https://docs.aws.amazon.com/whitepapers/latest/organizing-your-aws-environment/suspended-ou.html
+
+https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_policies_scps.html
+
+https://docs.aws.amazon.com/whitepapers/latest/organizing-your-aws-environment/benefits-of-using-ous.html
+
+https://docs.aws.amazon.com/guardduty/latest/ug/guardduty_organizations.html
+Domain
+Design Solutions for Organizational Complexity
+Question 30Skipped
+
+A company provides a web-based business-management platform for IT service companies across the globe to manage help desk, customer service, sales and marketing, and other critical business functions. More than 50,000 people use the company's platform, so the company must respond quickly to any reported problems. However, the company has issues with not having enough visibility into its systems to discover any issues. Multiple logs and monitoring systems are needed to understand the root cause of problems thereby taking hours to resolve. Even as the company is slowly moving towards serverless architecture using AWS Lambda/Amazon API Gateway/Amazon Elastic Container Service (Amazon ECS), the company wants to monitor the microservices and gain deeper insights into its serverless resources.
+
+Which of the following will you recommend to address the given requirements?
+Correct answer
+
+Use AWS X-Ray to analyze the microservices applications through request tracing. Configure Amazon CloudWatch for monitoring containers, latency, web server requests, and incoming load-balancer requests and create CloudWatch alarms to send out notifications if system latency is increasing
+
+Configure Amazon EventBridge for monitoring containers, latency, web server requests, and incoming load-balancer requests and create alarms to send out notifications if system latency is increasing. Use AWS Config to continually assesses, audit, and evaluate the configurations and relationships of your resources and trigger alarms when needed
+
+Configure Amazon CloudWatch to monitor and analyze all microservices through request tracing. Enable CloudTrail to log all user activity
+
+Use AWS X-Ray to analyze the microservices applications through request tracing. Configure Amazon EventBridge for monitoring containers, latency, web server requests, and incoming load-balancer requests and create alarms to send out notifications if system latency is increasing
+Overall explanation
+
+Correct option:
+
+Use AWS X-Ray to analyze the microservices applications through request tracing. Configure Amazon CloudWatch for monitoring containers, latency, web server requests, and incoming load-balancer requests and create CloudWatch alarms to send out notifications if system latency is increasing
+
+AWS X-Ray helps developers analyze and debug production, and distributed applications, such as those built using a microservices architecture.
+
+Analyze and debug using X-Ray:
+via - https://aws.amazon.com/xray/
+
+AWS X-Ray creates a map of services used by your application with trace data that you can use to drill into specific services or issues. This provides a view of connections between services in your application and aggregated data for each service, including average latency and failure rates.
+
+X-Ray service map:
+via - https://aws.amazon.com/xray/features/
+
+X-Ray Traces:
+via - https://aws.amazon.com/xray/features/
+
+Amazon CloudWatch allows you to collect infrastructure metrics from more than 70 AWS services, such as Amazon Elastic Compute Cloud (Amazon EC2), Amazon DynamoDB, Amazon Simple Storage Service (Amazon S3), Amazon ECS, AWS Lambda, Amazon API Gateway, with no action on your part. For example, Amazon EC2 instances automatically publish CPU utilization, data transfer, and disk usage metrics to help you understand state changes. You can use built-in metrics for API Gateway to detect latency or use built-in metrics for AWS Lambda to detect errors or throttles. Likewise, Amazon CloudWatch also allows you to collect application metrics (such as user activity, error metrics or memory used) from your applications to monitor operational performance, troubleshoot issues, and spot trends.
+
+Amazon CloudWatch for monitoring:
+via - https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/cloudwatch_architecture.html
+
+Incorrect options:
+
+Use AWS X-Ray to analyze the microservices applications through request tracing. Configure Amazon EventBridge for monitoring containers, latency, web server requests, and incoming load-balancer requests and create alarms to send out notifications if system latency is increasing
+
+Configure Amazon EventBridge for monitoring containers, latency, web server requests, and incoming load-balancer requests and create alarms to send out notifications if system latency is increasing. Use AWS Config to continually assesses, audit, and evaluate the configurations and relationships of your resources and trigger alarms when needed
+
+Amazon EventBridge is a serverless event bus service that uses the Amazon CloudWatch Events API, but also includes more functionality, like the ability to ingest events from SaaS apps. EventBridge is designed to extend the event model beyond AWS, bringing data from software-as-a-service (SaaS) providers into your AWS environment. This means you can consume events from popular providers such as Zendesk, PagerDuty, and Auth0. You can use these in your applications with the same ease as any AWS-generated event.
+
+For the given use case, you can use Cloudwatch for monitoring containers, latency, web server requests, and incoming load-balancer requests and create CloudWatch alarms to send out notifications if system latency is increasing. Therefore, both these options are incorrect.
+
+Configure Amazon CloudWatch to monitor and analyze all microservices through request tracing. Enable CloudTrail to log all user activity - X-Ray can be used to monitor and analyze AWS microservices through request tracing, so this option is incorrect.
+
+References:
+
+https://aws.amazon.com/cloudwatch/features/
+
+https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/ContainerInsights.html
+
+https://aws.amazon.com/solutions/case-studies/connectwise/
+Domain
+Design for New Solutions
