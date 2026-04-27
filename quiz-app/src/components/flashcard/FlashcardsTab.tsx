@@ -41,7 +41,6 @@ export const FlashcardsTab = ({ examId, legacyQuestions, shuffleLegacy }: Flashc
   }, [examId]);
 
   const selectedDeck = decks.find(d => d.id === selectedDeckId) ?? null;
-  const deckCards = selectedDeckId ? flashcards.filter(f => f.deckId === selectedDeckId) : [];
 
   // ── Deck CRUD ─────────────────────────────────────────────────────────────
 
