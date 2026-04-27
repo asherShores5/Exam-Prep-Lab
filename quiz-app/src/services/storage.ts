@@ -114,11 +114,21 @@ export const StorageService = {
   // ── Legacy: selected exam ─────────────────────────────────────────────────
 
   getSelectedExam(): string | null {
-    return localStorage.getItem(STORAGE_KEYS.SELECTED_EXAM);
+    try {
+      const raw = localStorage.getItem(STORAGE_KEYS.SELECTED_EXAM);
+      if (raw === null) return null;
+      // Handle both JSON-stringified and plain string values
+      const parsed = JSON.parse(raw);
+      return typeof parsed === 'string' ? parsed : raw;
+    } catch {
+      // If not valid JSON, return the raw value (backward compat)
+      return localStorage.getItem(STORAGE_KEYS.SELECTED_EXAM);
+    }
   },
 
   saveSelectedExam(examId: string): void {
-    writeJson(STORAGE_KEYS.SELECTED_EXAM, examId);
+    // Store as plain string (not JSON-wrapped) for consistency with getSelectedExam
+    localStorage.setItem(STORAGE_KEYS.SELECTED_EXAM, examId);
   },
 
   // ── Exams ─────────────────────────────────────────────────────────────────

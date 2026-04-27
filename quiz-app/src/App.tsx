@@ -261,7 +261,7 @@ const QuizApp = () => {
           <div className="mt-4">
             <TabsContent value="review">
               <ErrorBoundary fallbackTitle="Review Mode Error">
-                <ReviewMode questions={questions} shuffleQuestions={shuffleQuestions} selectedExam={selectedExam} />
+                <ReviewMode questions={questions} shuffleQuestions={shuffleQuestions} />
               </ErrorBoundary>
             </TabsContent>
             <TabsContent value="quiz">

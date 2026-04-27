@@ -41,7 +41,10 @@ export const QuestionSearchPanel = ({
   const addedQuestions = useMemo(() => {
     const map = new Map<string, string[]>();
     flashcards.forEach(f => {
-      const deckName = decks.find(d => d.id === f.deckId)?.name ?? 'Unknown';
+      // Skip legacy/synthetic flashcards that don't belong to user-created decks
+      if (f.deckId.startsWith('legacy-') || f.deckId === '__all_questions__') return;
+      const deckName = decks.find(d => d.id === f.deckId)?.name;
+      if (!deckName) return; // skip if deck not found (orphaned flashcard)
       const existing = map.get(f.front) ?? [];
       existing.push(deckName);
       map.set(f.front, existing);

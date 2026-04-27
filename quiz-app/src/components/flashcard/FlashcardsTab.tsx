@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '../ui/button';
 import { Modal } from '../ui/Modal';
 import { ArrowLeft, PlayCircle, Plus, Trash2 } from 'lucide-react';
@@ -29,9 +29,6 @@ export const FlashcardsTab = ({ examId, legacyQuestions, shuffleLegacy }: Flashc
   const [renameDeckName, setRenameDeckName] = useState('');
   const [pendingDeleteDeckId, setPendingDeleteDeckId] = useState<string | null>(null);
 
-  // Legacy flashcard mastery tracking state
-  const [legacyFlashcards, setLegacyFlashcards] = useState<Flashcard[]>([]);
-
   useEffect(() => {
     const allDecks = StorageService.getDecks().filter(d => d.examIds.includes(examId));
     const allCards = StorageService.getFlashcards();
@@ -41,10 +38,6 @@ export const FlashcardsTab = ({ examId, legacyQuestions, shuffleLegacy }: Flashc
     setDeckView('manage');
     setManageView('decks');
     setShowNewDeckForm(false);
-
-    // Load legacy flashcard records for mastery tracking
-    const legacyDeckId = `legacy-${examId}`;
-    setLegacyFlashcards(allCards.filter(c => c.deckId === legacyDeckId));
   }, [examId]);
 
   const selectedDeck = decks.find(d => d.id === selectedDeckId) ?? null;
@@ -102,83 +95,7 @@ export const FlashcardsTab = ({ examId, legacyQuestions, shuffleLegacy }: Flashc
     setFlashcards(prev => [...prev, card]);
   }
 
-  // ── Legacy flashcard mastery tracking ────────────────────────────────────
-
-  const legacyDeckId = `legacy-${examId}`;
-
-  // Build flashcard map for legacy mastery tracking (question text -> flashcard data)
-  const legacyFlashcardMap = useMemo(() => {
-    const map = new Map<string, { id: string; masteryLevel: number }>();
-    for (const card of legacyFlashcards) {
-      map.set(card.front, { id: card.id, masteryLevel: card.masteryLevel });
-    }
-    return map;
-  }, [legacyFlashcards]);
-
-  /**
-   * Ensure all legacy questions have corresponding Flashcard records in storage.
-   * Called lazily when the legacy fallback is about to render.
-   */
-  function ensureLegacyFlashcards(): void {
-    const existingFronts = new Set(legacyFlashcards.map(c => c.front));
-    const newCards: Flashcard[] = [];
-
-    for (const q of legacyQuestions) {
-      if (existingFronts.has(q.question)) continue;
-      const correctText = q.correctAnswers.map(i => q.options[i]).join(' / ');
-      newCards.push({
-        id: crypto.randomUUID(),
-        deckId: legacyDeckId,
-        front: q.question,
-        back: correctText,
-        masteryLevel: 0,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      });
-    }
-
-    if (newCards.length > 0) {
-      const allCards = StorageService.getFlashcards();
-      const updatedAll = [...allCards, ...newCards];
-      StorageService.saveFlashcards(updatedAll);
-      setFlashcards(updatedAll);
-      setLegacyFlashcards(prev => [...prev, ...newCards]);
-    }
-  }
-
-  // Ensure legacy flashcard records exist when legacy questions are loaded
-  useEffect(() => {
-    if (legacyQuestions.length > 0) {
-      const existingFronts = new Set(legacyFlashcards.map(c => c.front));
-      const needsCreation = legacyQuestions.some(q => !existingFronts.has(q.question));
-      if (needsCreation) {
-        ensureLegacyFlashcards();
-      }
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [legacyQuestions, legacyFlashcards.length]);
-
-  function handleLegacyUpdateMastery(flashcardId: string, known: boolean) {
-    const allCards = StorageService.getFlashcards();
-    const card = allCards.find(c => c.id === flashcardId);
-    if (!card) return;
-
-    const updated = allCards.map(c =>
-      c.id === flashcardId
-        ? {
-            ...c,
-            masteryLevel: known ? c.masteryLevel + 1 : 0,
-            lastReviewedAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-          }
-        : c
-    );
-    StorageService.saveFlashcards(updated);
-    setFlashcards(updated);
-    setLegacyFlashcards(updated.filter(c => c.deckId === legacyDeckId));
-  }
-
-  // Called from FlashcardViewer "Save to Deck" button
+  // ── Convert Flashcard[] → LegacyQuestion[] for FlashcardViewer ───────────
   function handleSaveCardToDeck(question: LegacyQuestion, deckId: string): boolean {
     const alreadyExists = flashcards.some(f => f.front === question.question && f.deckId === deckId);
     if (alreadyExists) return false;
@@ -214,30 +131,24 @@ export const FlashcardsTab = ({ examId, legacyQuestions, shuffleLegacy }: Flashc
   // ── Review view ───────────────────────────────────────────────────────────
 
   if (deckView === 'review' && (selectedDeck || selectedDeckId === ALL_QUESTIONS_DECK_ID)) {
-    // Determine questions and mastery tracking based on virtual vs custom deck
     const isAllQuestionsDeck = selectedDeckId === ALL_QUESTIONS_DECK_ID;
     const sortedCards = isAllQuestionsDeck ? deckCards : sortByDueFirst(deckCards);
     const viewerQuestions = isAllQuestionsDeck ? legacyQuestions : toViewerQuestions(sortedCards);
     const reviewDeckName = isAllQuestionsDeck ? 'All Exam Questions' : selectedDeck!.name;
-    const reviewDeckId = isAllQuestionsDeck ? legacyDeckId : selectedDeck!.id;
+    const reviewDeckId = isAllQuestionsDeck ? 'legacy' : selectedDeck!.id;
 
-    // Build flashcard map for mastery tracking (question text -> flashcard data)
+    // Build flashcard map for mastery tracking — only for custom decks
     const flashcardMap = isAllQuestionsDeck
-      ? legacyFlashcardMap
+      ? undefined
       : new Map<string, { id: string; masteryLevel: number }>(
           sortedCards.map(c => [c.front, { id: c.id, masteryLevel: c.masteryLevel }])
         );
 
     function handleUpdateMastery(flashcardId: string, known: boolean) {
-      if (isAllQuestionsDeck) {
-        handleLegacyUpdateMastery(flashcardId, known);
-        return;
-      }
       const allCards = StorageService.getFlashcards();
       const card = allCards.find(c => c.id === flashcardId);
       if (!card) return;
       
-      // Update mastery: increment if known, reset to 0 if still learning
       const updated = allCards.map(c => 
         c.id === flashcardId 
           ? { 
@@ -271,7 +182,7 @@ export const FlashcardsTab = ({ examId, legacyQuestions, shuffleLegacy }: Flashc
             onSaveCardToDeck={handleSaveCardToDeck}
             onCreateDeck={createDeck}
             flashcardMap={flashcardMap}
-            onUpdateMastery={handleUpdateMastery}
+            onUpdateMastery={isAllQuestionsDeck ? undefined : handleUpdateMastery}
             deckId={reviewDeckId}
           />
         ) : (
@@ -339,18 +250,13 @@ export const FlashcardsTab = ({ examId, legacyQuestions, shuffleLegacy }: Flashc
 
           <ul className="space-y-2" role="list">
             {/* Virtual "All Exam Questions" deck — always shown at the top */}
-            {legacyQuestions.length > 0 && (() => {
-              const allDueCount = legacyFlashcards.filter(f => isDue(f)).length;
-              return (
+            {legacyQuestions.length > 0 && (
               <li className="rounded-lg border border-gray-700 bg-gray-900/40 px-4 py-3">
                 <div className="flex items-center justify-between gap-2">
                   <div>
                     <p className="text-sm font-medium text-gray-200">All Exam Questions</p>
                     <p className="text-xs text-gray-500 mt-0.5">
                       {legacyQuestions.length} card{legacyQuestions.length !== 1 ? 's' : ''}
-                      {allDueCount > 0 && (
-                        <> · <span className="text-xs text-orange-400">{allDueCount} due</span></>
-                      )}
                     </p>
                   </div>
                   <div className="flex items-center gap-1.5 shrink-0">
@@ -367,7 +273,7 @@ export const FlashcardsTab = ({ examId, legacyQuestions, shuffleLegacy }: Flashc
                   </div>
                 </div>
               </li>
-            )})()}
+            )}
 
             {/* Custom decks */}
             {decks.map(deck => {

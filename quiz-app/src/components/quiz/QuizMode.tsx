@@ -29,7 +29,6 @@ export const QuizMode = ({ questions, selectedExam }: QuizModeProps) => {
   const [selectedDomain, setSelectedDomain] = useState<string>('all');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [showReview, setShowReview] = useState(false);
-  const [passingThreshold, setPassingThreshold] = useState(70);
   const [showSaveIncorrect, setShowSaveIncorrect] = useState(false);
   const [saveDeckName, setSaveDeckName] = useState('');
   const [selectedSaveDeckId, setSelectedSaveDeckId] = useState<string>('');
@@ -233,17 +232,6 @@ export const QuizMode = ({ questions, selectedExam }: QuizModeProps) => {
                   </SelectContent>
                 </Select>
               </div>
-              <div>
-                <label className="block text-sm mb-2">Passing Score</label>
-                <Select value={passingThreshold.toString()} onValueChange={(value) => setPassingThreshold(parseInt(value))}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {[50, 60, 70, 80, 90].map(num => (
-                      <SelectItem key={num} value={num.toString()}>{num}%</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
               <Button onClick={startQuiz} className="w-full mt-4" disabled={poolSize < questionCount}>
                 Start Quiz
               </Button>
@@ -258,7 +246,6 @@ export const QuizMode = ({ questions, selectedExam }: QuizModeProps) => {
   if (showResults) {
     const score = calculateScore();
     const percentage = (score / quizQuestions.length) * 100;
-    const passed = percentage >= passingThreshold;
     const incorrectCount = quizQuestions.length - score;
 
     const domainMap = new Map<string, { correct: number; total: number }>();
@@ -340,15 +327,6 @@ export const QuizMode = ({ questions, selectedExam }: QuizModeProps) => {
               <p className="text-lg">
                 Score: {score} / {quizQuestions.length} ({percentage.toFixed(1)}%)
               </p>
-              {passed ? (
-                <span className="px-2 py-1 rounded-full text-xs bg-green-900/30 border border-green-600 text-green-300">
-                  Passed ✓
-                </span>
-              ) : (
-                <span className="px-2 py-1 rounded-full text-xs bg-red-900/30 border border-red-600 text-red-300">
-                  Needs Improvement ({(passingThreshold - percentage).toFixed(1)}% below passing)
-                </span>
-              )}
             </div>
 
             {/* Domain breakdown */}
