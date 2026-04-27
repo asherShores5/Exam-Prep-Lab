@@ -15,7 +15,7 @@
  *  5. After all cards → ReviewSummary screen
  */
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Card, CardContent } from '../ui/card';
 import { Button } from '../ui/button';
 import { Shuffle, RotateCcw, CheckCircle, BookOpen, ListChecks, CreditCard, BookmarkPlus } from 'lucide-react';
@@ -224,6 +224,8 @@ interface FlashcardViewerProps {
   flashcardMap?: Map<string, { id: string; masteryLevel: number }>;
   /** Optional: callback to update mastery when card is rated */
   onUpdateMastery?: (flashcardId: string, known: boolean) => void;
+  /** Optional: deck ID for the current review session (omit for legacy mode) */
+  deckId?: string;
 }
 
 export const FlashcardViewer = ({ 
@@ -234,6 +236,7 @@ export const FlashcardViewer = ({
   onCreateDeck,
   flashcardMap,
   onUpdateMastery,
+  deckId,
 }: FlashcardViewerProps) => {
   const [studyMode, setStudyMode] = useState<StudyMode>('classic');
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -242,18 +245,26 @@ export const FlashcardViewer = ({
   const [stillLearningCount, setStillLearningCount] = useState(0);
   const [sessionComplete, setSessionComplete] = useState(false);
 
+  // Local copy of questions for shuffle support (deck review mode)
+  const [localQuestions, setLocalQuestions] = useState(questions);
+
+  // Sync localQuestions when the questions prop changes
+  useEffect(() => {
+    setLocalQuestions(questions);
+  }, [questions]);
+
   // Save-to-deck state
   const [saveDeckId, setSaveDeckId] = useState('');
   const [newDeckNameForSave, setNewDeckNameForSave] = useState('');
   const [showSavePanel, setShowSavePanel] = useState(false);
   const [saveToast, setSaveToast] = useState<string | null>(null);
 
-  if (!questions.length) return (
+  if (!localQuestions.length) return (
     <div className="py-10 text-center text-gray-500 text-sm">Loading questions…</div>
   );
 
   // ── Current question (safe after the empty guard) ─────────────────────────
-  const question = questions[currentIndex];
+  const question = localQuestions[currentIndex];
   const correctAnswers = question.correctAnswers.map(index => question.options[index]);
 
   // ── Helpers ──────────────────────────────────────────────────────────────
@@ -261,7 +272,7 @@ export const FlashcardViewer = ({
   const saveSession = (known: number, stillLearning: number) => {
     const session = {
       id: crypto.randomUUID(),
-      deckId: 'legacy',
+      deckId: deckId ?? 'legacy',
       totalCards: questions.length,
       knownCount: known,
       stillLearningCount: stillLearning,
@@ -287,7 +298,7 @@ export const FlashcardViewer = ({
       }
     }
 
-    const isLastCard = currentIndex === questions.length - 1;
+    const isLastCard = currentIndex === localQuestions.length - 1;
 
     if (isLastCard) {
       saveSession(newKnown, newStillLearning);
@@ -357,7 +368,7 @@ export const FlashcardViewer = ({
       {/* Header row: progress + mode toggle + shuffle */}
       <div className="flex justify-between items-center">
         <div className="text-sm text-gray-400">
-          Card {currentIndex + 1} of {questions.length}
+          Card {currentIndex + 1} of {localQuestions.length}
         </div>
         <div className="flex items-center gap-2">
           {/* Mode toggle */}
@@ -394,6 +405,7 @@ export const FlashcardViewer = ({
             variant="outline"
             size="sm"
             onClick={() => {
+              setLocalQuestions(shuffleArray([...localQuestions]));
               shuffleQuestions();
               handleStartOver();
             }}

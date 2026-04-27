@@ -276,7 +276,7 @@ const QuizMode = ({ questions, selectedExam }: { questions: LegacyQuestion[], se
   const calculateScore = () => {
     let correct = 0;
     answers.forEach((answer, idx) => {
-      if (JSON.stringify(answer.sort()) === JSON.stringify(quizQuestions[idx].correctAnswers.sort())) {
+      if (JSON.stringify([...answer].sort()) === JSON.stringify([...quizQuestions[idx].correctAnswers].sort())) {
         correct++;
       }
     });
@@ -491,10 +491,16 @@ const QuestionSearchPanel = ({
       .slice(0, 20);
   }, [query, questions]);
 
-  const addedQuestions = useMemo(
-    () => new Set(flashcards.map(f => f.front)),
-    [flashcards]
-  );
+  const addedQuestions = useMemo(() => {
+    const map = new Map<string, string[]>();
+    flashcards.forEach(f => {
+      const deckName = decks.find(d => d.id === f.deckId)?.name ?? 'Unknown';
+      const existing = map.get(f.front) ?? [];
+      existing.push(deckName);
+      map.set(f.front, existing);
+    });
+    return map;
+  }, [flashcards, decks]);
 
   function showToast(msg: string) {
     setAddedToast(msg);
@@ -554,7 +560,10 @@ const QuestionSearchPanel = ({
       {results.length > 0 && (
         <ul className="space-y-2" role="list">
           {results.map(({ question, idx }) => {
-            const alreadyAdded = addedQuestions.has(question.question);
+            const inDecks = addedQuestions.get(question.question) ?? [];
+            const alreadyInTarget = targetDeckId
+              ? flashcards.some(f => f.front === question.question && f.deckId === targetDeckId)
+              : false;
             const isExpanded = showNewDeckFor === idx;
             return (
               <li key={idx} className="rounded-lg border border-gray-700 bg-gray-900/40 px-4 py-3 space-y-2">
@@ -564,34 +573,33 @@ const QuestionSearchPanel = ({
                     {question.domain}
                   </span>
                 )}
-                {alreadyAdded ? (
-                  <p className="text-xs text-green-500">Already in a deck</p>
-                ) : (
-                  <div className="flex flex-wrap items-center gap-2 pt-1">
-                    {decks.length > 0 && (
-                      <div className="flex items-center gap-1.5">
-                        <select
-                          value={targetDeckId}
-                          onChange={e => setTargetDeckId(e.target.value)}
-                          className="text-xs rounded border border-gray-700 bg-gray-800 text-gray-200 px-2 py-1 focus:outline-none focus:border-blue-500"
-                          aria-label="Select deck"
-                        >
-                          <option value="">Pick a deck…</option>
-                          {decks.map(d => (
-                            <option key={d.id} value={d.id}>{d.name}</option>
-                          ))}
-                        </select>
-                        <Button size="sm" disabled={!targetDeckId} onClick={() => addToDeck(question, targetDeckId)} className="text-xs h-7 px-2">
-                          Add
-                        </Button>
-                      </div>
-                    )}
-                    <Button size="sm" variant="outline" className="text-xs h-7 px-2" onClick={() => setShowNewDeckFor(isExpanded ? null : idx)}>
-                      <Plus className="w-3 h-3 mr-1" />
-                      New Deck
-                    </Button>
-                  </div>
+                {inDecks.length > 0 && (
+                  <p className="text-xs text-green-500">In: {inDecks.join(', ')}</p>
                 )}
+                <div className="flex flex-wrap items-center gap-2 pt-1">
+                  {decks.length > 0 && (
+                    <div className="flex items-center gap-1.5">
+                      <select
+                        value={targetDeckId}
+                        onChange={e => setTargetDeckId(e.target.value)}
+                        className="text-xs rounded border border-gray-700 bg-gray-800 text-gray-200 px-2 py-1 focus:outline-none focus:border-blue-500"
+                        aria-label="Select deck"
+                      >
+                        <option value="">Pick a deck…</option>
+                        {decks.map(d => (
+                          <option key={d.id} value={d.id}>{d.name}</option>
+                        ))}
+                      </select>
+                      <Button size="sm" disabled={!targetDeckId || alreadyInTarget} onClick={() => addToDeck(question, targetDeckId)} className="text-xs h-7 px-2">
+                        {alreadyInTarget ? 'Already added' : 'Add'}
+                      </Button>
+                    </div>
+                  )}
+                  <Button size="sm" variant="outline" className="text-xs h-7 px-2" onClick={() => setShowNewDeckFor(isExpanded ? null : idx)}>
+                    <Plus className="w-3 h-3 mr-1" />
+                    New Deck
+                  </Button>
+                </div>
                 {isExpanded && (
                   <div className="flex items-center gap-2 pt-1">
                     <input
@@ -796,6 +804,7 @@ const FlashcardsTab = ({ examId, legacyQuestions, shuffleLegacy }: FlashcardsTab
             onCreateDeck={createDeck}
             flashcardMap={flashcardMap}
             onUpdateMastery={handleUpdateMastery}
+            deckId={selectedDeck.id}
           />
         ) : (
           <div className="py-10 text-center text-gray-500 text-sm">
