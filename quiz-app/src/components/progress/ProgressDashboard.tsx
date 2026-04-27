@@ -5,7 +5,7 @@ import { Modal } from '../ui/Modal';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { StorageService } from '../../services/storage';
 import { computeMasteryPercentage } from '../../services/analyticsHelpers';
-import type { ReviewSession, Deck, Flashcard, ExamAnalytics } from '../../types/index';
+import type { ReviewSession, Deck, ExamAnalytics } from '../../types/index';
 
 interface ProgressDashboardProps {
   selectedExam: string;
