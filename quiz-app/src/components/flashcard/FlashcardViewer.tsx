@@ -15,12 +15,13 @@
  *  5. After all cards → ReviewSummary screen
  */
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { Card, CardContent } from '../ui/card';
 import { Button } from '../ui/button';
 import { Shuffle, RotateCcw, CheckCircle, BookOpen, ListChecks, CreditCard, BookmarkPlus } from 'lucide-react';
 import type { LegacyQuestion, Deck } from '../../types/index';
 import { StorageService } from '../../services/storage';
+import { useSwipe } from '../../hooks/useSwipe';
 
 // ---------------------------------------------------------------------------
 // ReviewSummary sub-component
@@ -252,6 +253,23 @@ export const FlashcardViewer = ({
   useEffect(() => {
     setLocalQuestions(questions);
   }, [questions]);
+
+  // Swipe gesture support for touch navigation
+  const cardContainerRef = useRef<HTMLDivElement>(null);
+  useSwipe(cardContainerRef, {
+    onSwipeLeft: () => {
+      if (currentIndex < localQuestions.length - 1) {
+        setCurrentIndex(i => i + 1);
+        setIsRevealed(false);
+      }
+    },
+    onSwipeRight: () => {
+      if (currentIndex > 0) {
+        setCurrentIndex(i => i - 1);
+        setIsRevealed(false);
+      }
+    },
+  });
 
   // Save-to-deck state
   const [saveDeckId, setSaveDeckId] = useState('');
@@ -500,45 +518,49 @@ export const FlashcardViewer = ({
 
       {/* ── Multiple-choice mode ── */}
       {studyMode === 'multiple-choice' && (
-        <MultipleChoiceCard
-          key={currentIndex}
-          question={question}
-          onResult={(correct) => advanceCard(correct)}
-        />
+        <div ref={cardContainerRef}>
+          <MultipleChoiceCard
+            key={currentIndex}
+            question={question}
+            onResult={(correct) => advanceCard(correct)}
+          />
+        </div>
       )}
 
       {/* ── Classic mode ── */}
       {studyMode === 'classic' && (
         <>
-          <Card className="min-h-64">
-            <CardContent className="pt-6 flex flex-col items-center justify-center min-h-64">
-              {/* Front — always visible */}
-              <p className="text-lg text-center mb-6">{question.question}</p>
+          <div ref={cardContainerRef}>
+            <Card className="min-h-64">
+              <CardContent className="pt-6 flex flex-col items-center justify-center min-h-64">
+                {/* Front — always visible */}
+                <p className="text-lg text-center mb-6">{question.question}</p>
 
-              {/* Back — shown after reveal */}
-              {isRevealed && (
-                <div className="w-full space-y-2 mt-2 border-t border-gray-700 pt-4">
-                  <p className="text-sm text-gray-400 mb-2 text-center">Answer</p>
-                  {correctAnswers.map((answer, idx) => (
-                    <div
-                      key={idx}
-                      className="p-3 rounded-lg border bg-green-900/20 border-green-600 text-sm"
-                    >
-                      {answer}
-                    </div>
-                  ))}
+                {/* Back — shown after reveal */}
+                {isRevealed && (
+                  <div className="w-full space-y-2 mt-2 border-t border-gray-700 pt-4">
+                    <p className="text-sm text-gray-400 mb-2 text-center">Answer</p>
+                    {correctAnswers.map((answer, idx) => (
+                      <div
+                        key={idx}
+                        className="p-3 rounded-lg border bg-green-900/20 border-green-600 text-sm"
+                      >
+                        {answer}
+                      </div>
+                    ))}
 
-                  {/* Explanation */}
-                  {question.explanation && (
-                    <div className="mt-3 p-3 rounded-lg bg-blue-900/20 border border-blue-700/50 text-sm text-blue-200">
-                      <p className="font-semibold text-blue-300 mb-1">Explanation</p>
-                      <p>{question.explanation}</p>
-                    </div>
-                  )}
-                </div>
-              )}
-            </CardContent>
-          </Card>
+                    {/* Explanation */}
+                    {question.explanation && (
+                      <div className="mt-3 p-3 rounded-lg bg-blue-900/20 border border-blue-700/50 text-sm text-blue-200">
+                        <p className="font-semibold text-blue-300 mb-1">Explanation</p>
+                        <p>{question.explanation}</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
 
           {/* Action buttons */}
           {!isRevealed ? (

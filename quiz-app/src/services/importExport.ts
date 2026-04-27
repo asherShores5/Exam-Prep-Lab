@@ -32,7 +32,13 @@ export function exportAllData(): void {
     reviewSessions: StorageService.getReviewSessions(),
   };
 
-  const json = JSON.stringify(exportData, null, 2);
+  // Include legacy quizAnalytics alongside canonical collections
+  const fullExport = {
+    ...exportData,
+    legacyQuizAnalytics: StorageService.getExamAnalytics(),
+  };
+
+  const json = JSON.stringify(fullExport, null, 2);
   const blob = new Blob([json], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
 
@@ -95,6 +101,76 @@ export function validateImportSchema(data: unknown): string[] {
 }
 
 // ---------------------------------------------------------------------------
+// Auto-backup (non-download version for pre-import safety)
+// ---------------------------------------------------------------------------
+
+/**
+ * Creates a backup of all current data and triggers a browser download.
+ * Called automatically before replace-mode imports.
+ */
+function createBackupBlob(): void {
+  const exportData: AppDataExport = {
+    schemaVersion: SCHEMA_VERSION,
+    exportedAt: new Date().toISOString(),
+    exams: StorageService.getExams(),
+    questions: StorageService.getQuestions(),
+    decks: StorageService.getDecks(),
+    flashcards: StorageService.getFlashcards(),
+    quizSessions: StorageService.getQuizSessions(),
+    reviewSessions: StorageService.getReviewSessions(),
+  };
+  const json = JSON.stringify(exportData, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const date = new Date().toISOString().slice(0, 10);
+  const anchor = document.createElement('a');
+  anchor.href = url;
+  anchor.download = `exam-prep-lab-backup-${date}.json`;
+  anchor.style.display = 'none';
+  document.body.appendChild(anchor);
+  anchor.click();
+  document.body.removeChild(anchor);
+  URL.revokeObjectURL(url);
+}
+
+// ---------------------------------------------------------------------------
+// Per-record validation
+// ---------------------------------------------------------------------------
+
+/** Required fields for each collection type */
+const REQUIRED_RECORD_FIELDS: Record<string, string[]> = {
+  exams: ['id', 'name'],
+  questions: ['id', 'examId', 'prompt', 'options', 'correctIndices'],
+  decks: ['id', 'name'],
+  flashcards: ['id', 'deckId', 'front', 'back'],
+  quizSessions: ['id', 'score', 'totalQuestions'],
+  reviewSessions: ['id', 'deckId'],
+};
+
+function validateRecords(
+  records: unknown[],
+  requiredFields: string[],
+  label: string,
+): { valid: unknown[]; errors: string[] } {
+  const valid: unknown[] = [];
+  const errors: string[] = [];
+  records.forEach((record, idx) => {
+    if (record === null || typeof record !== 'object') {
+      errors.push(`${label}[${idx}]: not an object — skipped.`);
+      return;
+    }
+    const obj = record as Record<string, unknown>;
+    const missing = requiredFields.filter(f => !(f in obj));
+    if (missing.length > 0) {
+      errors.push(`${label}[${idx}]: missing fields: ${missing.join(', ')} — skipped.`);
+      return;
+    }
+    valid.push(record);
+  });
+  return { valid, errors };
+}
+
+// ---------------------------------------------------------------------------
 // Import
 // ---------------------------------------------------------------------------
 
@@ -126,21 +202,42 @@ export function importData(
   let imported = 0;
 
   if (mode === 'replace') {
-    // Overwrite every collection wholesale
-    StorageService.saveExams(data.exams);
-    StorageService.saveQuestions(data.questions);
-    StorageService.saveDecks(data.decks);
-    StorageService.saveFlashcards(data.flashcards);
-    StorageService.saveQuizSessions(data.quizSessions);
-    StorageService.saveReviewSessions(data.reviewSessions);
+    // Auto-backup before overwriting
+    createBackupBlob();
+
+    // Validate records before saving
+    const collections: Array<{ key: keyof AppDataExport; label: string }> = [
+      { key: 'exams', label: 'exams' },
+      { key: 'questions', label: 'questions' },
+      { key: 'decks', label: 'decks' },
+      { key: 'flashcards', label: 'flashcards' },
+      { key: 'quizSessions', label: 'quizSessions' },
+      { key: 'reviewSessions', label: 'reviewSessions' },
+    ];
+
+    const validatedData: Record<string, unknown[]> = {};
+    for (const { key, label } of collections) {
+      const reqFields = REQUIRED_RECORD_FIELDS[label] ?? [];
+      const result = validateRecords(data[key] as unknown[], reqFields, label);
+      validatedData[label] = result.valid;
+      errors.push(...result.errors);
+    }
+
+    // Overwrite every collection with validated records
+    StorageService.saveExams(validatedData['exams'] as AppDataExport['exams']);
+    StorageService.saveQuestions(validatedData['questions'] as AppDataExport['questions']);
+    StorageService.saveDecks(validatedData['decks'] as AppDataExport['decks']);
+    StorageService.saveFlashcards(validatedData['flashcards'] as AppDataExport['flashcards']);
+    StorageService.saveQuizSessions(validatedData['quizSessions'] as AppDataExport['quizSessions']);
+    StorageService.saveReviewSessions(validatedData['reviewSessions'] as AppDataExport['reviewSessions']);
 
     imported =
-      data.exams.length +
-      data.questions.length +
-      data.decks.length +
-      data.flashcards.length +
-      data.quizSessions.length +
-      data.reviewSessions.length;
+      (validatedData['exams']?.length ?? 0) +
+      (validatedData['questions']?.length ?? 0) +
+      (validatedData['decks']?.length ?? 0) +
+      (validatedData['flashcards']?.length ?? 0) +
+      (validatedData['quizSessions']?.length ?? 0) +
+      (validatedData['reviewSessions']?.length ?? 0);
   } else {
     // Merge: upsert each item by id, skip items without an id
     const allCollections: Array<{
@@ -191,15 +288,22 @@ export function importData(
       const existing = getter();
       const existingMap = new Map(existing.map(item => [item.id, item]));
 
-      incoming.forEach((item, idx) => {
-        const record = item as { id?: string };
-        if (!record.id || typeof record.id !== 'string') {
-          skipped.push(idx);
-          errors.push(`${label}[${idx}]: missing or invalid "id" field — skipped.`);
-          return;
-        }
-        existingMap.set(record.id, record as { id: string });
+      // Validate records before merging
+      const reqFields = REQUIRED_RECORD_FIELDS[label] ?? [];
+      const { valid, errors: recordErrors } = validateRecords(incoming, reqFields, label);
+      errors.push(...recordErrors);
+
+      valid.forEach((item) => {
+        const record = item as { id: string };
+        existingMap.set(record.id, record);
         imported += 1;
+      });
+
+      // Track skipped indices (records that failed validation)
+      incoming.forEach((item, idx) => {
+        if (!valid.includes(item)) {
+          skipped.push(idx);
+        }
       });
 
       saver(Array.from(existingMap.values()));

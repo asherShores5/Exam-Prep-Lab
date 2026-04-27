@@ -30,6 +30,7 @@ export const STORAGE_KEYS = {
   FLASHCARDS: 'epl_flashcards',
   QUIZ_SESSIONS: 'epl_quiz_sessions',
   REVIEW_SESSIONS: 'epl_review_sessions',
+  QUESTION_TAGS: 'epl_question_tags',
   // Legacy keys kept for backward-compat migration
   QUIZ_ANALYTICS: 'quizAnalytics',
   SELECTED_EXAM: 'selectedExam',
@@ -62,7 +63,8 @@ function readJson<T>(key: string, fallback: T): T {
     const raw = localStorage.getItem(key);
     if (raw === null) return fallback;
     return JSON.parse(raw) as T;
-  } catch {
+  } catch (err) {
+    console.warn(`[StorageService] Malformed JSON for key "${key}":`, err);
     return fallback;
   }
 }
@@ -177,5 +179,25 @@ export const StorageService = {
 
   saveReviewSessions(sessions: ReviewSession[]): void {
     writeJson(STORAGE_KEYS.REVIEW_SESSIONS, sessions);
+  },
+
+  /** Compute current localStorage usage in bytes and as a percentage of estimated 5MB quota. */
+  getStorageUsage(): { bytes: number; percentage: number } {
+    let total = 0;
+    for (const key of Object.values(STORAGE_KEYS)) {
+      const value = localStorage.getItem(key);
+      if (value) total += key.length + value.length;
+    }
+    const bytes = total * 2; // UTF-16 encoding
+    const quota = 5 * 1024 * 1024; // 5MB estimate
+    return { bytes, percentage: (bytes / quota) * 100 };
+  },
+
+  /** Remove all Exam Prep Lab keys from localStorage. */
+  clearAllData(): void {
+    const eplKeys = Object.values(STORAGE_KEYS);
+    for (const key of eplKeys) {
+      localStorage.removeItem(key);
+    }
   },
 } as const;

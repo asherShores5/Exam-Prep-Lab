@@ -5,7 +5,10 @@
 // Legacy types (used by the existing quiz app)
 // ---------------------------------------------------------------------------
 
-/** Question shape used by the existing static JSON exam files */
+/**
+ * Question shape used by the existing static JSON exam files.
+ * @internal — used only at the data-loading boundary in transformLegacy.ts
+ */
 export interface LegacyQuestion {
   question: string;
   options: string[];
@@ -19,6 +22,8 @@ export interface ExamIndex {
   id: string;
   name: string;
   path: string;
+  version?: string;
+  description?: string;
 }
 
 /** Per-domain breakdown stored with each quiz attempt */

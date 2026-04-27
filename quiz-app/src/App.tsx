@@ -1,993 +1,17 @@
-import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from './components/ui/card';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './components/ui/select';
-import { Button } from './components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './components/ui/tabs';
-import { Modal } from './components/ui/Modal';
-import { Shuffle, X, ArrowLeft, PlayCircle, Search, Plus, Trash2 } from 'lucide-react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import type { LegacyQuestion, ExamIndex, QuizResult, QuizResultDomain, ExamAnalytics, Deck, Flashcard } from './types/index';
-import { StorageService, QUOTA_EXCEEDED_EVENT, type QuotaExceededDetail } from './services/storage';
-import { FlashcardViewer } from './components/flashcard/FlashcardViewer';
+import { Button } from './components/ui/button';
+import { X, PlayCircle } from 'lucide-react';
+import type { LegacyQuestion, ExamIndex } from './types/index';
+import { StorageService, STORAGE_KEYS, QUOTA_EXCEEDED_EVENT, type QuotaExceededDetail } from './services/storage';
 import { ImportExportPanel } from './components/management/ImportExportPanel';
 import { ProgressDashboard } from './components/progress/ProgressDashboard';
-
-// ---------------------------------------------------------------------------
-// ReviewMode
-// ---------------------------------------------------------------------------
-
-const ReviewMode = ({ questions, shuffleQuestions }: { questions: LegacyQuestion[], shuffleQuestions: () => void }) => {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [showAnswer, setShowAnswer] = useState(false);
-
-  if (!questions.length) return (
-    <div className="py-10 text-center text-gray-500 text-sm">Loading questions…</div>
-  );
-
-  const question = questions[currentIndex];
-
-  return (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <div className="text-sm text-gray-400">
-          Question {currentIndex + 1} of {questions.length}
-        </div>
-        <Button variant="outline" size="sm" onClick={shuffleQuestions}>
-          <Shuffle className="w-4 h-4 mr-2" />
-          Shuffle
-        </Button>
-      </div>
-
-      <Card>
-        <CardContent className="pt-6">
-          <p className="text-lg mb-4">{question.question}</p>
-          <div className="space-y-2">
-            {question.options.map((option, idx) => (
-              <div
-                key={idx}
-                className={`p-3 rounded-lg border ${
-                  showAnswer
-                    ? question.correctAnswers.includes(idx)
-                      ? 'bg-green-900/20 border-green-600'
-                      : 'border-gray-700'
-                    : 'border-gray-700 hover:border-gray-600'
-                }`}
-              >
-                {option}
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-4 flex justify-between">
-            <Button onClick={() => setCurrentIndex(i => Math.max(0, i - 1))} disabled={currentIndex === 0}>
-              Previous
-            </Button>
-            <Button variant="outline" onClick={() => setShowAnswer(!showAnswer)}>
-              {showAnswer ? 'Hide Answer' : 'Show Answer'}
-            </Button>
-            <Button
-              onClick={() => { setCurrentIndex(i => Math.min(questions.length - 1, i + 1)); setShowAnswer(false); }}
-              disabled={currentIndex === questions.length - 1}
-            >
-              Next
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
-};
-
-// ---------------------------------------------------------------------------
-// AnalyticsDisplay (shown below quiz settings)
-// ---------------------------------------------------------------------------
-
-const AnalyticsDisplay = ({ examId }: { examId: string }) => {
-  const [analytics, setAnalytics] = useState<ExamAnalytics[string] | null>(null);
-
-  useEffect(() => {
-    const allAnalytics = StorageService.getExamAnalytics();
-    setAnalytics(allAnalytics[examId] || null);
-  }, [examId]);
-
-  if (!analytics || analytics.results.length === 0) {
-    return (
-      <Card className="mt-4">
-        <CardContent className="pt-6">
-          <p className="text-center text-gray-400">No quiz attempts yet. Take a quiz to see your progress!</p>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}m ${secs}s`;
-  };
-
-  const chartData = analytics.results.map((result, index) => ({
-    attempt: index + 1,
-    score: result.percentage,
-    time: result.timeSpent / 60,
-  }));
-
-  return (
-    <div className="space-y-4 mt-4">
-      <Card>
-        <CardHeader>
-          <CardTitle>Quiz Performance Overview</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
-            <div className="p-4 rounded-lg bg-gray-800/50">
-              <div className="text-sm text-gray-400">Average Score</div>
-              <div className="text-2xl font-semibold">{analytics.averageScore.toFixed(1)}%</div>
-            </div>
-            <div className="p-4 rounded-lg bg-gray-800/50">
-              <div className="text-sm text-gray-400">Best Score</div>
-              <div className="text-2xl font-semibold">{analytics.bestScore.toFixed(1)}%</div>
-            </div>
-            <div className="p-4 rounded-lg bg-gray-800/50">
-              <div className="text-sm text-gray-400">Total Attempts</div>
-              <div className="text-2xl font-semibold">{analytics.totalAttempts}</div>
-            </div>
-          </div>
-
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                <XAxis dataKey="attempt" label={{ value: 'Attempt', position: 'insideBottom', offset: -10 }} />
-                <YAxis label={{ value: 'Score (%)', angle: -90, position: 'insideLeft' }} />
-                <Tooltip
-                  contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151' }}
-                  formatter={(value: number) => [`${value.toFixed(1)}%`, 'Score']}
-                />
-                <Line type="monotone" dataKey="score" stroke="#3b82f6" strokeWidth={2} dot={{ fill: '#3b82f6' }} />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-
-          <div className="mt-6">
-            <h4 className="font-semibold mb-2">Recent Attempts</h4>
-            <div className="space-y-2">
-              {analytics.results.slice(-3).reverse().map((result, idx) => (
-                <div key={idx} className="flex justify-between items-center p-3 rounded-lg bg-gray-800/30">
-                  <div>
-                    <div className="font-medium">{result.score}/{result.totalQuestions}</div>
-                    <div className="text-sm text-gray-400">{new Date(result.date).toLocaleDateString()}</div>
-                  </div>
-                  <div className="text-right">
-                    <div className="font-medium">{result.percentage.toFixed(1)}%</div>
-                    <div className="text-sm text-gray-400">{formatTime(result.timeSpent)}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
-};
-
-// ---------------------------------------------------------------------------
-// QuizMode
-// ---------------------------------------------------------------------------
-
-const QuizMode = ({ questions, selectedExam }: { questions: LegacyQuestion[], selectedExam: string }) => {
-  const [answers, setAnswers] = useState<number[][]>([]);
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [showResults, setShowResults] = useState(false);
-  const [quizStarted, setQuizStarted] = useState(false);
-  const [timeLimit, setTimeLimit] = useState(30);
-  const [questionCount, setQuestionCount] = useState(10);
-  const [timeRemaining, setTimeRemaining] = useState(0);
-  const [quizQuestions, setQuizQuestions] = useState<LegacyQuestion[]>([]);
-  const [shouldSaveResult, setShouldSaveResult] = useState(false);
-  const [selectedDomain, setSelectedDomain] = useState<string>('all');
-
-  const availableDomains = Array.from(
-    new Set(questions.map(q => q.domain).filter((d): d is string => !!d))
-  ).sort();
-
-  useEffect(() => {
-    if (quizStarted && timeRemaining > 0) {
-      const timer = setInterval(() => {
-        setTimeRemaining(time => {
-          if (time <= 1) {
-            setShowResults(true);
-            setShouldSaveResult(true);
-            return 0;
-          }
-          return time - 1;
-        });
-      }, 1000);
-      return () => clearInterval(timer);
-    }
-  }, [quizStarted, timeRemaining]);
-
-  useEffect(() => {
-    if (shouldSaveResult && showResults && selectedExam) {
-      const score = calculateScore();
-      const timeSpent = timeLimit * 60 - timeRemaining;
-
-      // Build per-domain breakdown to persist with this result
-      const domainMap = new Map<string, { correct: number; total: number }>();
-      quizQuestions.forEach((q, idx) => {
-        if (!q.domain) return;
-        const entry = domainMap.get(q.domain) ?? { correct: 0, total: 0 };
-        entry.total += 1;
-        const isCorrect = JSON.stringify((answers[idx] ?? []).sort()) === JSON.stringify([...q.correctAnswers].sort());
-        if (isCorrect) entry.correct += 1;
-        domainMap.set(q.domain, entry);
-      });
-      const domains: QuizResultDomain[] = Array.from(domainMap.entries()).map(([domain, d]) => ({
-        domain,
-        correct: d.correct,
-        total: d.total,
-      }));
-
-      const result: QuizResult = {
-        date: new Date().toISOString(),
-        score,
-        totalQuestions: quizQuestions.length,
-        timeSpent,
-        percentage: (score / quizQuestions.length) * 100,
-        ...(domains.length > 0 ? { domains } : {}),
-      };
-
-      const allAnalytics = StorageService.getExamAnalytics();
-      const examAnalytics = allAnalytics[selectedExam] || {
-        results: [],
-        averageScore: 0,
-        bestScore: 0,
-        totalAttempts: 0,
-        averageTime: 0,
-      };
-
-      examAnalytics.results.push(result);
-      examAnalytics.totalAttempts += 1;
-      const scores = examAnalytics.results.map(r => r.percentage);
-      examAnalytics.averageScore = scores.reduce((a, b) => a + b, 0) / scores.length;
-      examAnalytics.bestScore = Math.max(...scores);
-      examAnalytics.averageTime = examAnalytics.results.reduce((a, b) => a + b.timeSpent, 0) / examAnalytics.results.length;
-
-      allAnalytics[selectedExam] = examAnalytics;
-      StorageService.saveExamAnalytics(allAnalytics);
-      setShouldSaveResult(false);
-    }
-  }, [shouldSaveResult, showResults, selectedExam, quizQuestions, timeLimit, timeRemaining]);
-
-  const startQuiz = () => {
-    const pool = selectedDomain === 'all'
-      ? questions
-      : questions.filter(q => q.domain === selectedDomain);
-    const shuffled = [...pool].sort(() => Math.random() - 0.5);
-    setQuizQuestions(shuffled.slice(0, questionCount));
-    setTimeRemaining(timeLimit * 60);
-    setAnswers(Array(questionCount).fill([]));
-    setCurrentIndex(0);
-    setQuizStarted(true);
-    setShouldSaveResult(false);
-  };
-
-  const calculateScore = () => {
-    let correct = 0;
-    answers.forEach((answer, idx) => {
-      if (JSON.stringify([...answer].sort()) === JSON.stringify([...quizQuestions[idx].correctAnswers].sort())) {
-        correct++;
-      }
-    });
-    return correct;
-  };
-
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-  };
-
-  const toggleAnswer = (idx: number) => {
-    setAnswers(prev => {
-      const newAnswers = [...prev];
-      const currentAnswers = new Set(newAnswers[currentIndex]);
-      if (currentAnswers.has(idx)) currentAnswers.delete(idx);
-      else currentAnswers.add(idx);
-      newAnswers[currentIndex] = Array.from(currentAnswers);
-      return newAnswers;
-    });
-  };
-
-  if (!quizStarted) {
-    const poolSize = selectedDomain === 'all'
-      ? questions.length
-      : questions.filter(q => q.domain === selectedDomain).length;
-
-    return (
-      <div className="space-y-4">
-        <Card>
-          <CardContent className="pt-6">
-            <h2 className="text-xl mb-6">Quiz Settings</h2>
-            <div className="space-y-4">
-              {availableDomains.length > 0 && (
-                <div>
-                  <label className="block text-sm mb-2">Domain Filter</label>
-                  <Select value={selectedDomain} onValueChange={setSelectedDomain}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Domains</SelectItem>
-                      {availableDomains.map(domain => (
-                        <SelectItem key={domain} value={domain}>{domain}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
-              <div>
-                <label className="block text-sm mb-2">Number of Questions</label>
-                <Select value={questionCount.toString()} onValueChange={(value) => setQuestionCount(parseInt(value))}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {[10, 20, 30, 40, 50].map(num => (
-                      <SelectItem key={num} value={num.toString()}>{num} Questions</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <label className="block text-sm mb-2">Time Limit (minutes)</label>
-                <Select value={timeLimit.toString()} onValueChange={(value) => setTimeLimit(parseInt(value))}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {[15, 30, 45, 60, 90].map(num => (
-                      <SelectItem key={num} value={num.toString()}>{num} Minutes</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <Button onClick={startQuiz} className="w-full mt-4" disabled={poolSize < questionCount}>
-                Start Quiz
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-        <AnalyticsDisplay examId={selectedExam} />
-      </div>
-    );
-  }
-
-  if (showResults) {
-    const score = calculateScore();
-    const domainMap = new Map<string, { correct: number; total: number }>();
-    quizQuestions.forEach((q, idx) => {
-      const domainKey = q.domain || 'Uncategorized';
-      const entry = domainMap.get(domainKey) ?? { correct: 0, total: 0 };
-      entry.total += 1;
-      const isCorrect = JSON.stringify((answers[idx] ?? []).sort()) === JSON.stringify([...q.correctAnswers].sort());
-      if (isCorrect) entry.correct += 1;
-      domainMap.set(domainKey, entry);
-    });
-    const hasDomainData = quizQuestions.some(q => !!q.domain);
-    const domainEntries = Array.from(domainMap.entries()).sort(([a], [b]) => a.localeCompare(b));
-
-    return (
-      <Card>
-        <CardContent className="pt-6">
-          <h2 className="text-2xl mb-4">Quiz Results</h2>
-          <div className="space-y-4">
-            <p className="text-lg">
-              Score: {score} / {quizQuestions.length} ({((score / quizQuestions.length) * 100).toFixed(1)}%)
-            </p>
-            {hasDomainData && (
-              <div>
-                <h3 className="text-base font-semibold mb-2">Domain Breakdown</h3>
-                <div className="space-y-2">
-                  {domainEntries.map(([domain, { correct, total }]) => (
-                    <div key={domain} className="flex justify-between items-center p-3 rounded-lg bg-gray-800/30">
-                      <span className="text-sm font-medium">{domain}</span>
-                      <span className="text-sm text-gray-300">
-                        {correct} / {total} correct ({((correct / total) * 100).toFixed(0)}%)
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-            <Button onClick={() => { setQuizStarted(false); setShowResults(false); }} className="w-full">
-              New Quiz
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  if (!quizQuestions.length) return <div className="py-10 text-center text-gray-500 text-sm">Loading questions…</div>;
-
-  const question = quizQuestions[currentIndex];
-
-  return (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center text-sm text-gray-400">
-        <div>Question {currentIndex + 1} of {quizQuestions.length}</div>
-        <div>Time Remaining: {formatTime(timeRemaining)}</div>
-      </div>
-      <Card>
-        <CardContent className="pt-6">
-          <p className="text-lg mb-4">{question.question}</p>
-          <div className="space-y-2">
-            {question.options.map((option, idx) => (
-              <div
-                key={idx}
-                onClick={() => toggleAnswer(idx)}
-                className={`p-3 rounded-lg border cursor-pointer ${
-                  answers[currentIndex]?.includes(idx)
-                    ? 'bg-blue-900/20 border-blue-600'
-                    : 'border-gray-700 hover:border-gray-600'
-                }`}
-              >
-                {option}
-              </div>
-            ))}
-          </div>
-          <div className="mt-4 flex justify-between">
-            <Button onClick={() => setCurrentIndex(i => Math.max(0, i - 1))} disabled={currentIndex === 0}>
-              Previous
-            </Button>
-            {currentIndex === quizQuestions.length - 1 ? (
-              <Button onClick={() => { setShowResults(true); setShouldSaveResult(true); }}>
-                Finish Quiz
-              </Button>
-            ) : (
-              <Button onClick={() => setCurrentIndex(i => Math.min(quizQuestions.length - 1, i + 1))}>
-                Next
-              </Button>
-            )}
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
-};
-
-// ---------------------------------------------------------------------------
-// QuestionSearchPanel — fuzzy search through exam bank to add cards to a deck
-// ---------------------------------------------------------------------------
-
-interface QuestionSearchPanelProps {
-  examId: string;
-  questions: LegacyQuestion[];
-  decks: Deck[];
-  flashcards: Flashcard[];
-  onCardAdded: (card: Flashcard) => void;
-  onCreateDeck: (name: string) => Deck;
-}
-
-const QuestionSearchPanel = ({
-  examId: _examId,
-  questions,
-  decks,
-  flashcards,
-  onCardAdded,
-  onCreateDeck,
-}: QuestionSearchPanelProps) => {
-  const [query, setQuery] = useState('');
-  const [addedToast, setAddedToast] = useState<string | null>(null);
-  const [newDeckName, setNewDeckName] = useState('');
-  const [showNewDeckFor, setShowNewDeckFor] = useState<number | null>(null);
-  const [targetDeckId, setTargetDeckId] = useState<string>('');
-
-  const results = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return [];
-    const words = q.split(/\s+/);
-    return questions
-      .map((question, idx) => ({ question, idx }))
-      .filter(({ question }) =>
-        words.every(w => question.question.toLowerCase().includes(w))
-      )
-      .slice(0, 20);
-  }, [query, questions]);
-
-  const addedQuestions = useMemo(() => {
-    const map = new Map<string, string[]>();
-    flashcards.forEach(f => {
-      const deckName = decks.find(d => d.id === f.deckId)?.name ?? 'Unknown';
-      const existing = map.get(f.front) ?? [];
-      existing.push(deckName);
-      map.set(f.front, existing);
-    });
-    return map;
-  }, [flashcards, decks]);
-
-  function showToast(msg: string) {
-    setAddedToast(msg);
-    setTimeout(() => setAddedToast(null), 2500);
-  }
-
-  function addToDeck(question: LegacyQuestion, deckId: string) {
-    const deck = decks.find(d => d.id === deckId);
-    if (!deck) return;
-    const correctText = question.correctAnswers.map(i => question.options[i]).join(' / ');
-    const card: Flashcard = {
-      id: crypto.randomUUID(),
-      deckId,
-      front: question.question,
-      back: correctText,
-      masteryLevel: 0,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-    onCardAdded(card);
-    showToast(`Added to "${deck.name}"`);
-  }
-
-  function handleCreateDeckAndAdd(question: LegacyQuestion) {
-    const name = newDeckName.trim();
-    if (!name) return;
-    const deck = onCreateDeck(name);
-    setNewDeckName('');
-    setShowNewDeckFor(null);
-    addToDeck(question, deck.id);
-  }
-
-  return (
-    <div className="space-y-3">
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" aria-hidden="true" />
-        <input
-          type="search"
-          value={query}
-          onChange={e => setQuery(e.target.value)}
-          placeholder="Search exam questions to add to a deck…"
-          className="w-full pl-9 pr-4 py-2 rounded-lg border border-gray-700 bg-gray-900 text-sm text-gray-100 placeholder-gray-500 focus:outline-none focus:border-blue-500"
-          aria-label="Search exam questions"
-        />
-      </div>
-
-      {addedToast && (
-        <div role="status" aria-live="polite" className="px-3 py-2 rounded-lg bg-green-900/30 border border-green-700 text-green-200 text-xs text-center">
-          {addedToast}
-        </div>
-      )}
-
-      {query.trim() && results.length === 0 && (
-        <p className="text-sm text-gray-500 text-center py-4">No questions match your search.</p>
-      )}
-
-      {results.length > 0 && (
-        <ul className="space-y-2" role="list">
-          {results.map(({ question, idx }) => {
-            const inDecks = addedQuestions.get(question.question) ?? [];
-            const alreadyInTarget = targetDeckId
-              ? flashcards.some(f => f.front === question.question && f.deckId === targetDeckId)
-              : false;
-            const isExpanded = showNewDeckFor === idx;
-            return (
-              <li key={idx} className="rounded-lg border border-gray-700 bg-gray-900/40 px-4 py-3 space-y-2">
-                <p className="text-sm text-gray-200 leading-snug">{question.question}</p>
-                {question.domain && (
-                  <span className="inline-block text-xs text-gray-500 bg-gray-800 rounded px-2 py-0.5">
-                    {question.domain}
-                  </span>
-                )}
-                {inDecks.length > 0 && (
-                  <p className="text-xs text-green-500">In: {inDecks.join(', ')}</p>
-                )}
-                <div className="flex flex-wrap items-center gap-2 pt-1">
-                  {decks.length > 0 && (
-                    <div className="flex items-center gap-1.5">
-                      <select
-                        value={targetDeckId}
-                        onChange={e => setTargetDeckId(e.target.value)}
-                        className="text-xs rounded border border-gray-700 bg-gray-800 text-gray-200 px-2 py-1 focus:outline-none focus:border-blue-500"
-                        aria-label="Select deck"
-                      >
-                        <option value="">Pick a deck…</option>
-                        {decks.map(d => (
-                          <option key={d.id} value={d.id}>{d.name}</option>
-                        ))}
-                      </select>
-                      <Button size="sm" disabled={!targetDeckId || alreadyInTarget} onClick={() => addToDeck(question, targetDeckId)} className="text-xs h-7 px-2">
-                        {alreadyInTarget ? 'Already added' : 'Add'}
-                      </Button>
-                    </div>
-                  )}
-                  <Button size="sm" variant="outline" className="text-xs h-7 px-2" onClick={() => setShowNewDeckFor(isExpanded ? null : idx)}>
-                    <Plus className="w-3 h-3 mr-1" />
-                    New Deck
-                  </Button>
-                </div>
-                {isExpanded && (
-                  <div className="flex items-center gap-2 pt-1">
-                    <input
-                      type="text"
-                      value={newDeckName}
-                      onChange={e => setNewDeckName(e.target.value)}
-                      onKeyDown={e => { if (e.key === 'Enter') handleCreateDeckAndAdd(question); }}
-                      placeholder="Deck name…"
-                      className="flex-1 text-xs rounded border border-gray-700 bg-gray-800 text-gray-200 px-2 py-1 focus:outline-none focus:border-blue-500"
-                      autoFocus
-                      aria-label="New deck name"
-                    />
-                    <Button size="sm" disabled={!newDeckName.trim()} onClick={() => handleCreateDeckAndAdd(question)} className="text-xs h-7 px-2">
-                      Create & Add
-                    </Button>
-                  </div>
-                )}
-              </li>
-            );
-          })}
-        </ul>
-      )}
-
-      {!query.trim() && (
-        <p className="text-xs text-gray-600 text-center py-2">
-          Type to search through {questions.length} questions in this exam.
-        </p>
-      )}
-    </div>
-  );
-};
-
-// ---------------------------------------------------------------------------
-// FlashcardsTab — deck management + review sub-views
-// ---------------------------------------------------------------------------
-
-interface FlashcardsTabProps {
-  examId: string;
-  legacyQuestions: LegacyQuestion[];
-  shuffleLegacy: () => void;
-}
-
-const FlashcardsTab = ({ examId, legacyQuestions, shuffleLegacy }: FlashcardsTabProps) => {
-  const [decks, setDecks] = useState<Deck[]>([]);
-  const [flashcards, setFlashcards] = useState<Flashcard[]>([]);
-  const [selectedDeckId, setSelectedDeckId] = useState<string | null>(null);
-  const [deckView, setDeckView] = useState<'manage' | 'review'>('manage');
-  const [manageView, setManageView] = useState<'decks' | 'search'>('decks');
-
-  const [showNewDeckForm, setShowNewDeckForm] = useState(false);
-  const [newDeckName, setNewDeckName] = useState('');
-  const [renamingDeckId, setRenamingDeckId] = useState<string | null>(null);
-  const [renameDeckName, setRenameDeckName] = useState('');
-  const [pendingDeleteDeckId, setPendingDeleteDeckId] = useState<string | null>(null);
-
-  useEffect(() => {
-    const allDecks = StorageService.getDecks().filter(d => d.examIds.includes(examId));
-    const allCards = StorageService.getFlashcards();
-    setDecks(allDecks);
-    setFlashcards(allCards);
-    setSelectedDeckId(null);
-    setDeckView('manage');
-    setManageView('decks');
-    setShowNewDeckForm(false);
-  }, [examId]);
-
-  const selectedDeck = decks.find(d => d.id === selectedDeckId) ?? null;
-  const deckCards = selectedDeckId ? flashcards.filter(f => f.deckId === selectedDeckId) : [];
-
-  // ── Deck CRUD ─────────────────────────────────────────────────────────────
-
-  function createDeck(name: string): Deck {
-    const deck: Deck = {
-      id: crypto.randomUUID(),
-      name,
-      examIds: [examId],
-      createdAt: new Date().toISOString(),
-    };
-    const allDecks = StorageService.getDecks();
-    StorageService.saveDecks([...allDecks, deck]);
-    setDecks(prev => [...prev, deck]);
-    return deck;
-  }
-
-  function handleCreateDeck() {
-    const name = newDeckName.trim();
-    if (!name) return;
-    createDeck(name);
-    setNewDeckName('');
-    setShowNewDeckForm(false);
-  }
-
-  function handleRenameDeck(deckId: string) {
-    const name = renameDeckName.trim();
-    if (!name) return;
-    const allDecks = StorageService.getDecks();
-    const updated = allDecks.map(d => d.id === deckId ? { ...d, name } : d);
-    StorageService.saveDecks(updated);
-    setDecks(updated.filter(d => d.examIds.includes(examId)));
-    setRenamingDeckId(null);
-  }
-
-  function handleDeleteDeck(deckId: string) {
-    const allDecks = StorageService.getDecks().filter(d => d.id !== deckId);
-    const allCards = StorageService.getFlashcards().filter(f => f.deckId !== deckId);
-    StorageService.saveDecks(allDecks);
-    StorageService.saveFlashcards(allCards);
-    setDecks(allDecks.filter(d => d.examIds.includes(examId)));
-    setFlashcards(allCards);
-    if (selectedDeckId === deckId) { setSelectedDeckId(null); setDeckView('manage'); }
-    setPendingDeleteDeckId(null);
-  }
-
-  // ── Card CRUD ─────────────────────────────────────────────────────────────
-
-  function handleCardAdded(card: Flashcard) {
-    const allCards = StorageService.getFlashcards();
-    StorageService.saveFlashcards([...allCards, card]);
-    setFlashcards(prev => [...prev, card]);
-  }
-
-  // Called from FlashcardViewer "Save to Deck" button
-  function handleSaveCardToDeck(question: LegacyQuestion, deckId: string): boolean {
-    const alreadyExists = flashcards.some(f => f.front === question.question && f.deckId === deckId);
-    if (alreadyExists) return false;
-    const correctText = question.correctAnswers.map(i => question.options[i]).join(' / ');
-    const card: Flashcard = {
-      id: crypto.randomUUID(),
-      deckId,
-      front: question.question,
-      back: correctText,
-      masteryLevel: 0,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-    handleCardAdded(card);
-    return true;
-  }
-
-  // ── Convert Flashcard[] → LegacyQuestion[] for FlashcardViewer ───────────
-  function toViewerQuestions(cards: Flashcard[]): LegacyQuestion[] {
-    const bankMap = new Map(legacyQuestions.map(q => [q.question, q]));
-    return cards.map(c => {
-      const bankQ = bankMap.get(c.front);
-      return {
-        question: c.front,
-        options: bankQ ? bankQ.options : [c.back],
-        correctAnswers: bankQ ? bankQ.correctAnswers : [0],
-        explanation: bankQ?.explanation ?? '',
-        domain: bankQ?.domain,
-      };
-    });
-  }
-
-  // ── Review view ───────────────────────────────────────────────────────────
-
-  if (deckView === 'review' && selectedDeck) {
-    const viewerQuestions = toViewerQuestions(deckCards);
-    
-    // Build flashcard map for mastery tracking (question text -> flashcard data)
-    const flashcardMap = new Map(
-      deckCards.map(c => [c.front, { id: c.id, masteryLevel: c.masteryLevel }])
-    );
-
-    function handleUpdateMastery(flashcardId: string, known: boolean) {
-      const allCards = StorageService.getFlashcards();
-      const card = allCards.find(c => c.id === flashcardId);
-      if (!card) return;
-      
-      // Update mastery: increment if known, reset to 0 if still learning
-      const updated = allCards.map(c => 
-        c.id === flashcardId 
-          ? { 
-              ...c, 
-              masteryLevel: known ? c.masteryLevel + 1 : 0,
-              lastReviewedAt: new Date().toISOString(),
-              updatedAt: new Date().toISOString(),
-            }
-          : c
-      );
-      StorageService.saveFlashcards(updated);
-      setFlashcards(updated);
-    }
-
-    return (
-      <div className="space-y-4">
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={() => setDeckView('manage')} aria-label="Back to deck management">
-            <ArrowLeft className="w-4 h-4 mr-1" aria-hidden="true" />
-            Back
-          </Button>
-          <span className="text-sm text-gray-400">
-            Reviewing: <strong className="text-gray-200">{selectedDeck.name}</strong>
-          </span>
-        </div>
-        {viewerQuestions.length > 0 ? (
-          <FlashcardViewer
-            questions={viewerQuestions}
-            shuffleQuestions={() => {}}
-            decks={decks}
-            onSaveCardToDeck={handleSaveCardToDeck}
-            onCreateDeck={createDeck}
-            flashcardMap={flashcardMap}
-            onUpdateMastery={handleUpdateMastery}
-            deckId={selectedDeck.id}
-          />
-        ) : (
-          <div className="py-10 text-center text-gray-500 text-sm">
-            This deck has no cards yet. Use "Add from Exam Bank" to populate it.
-          </div>
-        )}
-      </div>
-    );
-  }
-
-  // ── Manage view ───────────────────────────────────────────────────────────
-
-  const manageNavBtn = (view: 'decks' | 'search', label: string) => (
-    <button
-      onClick={() => setManageView(view)}
-      className={`px-3 py-1.5 text-sm rounded-md transition-colors ${
-        manageView === view ? 'bg-gray-700 text-gray-100' : 'text-gray-400 hover:text-gray-200'
-      }`}
-    >
-      {label}
-    </button>
-  );
-
-  return (
-    <div className="space-y-4">
-      {/* Sub-nav */}
-      <div className="flex items-center gap-1 border-b border-gray-800 pb-2">
-        {manageNavBtn('decks', 'My Decks')}
-        {manageNavBtn('search', 'Add from Exam Bank')}
-      </div>
-
-      {/* ── Decks view ── */}
-      {manageView === 'decks' && (
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-400">{decks.length} deck{decks.length !== 1 ? 's' : ''}</span>
-            {!showNewDeckForm && (
-              <Button size="sm" onClick={() => setShowNewDeckForm(true)}>
-                <Plus className="w-3.5 h-3.5 mr-1" aria-hidden="true" />
-                New Deck
-              </Button>
-            )}
-          </div>
-
-          {showNewDeckForm && (
-            <div className="flex items-center gap-2">
-              <input
-                type="text"
-                value={newDeckName}
-                onChange={e => setNewDeckName(e.target.value)}
-                onKeyDown={e => {
-                  if (e.key === 'Enter') handleCreateDeck();
-                  if (e.key === 'Escape') { setShowNewDeckForm(false); setNewDeckName(''); }
-                }}
-                placeholder="Deck name…"
-                className="flex-1 text-sm rounded border border-gray-700 bg-gray-800 text-gray-200 px-3 py-1.5 focus:outline-none focus:border-blue-500"
-                autoFocus
-                aria-label="New deck name"
-              />
-              <Button size="sm" disabled={!newDeckName.trim()} onClick={handleCreateDeck}>Create</Button>
-              <Button size="sm" variant="outline" onClick={() => { setShowNewDeckForm(false); setNewDeckName(''); }}>Cancel</Button>
-            </div>
-          )}
-
-          {decks.length === 0 && !showNewDeckForm && (
-            <div className="py-8 text-center text-gray-500 text-sm space-y-2">
-              <p>No decks yet.</p>
-              <p className="text-xs">Create a deck, then use "Add from Exam Bank" to populate it with questions.</p>
-            </div>
-          )}
-
-          <ul className="space-y-2" role="list">
-            {decks.map(deck => {
-              const count = flashcards.filter(f => f.deckId === deck.id).length;
-              const isRenaming = renamingDeckId === deck.id;
-              return (
-                <li key={deck.id} className="rounded-lg border border-gray-700 bg-gray-900/40 px-4 py-3">
-                  {isRenaming ? (
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="text"
-                        value={renameDeckName}
-                        onChange={e => setRenameDeckName(e.target.value)}
-                        onKeyDown={e => {
-                          if (e.key === 'Enter') handleRenameDeck(deck.id);
-                          if (e.key === 'Escape') setRenamingDeckId(null);
-                        }}
-                        className="flex-1 text-sm rounded border border-gray-700 bg-gray-800 text-gray-200 px-2 py-1 focus:outline-none focus:border-blue-500"
-                        autoFocus
-                        aria-label="Rename deck"
-                      />
-                      <Button size="sm" disabled={!renameDeckName.trim()} onClick={() => handleRenameDeck(deck.id)} className="text-xs h-7 px-2">Save</Button>
-                      <Button size="sm" variant="outline" onClick={() => setRenamingDeckId(null)} className="text-xs h-7 px-2">Cancel</Button>
-                    </div>
-                  ) : (
-                    <div className="flex items-center justify-between gap-2">
-                      <div>
-                        <p className="text-sm font-medium text-gray-200">{deck.name}</p>
-                        <p className="text-xs text-gray-500 mt-0.5">{count} card{count !== 1 ? 's' : ''}</p>
-                      </div>
-                      <div className="flex items-center gap-1.5 shrink-0">
-                        {count > 0 && (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => { setSelectedDeckId(deck.id); setDeckView('review'); }}
-                            className="text-xs h-7 px-2"
-                            aria-label={`Start review for ${deck.name}`}
-                          >
-                            <PlayCircle className="w-3.5 h-3.5 mr-1" aria-hidden="true" />
-                            Review
-                          </Button>
-                        )}
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => { setRenamingDeckId(deck.id); setRenameDeckName(deck.name); }}
-                          className="text-xs h-7 px-2 text-gray-400 hover:text-gray-200"
-                          aria-label={`Rename ${deck.name}`}
-                        >
-                          Rename
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => setPendingDeleteDeckId(deck.id)}
-                          className="text-xs h-7 px-2 text-red-400 hover:text-red-300 hover:bg-red-900/20"
-                          aria-label={`Delete ${deck.name}`}
-                        >
-                          <Trash2 className="w-3.5 h-3.5" aria-hidden="true" />
-                        </Button>
-                      </div>
-                    </div>
-                  )}
-                </li>
-              );
-            })}
-          </ul>
-
-          {/* Legacy fallback: no decks yet, show all exam questions as flashcards */}
-          {decks.length === 0 && legacyQuestions.length > 0 && (
-            <div className="pt-2 border-t border-gray-800">
-              <p className="text-xs text-gray-500 mb-3 text-center">
-                No custom decks yet — showing all exam questions as flashcards.
-              </p>
-              <FlashcardViewer
-                questions={legacyQuestions}
-                shuffleQuestions={shuffleLegacy}
-                decks={[]}
-                onSaveCardToDeck={() => false}
-                onCreateDeck={createDeck}
-              />
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* ── Add from Exam Bank view ── */}
-      {manageView === 'search' && (
-        <QuestionSearchPanel
-          examId={examId}
-          questions={legacyQuestions}
-          decks={decks}
-          flashcards={flashcards}
-          onCardAdded={handleCardAdded}
-          onCreateDeck={createDeck}
-        />
-      )}
-
-      {/* Deck delete confirmation */}
-      <Modal
-        isOpen={pendingDeleteDeckId !== null}
-        title="Delete Deck"
-        message="Delete this deck and all its cards? This cannot be undone."
-        confirmLabel="Delete"
-        cancelLabel="Cancel"
-        variant="danger"
-        onConfirm={() => pendingDeleteDeckId && handleDeleteDeck(pendingDeleteDeckId)}
-        onCancel={() => setPendingDeleteDeckId(null)}
-      />
-    </div>
-  );
-};
+import { ReviewMode } from './components/review/ReviewMode';
+import { QuizMode } from './components/quiz/QuizMode';
+import { FlashcardsTab } from './components/flashcard/FlashcardsTab';
+import { ErrorBoundary } from './components/ui/ErrorBoundary';
+import { validateExamQuestions } from './services/validateExam';
 
 // ---------------------------------------------------------------------------
 // QuizApp — root component
@@ -1009,7 +33,9 @@ const QuizApp = () => {
   const [examIndex, setExamIndex] = useState<ExamIndex[]>([]);
   const [selectedExam, setSelectedExam] = useState<string>('');
   const [questions, setQuestions] = useState<LegacyQuestion[]>([]);
+  const [skippedCount, setSkippedCount] = useState(0);
   const [storageWarning, setStorageWarning] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   const [activeTab, setActiveTab] = useState<TabValue>('review');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -1025,6 +51,14 @@ const QuizApp = () => {
     return () => window.removeEventListener(QUOTA_EXCEEDED_EVENT, handleQuotaExceeded);
   }, [handleQuotaExceeded]);
 
+  // Check storage usage on mount and warn if >80%
+  useEffect(() => {
+    const usage = StorageService.getStorageUsage();
+    if (usage.percentage > 80) {
+      setStorageWarning(`Storage is ${usage.percentage.toFixed(0)}% full. Export your data to avoid losing progress.`);
+    }
+  }, []);
+
   useEffect(() => {
     if (!mobileMenuOpen) return;
     const handleClickOutside = (e: MouseEvent) => {
@@ -1036,13 +70,52 @@ const QuizApp = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [mobileMenuOpen]);
 
-  useEffect(() => {
-    const savedExam = StorageService.getSelectedExam();
-    if (savedExam) setSelectedExam(savedExam);
+  const fetchExamIndex = useCallback(() => {
     fetch('/exams/index.json')
-      .then(res => res.json())
-      .then(setExamIndex)
-      .catch(console.error);
+      .then(res => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      })
+      .then((data) => {
+        setExamIndex(data);
+        setLoadError(null);
+      })
+      .catch((err) => {
+        console.error(err);
+        setLoadError(`Failed to load exam list. ${err instanceof Error ? err.message : ''}`);
+      });
+  }, []);
+
+  useEffect(() => {
+    fetchExamIndex();
+  }, [fetchExamIndex]);
+
+  useEffect(() => {
+    if (examIndex.length === 0) return;
+    const savedExam = StorageService.getSelectedExam();
+    if (savedExam && examIndex.some(e => e.id === savedExam)) {
+      setSelectedExam(savedExam);
+    } else if (savedExam) {
+      localStorage.removeItem(STORAGE_KEYS.SELECTED_EXAM);
+    }
+  }, [examIndex]);
+
+  const fetchExamQuestions = useCallback((exam: ExamIndex) => {
+    fetch(exam.path)
+      .then(res => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      })
+      .then((data) => {
+        const { valid, skipped } = validateExamQuestions(data, exam.id);
+        setQuestions(valid);
+        setSkippedCount(skipped);
+        setLoadError(null);
+      })
+      .catch((err) => {
+        console.error(err);
+        setLoadError(`Failed to load exam questions. ${err instanceof Error ? err.message : ''}`);
+      });
   }, []);
 
   useEffect(() => {
@@ -1050,13 +123,10 @@ const QuizApp = () => {
       StorageService.saveSelectedExam(selectedExam);
       const exam = examIndex.find(e => e.id === selectedExam);
       if (exam) {
-        fetch(exam.path)
-          .then(res => res.json())
-          .then(setQuestions)
-          .catch(console.error);
+        fetchExamQuestions(exam);
       }
     }
-  }, [selectedExam, examIndex]);
+  }, [selectedExam, examIndex, fetchExamQuestions]);
 
   const shuffleQuestions = () => {
     setQuestions(questions => [...questions].sort(() => Math.random() - 0.5));
@@ -1080,6 +150,31 @@ const QuizApp = () => {
         </div>
       )}
 
+      {loadError && (
+        <div
+          role="alert"
+          className="flex items-center justify-between mb-4 px-4 py-3 rounded-lg bg-red-900/40 border border-red-600 text-red-200 text-sm"
+        >
+          <span>{loadError}</span>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              setLoadError(null);
+              if (examIndex.length === 0) {
+                fetchExamIndex();
+              } else if (selectedExam) {
+                const exam = examIndex.find(e => e.id === selectedExam);
+                if (exam) fetchExamQuestions(exam);
+              }
+            }}
+            className="ml-4 shrink-0"
+          >
+            Retry
+          </Button>
+        </div>
+      )}
+
       <div className="mb-4">
         <label className="block text-sm font-medium text-gray-300 mb-1.5">
           Select an exam to get started
@@ -1090,10 +185,17 @@ const QuizApp = () => {
           </SelectTrigger>
           <SelectContent>
             {examIndex.map(exam => (
-              <SelectItem key={exam.id} value={exam.id}>{exam.name}</SelectItem>
+              <SelectItem key={exam.id} value={exam.id}>
+                {exam.name}{exam.description ? ` — ${exam.description}` : ''}
+              </SelectItem>
             ))}
           </SelectContent>
         </Select>
+        {skippedCount > 0 && (
+          <p className="text-xs text-yellow-400 mt-1">
+            Loaded {questions.length} questions ({skippedCount} skipped due to missing data)
+          </p>
+        )}
       </div>
 
       {!selectedExam && (
@@ -1158,23 +260,33 @@ const QuizApp = () => {
 
           <div className="mt-4">
             <TabsContent value="review">
-              <ReviewMode questions={questions} shuffleQuestions={shuffleQuestions} />
+              <ErrorBoundary fallbackTitle="Review Mode Error">
+                <ReviewMode questions={questions} shuffleQuestions={shuffleQuestions} selectedExam={selectedExam} />
+              </ErrorBoundary>
             </TabsContent>
             <TabsContent value="quiz">
-              <QuizMode questions={questions} selectedExam={selectedExam} />
+              <ErrorBoundary fallbackTitle="Quiz Mode Error">
+                <QuizMode questions={questions} selectedExam={selectedExam} />
+              </ErrorBoundary>
             </TabsContent>
             <TabsContent value="flashcards">
-              <FlashcardsTab
-                examId={selectedExam}
-                legacyQuestions={questions}
-                shuffleLegacy={shuffleQuestions}
-              />
+              <ErrorBoundary fallbackTitle="Flashcards Error">
+                <FlashcardsTab
+                  examId={selectedExam}
+                  legacyQuestions={questions}
+                  shuffleLegacy={shuffleQuestions}
+                />
+              </ErrorBoundary>
             </TabsContent>
             <TabsContent value="data">
-              <ImportExportPanel />
+              <ErrorBoundary fallbackTitle="Data Management Error">
+                <ImportExportPanel />
+              </ErrorBoundary>
             </TabsContent>
             <TabsContent value="progress">
-              <ProgressDashboard selectedExam={selectedExam} />
+              <ErrorBoundary fallbackTitle="Progress Dashboard Error">
+                <ProgressDashboard selectedExam={selectedExam} />
+              </ErrorBoundary>
             </TabsContent>
           </div>
         </Tabs>

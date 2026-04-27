@@ -2,8 +2,10 @@ import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
 import { Modal } from '../ui/Modal';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { StorageService } from '../../services/storage';
-import type { ReviewSession, Deck, ExamAnalytics } from '../../types/index';
+import { computeMasteryPercentage } from '../../services/analyticsHelpers';
+import type { ReviewSession, Deck, Flashcard, ExamAnalytics } from '../../types/index';
 
 interface ProgressDashboardProps {
   selectedExam: string;
@@ -14,6 +16,8 @@ export function ProgressDashboard({ selectedExam }: ProgressDashboardProps) {
   const [decks, setDecks] = useState<Deck[]>([]);
   const [analytics, setAnalytics] = useState<ExamAnalytics[string] | null>(null);
   const [showClearModal, setShowClearModal] = useState(false);
+  const [masteryPct, setMasteryPct] = useState(0);
+  const [totalReviewed, setTotalReviewed] = useState(0);
 
   const loadData = useCallback(() => {
     // Load all decks associated with this exam
@@ -33,6 +37,12 @@ export function ProgressDashboard({ selectedExam }: ProgressDashboardProps) {
     // Load legacy quiz analytics
     const allAnalytics = StorageService.getExamAnalytics();
     setAnalytics(allAnalytics[selectedExam] ?? null);
+
+    // Load flashcards for this exam's decks and compute mastery
+    const allCards = StorageService.getFlashcards();
+    const examFlashcards = allCards.filter(c => examDeckIds.has(c.deckId));
+    setMasteryPct(computeMasteryPercentage(examFlashcards));
+    setTotalReviewed(examFlashcards.filter(c => c.lastReviewedAt !== undefined).length);
   }, [selectedExam]);
 
   useEffect(() => {
@@ -259,6 +269,101 @@ export function ProgressDashboard({ selectedExam }: ProgressDashboardProps) {
     );
   };
 
+  // ── Score Trends chart section ──────────────────────────────────────────
+
+  const renderScoreTrends = () => {
+    if (!analytics || analytics.results.length < 2) {
+      return null;
+    }
+
+    const recent = analytics.results.slice(-20);
+    const chartData = recent.map((result, index) => ({
+      attempt: index + 1,
+      score: result.percentage,
+    }));
+
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Score Trends</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={chartData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                <XAxis
+                  dataKey="attempt"
+                  label={{ value: 'Attempt', position: 'insideBottom', offset: -10 }}
+                />
+                <YAxis
+                  label={{ value: 'Score (%)', angle: -90, position: 'insideLeft' }}
+                  domain={[0, 100]}
+                />
+                <Tooltip
+                  contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151' }}
+                  formatter={(value: number) => [`${value.toFixed(1)}%`, 'Score']}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="score"
+                  stroke="#3b82f6"
+                  strokeWidth={2}
+                  dot={{ fill: '#3b82f6' }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  };
+
+  // ── Flashcard Mastery section ─────────────────────────────────────────────
+
+  const renderFlashcardMastery = () => {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Flashcard Mastery</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-3">
+              <div className="p-3 rounded-lg bg-gray-800/50 text-center">
+                <div className="text-xs text-gray-400 mb-1">Cards Reviewed</div>
+                <div className="text-lg font-semibold">{totalReviewed}</div>
+              </div>
+              <div className="p-3 rounded-lg bg-gray-800/50 text-center">
+                <div className="text-xs text-gray-400 mb-1">Mastery</div>
+                <div className="text-lg font-semibold">{masteryPct.toFixed(1)}%</div>
+              </div>
+            </div>
+            <div className="space-y-1">
+              <div className="flex justify-between items-center text-sm">
+                <span className="font-medium text-gray-200">Overall Mastery</span>
+                <span className="text-gray-400">{masteryPct.toFixed(1)}%</span>
+              </div>
+              <div className="w-full bg-gray-700 rounded-full h-2">
+                <div
+                  className={`h-2 rounded-full transition-all ${
+                    masteryPct >= 80 ? 'bg-green-500' : masteryPct >= 50 ? 'bg-yellow-500' : 'bg-red-500'
+                  }`}
+                  style={{ width: `${masteryPct}%` }}
+                  role="progressbar"
+                  aria-valuenow={masteryPct}
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                  aria-label={`Overall mastery: ${masteryPct.toFixed(1)}%`}
+                />
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  };
+
   // ── Render ────────────────────────────────────────────────────────────────
 
   return (
@@ -270,6 +375,9 @@ export function ProgressDashboard({ selectedExam }: ProgressDashboardProps) {
         </CardHeader>
         <CardContent>{renderQuizHistory()}</CardContent>
       </Card>
+
+      {/* Score Trends (between Quiz History and Review Session History, shown when ≥2 attempts) */}
+      {renderScoreTrends()}
 
       {/* Review Session History */}
       <Card>
@@ -286,6 +394,9 @@ export function ProgressDashboard({ selectedExam }: ProgressDashboardProps) {
         </CardHeader>
         <CardContent>{renderDomainAccuracy()}</CardContent>
       </Card>
+
+      {/* Flashcard Mastery (after Domain Accuracy) */}
+      {renderFlashcardMastery()}
 
       {/* Clear Progress */}
       <Card>
