@@ -95,7 +95,64 @@ export const FlashcardsTab = ({ examId, legacyQuestions, shuffleLegacy }: Flashc
     setFlashcards(prev => [...prev, card]);
   }
 
-  // ── Convert Flashcard[] → LegacyQuestion[] for FlashcardViewer ───────────
+  // ── Auto-decks: "Known" and "Still Learning" ──────────────────────────────
+
+  const KNOWN_DECK_PREFIX = '__known__';
+  const LEARNING_DECK_PREFIX = '__learning__';
+  const knownDeckId = `${KNOWN_DECK_PREFIX}${examId}`;
+  const learningDeckId = `${LEARNING_DECK_PREFIX}${examId}`;
+
+  function getOrCreateAutoDeck(id: string, name: string): Deck {
+    const allDecks = StorageService.getDecks();
+    let deck = allDecks.find(d => d.id === id);
+    if (!deck) {
+      deck = { id, name, examIds: [examId], createdAt: new Date().toISOString() };
+      StorageService.saveDecks([...allDecks, deck]);
+      setDecks(prev => [...prev, deck!]);
+    }
+    return deck;
+  }
+
+  function handleCardRated(question: LegacyQuestion, known: boolean) {
+    const targetDeckId = known ? knownDeckId : learningDeckId;
+    const otherDeckId = known ? learningDeckId : knownDeckId;
+    const targetName = known ? '✓ Known' : '📖 Still Learning';
+
+    getOrCreateAutoDeck(targetDeckId, targetName);
+
+    const allCards = StorageService.getFlashcards();
+
+    // Remove from the other auto-deck if present
+    const filtered = allCards.filter(
+      c => !(c.front === question.question && c.deckId === otherDeckId)
+    );
+
+    // Check if already in target deck
+    const alreadyInTarget = filtered.some(
+      c => c.front === question.question && c.deckId === targetDeckId
+    );
+
+    let updatedCards = filtered;
+    if (!alreadyInTarget) {
+      const correctText = question.correctAnswers.map(i => question.options[i]).join(' / ');
+      const newCard: Flashcard = {
+        id: crypto.randomUUID(),
+        deckId: targetDeckId,
+        front: question.question,
+        back: correctText,
+        masteryLevel: known ? 1 : 0,
+        lastReviewedAt: new Date().toISOString(),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      updatedCards = [...filtered, newCard];
+    }
+
+    StorageService.saveFlashcards(updatedCards);
+    setFlashcards(updatedCards);
+  }
+
+  // ── Save card to deck ─────────────────────────────────────────────────────
   function handleSaveCardToDeck(question: LegacyQuestion, deckId: string): boolean {
     const alreadyExists = flashcards.some(f => f.front === question.question && f.deckId === deckId);
     if (alreadyExists) return false;
@@ -130,14 +187,19 @@ export const FlashcardsTab = ({ examId, legacyQuestions, shuffleLegacy }: Flashc
 
   // ── Review view ───────────────────────────────────────────────────────────
 
-  if (deckView === 'review' && (selectedDeck || selectedDeckId === ALL_QUESTIONS_DECK_ID)) {
+  if (deckView === 'review' && (selectedDeck || selectedDeckId === ALL_QUESTIONS_DECK_ID || selectedDeckId === knownDeckId || selectedDeckId === learningDeckId)) {
     const isAllQuestionsDeck = selectedDeckId === ALL_QUESTIONS_DECK_ID;
-    const sortedCards = isAllQuestionsDeck ? deckCards : sortByDueFirst(deckCards);
+    const isAutoDeck = selectedDeckId === knownDeckId || selectedDeckId === learningDeckId;
+    const reviewCards = isAllQuestionsDeck ? [] : flashcards.filter(f => f.deckId === selectedDeckId);
+    const sortedCards = isAutoDeck ? reviewCards : sortByDueFirst(reviewCards);
     const viewerQuestions = isAllQuestionsDeck ? legacyQuestions : toViewerQuestions(sortedCards);
-    const reviewDeckName = isAllQuestionsDeck ? 'All Exam Questions' : selectedDeck!.name;
-    const reviewDeckId = isAllQuestionsDeck ? 'legacy' : selectedDeck!.id;
+    const reviewDeckName = isAllQuestionsDeck ? 'All Exam Questions'
+      : selectedDeckId === knownDeckId ? '✓ Known'
+      : selectedDeckId === learningDeckId ? '📖 Still Learning'
+      : selectedDeck!.name;
+    const reviewDeckId = isAllQuestionsDeck ? 'legacy' : selectedDeckId!;
 
-    // Build flashcard map for mastery tracking — only for custom decks
+    // Build flashcard map for mastery tracking — for custom and auto decks
     const flashcardMap = isAllQuestionsDeck
       ? undefined
       : new Map<string, { id: string; masteryLevel: number }>(
@@ -184,6 +246,7 @@ export const FlashcardsTab = ({ examId, legacyQuestions, shuffleLegacy }: Flashc
             flashcardMap={flashcardMap}
             onUpdateMastery={isAllQuestionsDeck ? undefined : handleUpdateMastery}
             deckId={reviewDeckId}
+            onCardRated={handleCardRated}
           />
         ) : (
           <div className="py-10 text-center text-gray-500 text-sm">
@@ -275,8 +338,41 @@ export const FlashcardsTab = ({ examId, legacyQuestions, shuffleLegacy }: Flashc
               </li>
             )}
 
+            {/* Auto-decks: Known and Still Learning */}
+            {[
+              { id: knownDeckId, name: '✓ Known', color: 'text-green-400' },
+              { id: learningDeckId, name: '📖 Still Learning', color: 'text-yellow-400' },
+            ].map(autoDeck => {
+              const count = flashcards.filter(f => f.deckId === autoDeck.id).length;
+              if (count === 0) return null;
+              return (
+                <li key={autoDeck.id} className="rounded-lg border border-gray-700 bg-gray-900/40 px-4 py-3">
+                  <div className="flex items-center justify-between gap-2">
+                    <div>
+                      <p className={`text-sm font-medium ${autoDeck.color}`}>{autoDeck.name}</p>
+                      <p className="text-xs text-gray-500 mt-0.5">
+                        {count} card{count !== 1 ? 's' : ''}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => { setSelectedDeckId(autoDeck.id); setDeckView('review'); }}
+                        className="text-xs h-7 px-2"
+                        aria-label={`Start review for ${autoDeck.name}`}
+                      >
+                        <PlayCircle className="w-3.5 h-3.5 mr-1" aria-hidden="true" />
+                        Review
+                      </Button>
+                    </div>
+                  </div>
+                </li>
+              );
+            })}
+
             {/* Custom decks */}
-            {decks.map(deck => {
+            {decks.filter(d => d.id !== knownDeckId && d.id !== learningDeckId).map(deck => {
               const count = flashcards.filter(f => f.deckId === deck.id).length;
               const dueCount = flashcards.filter(f => f.deckId === deck.id && isDue(f)).length;
               const isRenaming = renamingDeckId === deck.id;

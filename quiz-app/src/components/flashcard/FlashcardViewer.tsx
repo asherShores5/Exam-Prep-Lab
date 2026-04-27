@@ -227,6 +227,8 @@ interface FlashcardViewerProps {
   onUpdateMastery?: (flashcardId: string, known: boolean) => void;
   /** Optional: deck ID for the current review session (omit for legacy mode) */
   deckId?: string;
+  /** Optional: callback fired when a card is rated Known or Still Learning */
+  onCardRated?: (question: LegacyQuestion, known: boolean) => void;
 }
 
 export const FlashcardViewer = ({ 
@@ -238,6 +240,7 @@ export const FlashcardViewer = ({
   flashcardMap,
   onUpdateMastery,
   deckId,
+  onCardRated,
 }: FlashcardViewerProps) => {
   const [studyMode, setStudyMode] = useState<StudyMode>('classic');
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -315,6 +318,9 @@ export const FlashcardViewer = ({
         onUpdateMastery(flashcardData.id, known);
       }
     }
+
+    // Notify parent about the card rating (for Known/Still Learning deck sorting)
+    onCardRated?.(question, known);
 
     const isLastCard = currentIndex === localQuestions.length - 1;
 
