@@ -56,6 +56,8 @@ export function FlashcardForm({ deckId, flashcard, onSave, onCancel }: Flashcard
       deckId,
       front: front.trim(),
       back: back.trim(),
+      masteryLevel: flashcard?.masteryLevel ?? 0,
+      lastReviewedAt: flashcard?.lastReviewedAt,
       createdAt: flashcard?.createdAt ?? now,
       updatedAt: now,
     };
