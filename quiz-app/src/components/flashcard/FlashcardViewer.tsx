@@ -18,8 +18,8 @@
 import { useState, useMemo } from 'react';
 import { Card, CardContent } from '../ui/card';
 import { Button } from '../ui/button';
-import { Shuffle, RotateCcw, CheckCircle, BookOpen, ListChecks, CreditCard } from 'lucide-react';
-import type { LegacyQuestion } from '../../types/index';
+import { Shuffle, RotateCcw, CheckCircle, BookOpen, ListChecks, CreditCard, BookmarkPlus } from 'lucide-react';
+import type { LegacyQuestion, Deck } from '../../types/index';
 import { StorageService } from '../../services/storage';
 
 // ---------------------------------------------------------------------------
@@ -214,9 +214,27 @@ type StudyMode = 'classic' | 'multiple-choice';
 interface FlashcardViewerProps {
   questions: LegacyQuestion[];
   shuffleQuestions: () => void;
+  /** Available decks to save a card into (from FlashcardsTab) */
+  decks: Deck[];
+  /** Returns true if saved, false if already exists */
+  onSaveCardToDeck: (question: LegacyQuestion, deckId: string) => boolean;
+  /** Create a new deck and return it */
+  onCreateDeck: (name: string) => Deck;
+  /** Optional: flashcard IDs mapped to their data (for mastery tracking) */
+  flashcardMap?: Map<string, { id: string; masteryLevel: number }>;
+  /** Optional: callback to update mastery when card is rated */
+  onUpdateMastery?: (flashcardId: string, known: boolean) => void;
 }
 
-export const FlashcardViewer = ({ questions, shuffleQuestions }: FlashcardViewerProps) => {
+export const FlashcardViewer = ({ 
+  questions, 
+  shuffleQuestions, 
+  decks, 
+  onSaveCardToDeck, 
+  onCreateDeck,
+  flashcardMap,
+  onUpdateMastery,
+}: FlashcardViewerProps) => {
   const [studyMode, setStudyMode] = useState<StudyMode>('classic');
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isRevealed, setIsRevealed] = useState(false);
@@ -224,9 +242,19 @@ export const FlashcardViewer = ({ questions, shuffleQuestions }: FlashcardViewer
   const [stillLearningCount, setStillLearningCount] = useState(0);
   const [sessionComplete, setSessionComplete] = useState(false);
 
+  // Save-to-deck state
+  const [saveDeckId, setSaveDeckId] = useState('');
+  const [newDeckNameForSave, setNewDeckNameForSave] = useState('');
+  const [showSavePanel, setShowSavePanel] = useState(false);
+  const [saveToast, setSaveToast] = useState<string | null>(null);
+
   if (!questions.length) return (
     <div className="py-10 text-center text-gray-500 text-sm">Loading questions…</div>
   );
+
+  // ── Current question (safe after the empty guard) ─────────────────────────
+  const question = questions[currentIndex];
+  const correctAnswers = question.correctAnswers.map(index => question.options[index]);
 
   // ── Helpers ──────────────────────────────────────────────────────────────
 
@@ -251,6 +279,14 @@ export const FlashcardViewer = ({ questions, shuffleQuestions }: FlashcardViewer
     if (known) setKnownCount(newKnown);
     else setStillLearningCount(newStillLearning);
 
+    // Update mastery if this is a deck-based review
+    if (flashcardMap && onUpdateMastery) {
+      const flashcardData = flashcardMap.get(question.question);
+      if (flashcardData) {
+        onUpdateMastery(flashcardData.id, known);
+      }
+    }
+
     const isLastCard = currentIndex === questions.length - 1;
 
     if (isLastCard) {
@@ -268,12 +304,38 @@ export const FlashcardViewer = ({ questions, shuffleQuestions }: FlashcardViewer
     setKnownCount(0);
     setStillLearningCount(0);
     setSessionComplete(false);
+    setShowSavePanel(false);
+    setSaveToast(null);
   };
 
   const handleModeChange = (mode: StudyMode) => {
     setStudyMode(mode);
     handleStartOver();
   };
+
+  // ── Save-to-deck helpers ──────────────────────────────────────────────────
+
+  function showToast(msg: string) {
+    setSaveToast(msg);
+    setTimeout(() => setSaveToast(null), 2500);
+  }
+
+  function handleSaveToDeck() {
+    if (!saveDeckId) return;
+    const saved = onSaveCardToDeck(question, saveDeckId);
+    showToast(saved ? 'Saved to deck!' : 'Already in that deck');
+    setShowSavePanel(false);
+  }
+
+  function handleCreateDeckAndSave() {
+    const name = newDeckNameForSave.trim();
+    if (!name) return;
+    const deck = onCreateDeck(name);
+    setNewDeckNameForSave('');
+    const saved = onSaveCardToDeck(question, deck.id);
+    showToast(saved ? `Saved to new deck "${deck.name}"` : 'Already in that deck');
+    setShowSavePanel(false);
+  }
 
   // ── Session complete screen ───────────────────────────────────────────────
 
@@ -289,9 +351,6 @@ export const FlashcardViewer = ({ questions, shuffleQuestions }: FlashcardViewer
   }
 
   // ── Active session ────────────────────────────────────────────────────────
-
-  const question = questions[currentIndex];
-  const correctAnswers = question.correctAnswers.map(index => question.options[index]);
 
   return (
     <div className="space-y-4">
@@ -357,6 +416,75 @@ export const FlashcardViewer = ({ questions, shuffleQuestions }: FlashcardViewer
           Still Learning: {stillLearningCount}
         </span>
       </div>
+
+      {/* Save to Deck button (only show if decks are available) */}
+      {decks.length > 0 && !showSavePanel && (
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setShowSavePanel(true)}
+          className="w-full text-xs"
+        >
+          <BookmarkPlus className="w-3.5 h-3.5 mr-1.5" />
+          Save This Card to a Deck
+        </Button>
+      )}
+
+      {/* Save to Deck panel */}
+      {showSavePanel && (
+        <Card className="border-blue-700/50 bg-blue-900/10">
+          <CardContent className="pt-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <p className="text-sm font-medium text-blue-200">Save to Deck</p>
+              <button
+                onClick={() => setShowSavePanel(false)}
+                className="text-gray-400 hover:text-gray-200"
+                aria-label="Close save panel"
+              >
+                ×
+              </button>
+            </div>
+            <div className="flex items-center gap-2">
+              <select
+                value={saveDeckId}
+                onChange={e => setSaveDeckId(e.target.value)}
+                className="flex-1 text-sm rounded border border-gray-700 bg-gray-800 text-gray-200 px-2 py-1.5 focus:outline-none focus:border-blue-500"
+                aria-label="Select deck"
+              >
+                <option value="">Choose a deck…</option>
+                {decks.map(d => (
+                  <option key={d.id} value={d.id}>{d.name}</option>
+                ))}
+              </select>
+              <Button size="sm" disabled={!saveDeckId} onClick={handleSaveToDeck} className="text-xs">
+                Save
+              </Button>
+            </div>
+            <div className="text-xs text-gray-400 text-center">or</div>
+            <div className="flex items-center gap-2">
+              <input
+                type="text"
+                value={newDeckNameForSave}
+                onChange={e => setNewDeckNameForSave(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Enter') handleCreateDeckAndSave(); }}
+                placeholder="New deck name…"
+                className="flex-1 text-sm rounded border border-gray-700 bg-gray-800 text-gray-200 px-2 py-1.5 focus:outline-none focus:border-blue-500"
+                aria-label="New deck name"
+              />
+              <Button size="sm" disabled={!newDeckNameForSave.trim()} onClick={handleCreateDeckAndSave} className="text-xs">
+                Create & Save
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Save toast */}
+      {saveToast && (
+        <div role="status" aria-live="polite" className="px-3 py-2 rounded-lg bg-green-900/30 border border-green-700 text-green-200 text-xs text-center">
+          {saveToast}
+        </div>
+      )}
 
       {/* ── Multiple-choice mode ── */}
       {studyMode === 'multiple-choice' && (

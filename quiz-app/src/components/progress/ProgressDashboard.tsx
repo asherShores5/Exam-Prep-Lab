@@ -21,8 +21,9 @@ export function ProgressDashboard({ selectedExam }: ProgressDashboardProps) {
     const examDecks = allDecks.filter(d => d.examIds.includes(selectedExam));
     setDecks(examDecks);
 
-    // Load review sessions for decks belonging to this exam
+    // Load review sessions for decks belonging to this exam + legacy sessions
     const examDeckIds = new Set(examDecks.map(d => d.id));
+    examDeckIds.add('legacy'); // Include legacy flashcard sessions
     const allSessions = StorageService.getReviewSessions();
     const examSessions = allSessions
       .filter(s => examDeckIds.has(s.deckId))
@@ -39,6 +40,7 @@ export function ProgressDashboard({ selectedExam }: ProgressDashboardProps) {
   }, [loadData]);
 
   function getDeckName(deckId: string): string {
+    if (deckId === 'legacy') return 'All Exam Questions';
     return decks.find(d => d.id === deckId)?.name ?? 'Unknown Deck';
   }
 
@@ -56,8 +58,9 @@ export function ProgressDashboard({ selectedExam }: ProgressDashboardProps) {
     delete allAnalytics[selectedExam];
     StorageService.saveExamAnalytics(allAnalytics);
 
-    // Delete all ReviewSession records for decks associated with this exam
+    // Delete all ReviewSession records for decks associated with this exam + legacy
     const examDeckIds = new Set(decks.map(d => d.id));
+    examDeckIds.add('legacy');
     const remaining = StorageService.getReviewSessions().filter(
       s => !examDeckIds.has(s.deckId)
     );
@@ -193,14 +196,66 @@ export function ProgressDashboard({ selectedExam }: ProgressDashboardProps) {
   // ── Per-domain accuracy section ───────────────────────────────────────────
 
   const renderDomainAccuracy = () => {
-    // Domain accuracy note: the legacy QuizResult type doesn't store domain data.
-    // Domain accuracy is available in the quiz results summary during a quiz session,
-    // but is not persisted per-domain in ExamAnalytics. Show a note accordingly.
+    if (!analytics || analytics.results.length === 0) {
+      return (
+        <p className="text-sm text-gray-500 py-4 text-center">
+          No quiz data yet. Domain accuracy will appear here after you complete quizzes.
+        </p>
+      );
+    }
+
+    // Aggregate domain data across all quiz attempts
+    const domainAggregates = new Map<string, { correct: number; total: number }>();
+    
+    analytics.results.forEach(result => {
+      if (!result.domains) return;
+      result.domains.forEach(d => {
+        const existing = domainAggregates.get(d.domain) ?? { correct: 0, total: 0 };
+        existing.correct += d.correct;
+        existing.total += d.total;
+        domainAggregates.set(d.domain, existing);
+      });
+    });
+
+    if (domainAggregates.size === 0) {
+      return (
+        <p className="text-sm text-gray-500 py-4 text-center">
+          No domain data available. Domain accuracy is tracked for quizzes with domain-tagged questions.
+        </p>
+      );
+    }
+
+    const domainEntries = Array.from(domainAggregates.entries()).sort(([a], [b]) => a.localeCompare(b));
+
     return (
-      <p className="text-sm text-gray-500 py-4 text-center">
-        Domain accuracy is shown in the quiz results summary after each quiz.
-        Per-domain history will be available once domain data is persisted in quiz sessions.
-      </p>
+      <div className="space-y-3">
+        {domainEntries.map(([domain, { correct, total }]) => {
+          const percentage = total > 0 ? (correct / total) * 100 : 0;
+          return (
+            <div key={domain} className="space-y-1">
+              <div className="flex justify-between items-center text-sm">
+                <span className="font-medium text-gray-200">{domain}</span>
+                <span className="text-gray-400">
+                  {correct} / {total} ({percentage.toFixed(0)}%)
+                </span>
+              </div>
+              <div className="w-full bg-gray-700 rounded-full h-2">
+                <div
+                  className={`h-2 rounded-full transition-all ${
+                    percentage >= 80 ? 'bg-green-500' : percentage >= 60 ? 'bg-yellow-500' : 'bg-red-500'
+                  }`}
+                  style={{ width: `${percentage}%` }}
+                  role="progressbar"
+                  aria-valuenow={percentage}
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                  aria-label={`${domain}: ${percentage.toFixed(0)}% accuracy`}
+                />
+              </div>
+            </div>
+          );
+        })}
+      </div>
     );
   };
 

@@ -21,6 +21,13 @@ export interface ExamIndex {
   path: string;
 }
 
+/** Per-domain breakdown stored with each quiz attempt */
+export interface QuizResultDomain {
+  domain: string;
+  correct: number;
+  total: number;
+}
+
 /** Result of a single completed quiz attempt */
 export interface QuizResult {
   date: string;
@@ -28,6 +35,8 @@ export interface QuizResult {
   totalQuestions: number;
   timeSpent: number;
   percentage: number;
+  /** Domain breakdown for this attempt (populated when domain data is available) */
+  domains?: QuizResultDomain[];
 }
 
 /** Per-exam analytics stored in localStorage under 'quizAnalytics' */
@@ -86,6 +95,10 @@ export interface Flashcard {
   deckId: string;
   front: string;
   back: string;
+  /** Mastery level: 0 = new/still learning, 1+ = known (higher = more confident) */
+  masteryLevel: number;
+  /** Last time this card was reviewed */
+  lastReviewedAt?: string;
   createdAt: string;
   updatedAt: string;
 }
