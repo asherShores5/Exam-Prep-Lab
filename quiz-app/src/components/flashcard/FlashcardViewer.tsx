@@ -1,18 +1,24 @@
 /**
- * FlashcardViewer — upgraded flashcard study mode with Known / Still Learning tracking.
+ * FlashcardViewer — flashcard study mode with two sub-modes:
  *
- * Flow:
+ * Classic mode (default):
  *  1. Show card front (question text)
- *  2. User clicks "Reveal Answer" → back is shown
- *  3. User clicks "Known ✓" or "Still Learning" → advances to next card automatically
- *  4. After all cards are rated → ReviewSummary screen is shown
- *  5. ReviewSession is saved to StorageService on completion
+ *  2. User clicks "Reveal Answer" → correct answer(s) + explanation shown
+ *  3. User clicks "Known ✓" or "Still Learning" → advances to next card
+ *  4. After all cards → ReviewSummary screen
+ *
+ * Multiple-choice mode:
+ *  1. Show question + shuffled answer options
+ *  2. User selects an option → immediate feedback (correct / incorrect highlight)
+ *  3. Explanation is shown below the options
+ *  4. User clicks "Next" → advances; result counted as Known/Still Learning
+ *  5. After all cards → ReviewSummary screen
  */
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Card, CardContent } from '../ui/card';
 import { Button } from '../ui/button';
-import { Shuffle, RotateCcw, CheckCircle, BookOpen } from 'lucide-react';
+import { Shuffle, RotateCcw, CheckCircle, BookOpen, ListChecks, CreditCard } from 'lucide-react';
 import type { LegacyQuestion } from '../../types/index';
 import { StorageService } from '../../services/storage';
 
@@ -88,8 +94,122 @@ const ReviewSummary = ({ totalCards, knownCount, stillLearningCount, onStartOver
 };
 
 // ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+/** Shuffle an array (Fisher-Yates) without mutating the original. */
+function shuffleArray<T>(arr: T[]): T[] {
+  const copy = [...arr];
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
+}
+
+// ---------------------------------------------------------------------------
+// MultipleChoiceCard sub-component
+// ---------------------------------------------------------------------------
+
+interface MultipleChoiceCardProps {
+  question: LegacyQuestion;
+  onResult: (correct: boolean) => void;
+}
+
+const MultipleChoiceCard = ({ question, onResult }: MultipleChoiceCardProps) => {
+  // Shuffle options once per question render (stable via useMemo keyed to question)
+  const shuffledOptions = useMemo(
+    () => shuffleArray(question.options.map((text, originalIdx) => ({ text, originalIdx }))),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [question.question]
+  );
+
+  const [selectedIdx, setSelectedIdx] = useState<number | null>(null); // index into shuffledOptions
+  const answered = selectedIdx !== null;
+
+  const isCorrectChoice = (shuffledIdx: number) =>
+    question.correctAnswers.includes(shuffledOptions[shuffledIdx].originalIdx);
+
+  function handleSelect(idx: number) {
+    if (answered) return;
+    setSelectedIdx(idx);
+  }
+
+  function getOptionStyle(idx: number): string {
+    const base = 'p-3 rounded-lg border text-sm transition-colors ';
+    if (!answered) {
+      return base + 'border-gray-700 hover:border-gray-500 cursor-pointer';
+    }
+    if (isCorrectChoice(idx)) {
+      return base + 'bg-green-900/30 border-green-600 text-green-200';
+    }
+    if (idx === selectedIdx) {
+      return base + 'bg-red-900/30 border-red-600 text-red-200';
+    }
+    return base + 'border-gray-700 opacity-50';
+  }
+
+  const wasCorrect = answered && selectedIdx !== null && isCorrectChoice(selectedIdx);
+
+  return (
+    <div className="space-y-4">
+      <Card className="min-h-48">
+        <CardContent className="pt-6 space-y-4">
+          <p className="text-base">{question.question}</p>
+
+          <div className="space-y-2" role="group" aria-label="Answer options">
+            {shuffledOptions.map((opt, idx) => (
+              <div
+                key={idx}
+                role="button"
+                tabIndex={answered ? -1 : 0}
+                aria-pressed={selectedIdx === idx}
+                aria-disabled={answered}
+                onClick={() => handleSelect(idx)}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleSelect(idx); }}
+                className={getOptionStyle(idx)}
+              >
+                <span className="font-mono text-xs text-gray-500 mr-2">
+                  {String.fromCharCode(65 + idx)}.
+                </span>
+                {opt.text}
+              </div>
+            ))}
+          </div>
+
+          {/* Explanation — shown after answering */}
+          {answered && question.explanation && (
+            <div className="mt-3 p-3 rounded-lg bg-blue-900/20 border border-blue-700/50 text-sm text-blue-200">
+              <p className="font-semibold text-blue-300 mb-1">Explanation</p>
+              <p>{question.explanation}</p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {answered && (
+        <Button
+          className="w-full"
+          size="lg"
+          onClick={() => onResult(wasCorrect)}
+          aria-label={wasCorrect ? 'Correct! Continue to next card' : 'Incorrect. Continue to next card'}
+        >
+          {wasCorrect ? (
+            <><CheckCircle className="w-4 h-4 mr-2 text-green-400" /> Correct — Next</>
+          ) : (
+            <><BookOpen className="w-4 h-4 mr-2 text-yellow-400" /> Keep Studying — Next</>
+          )}
+        </Button>
+      )}
+    </div>
+  );
+};
+
+// ---------------------------------------------------------------------------
 // FlashcardViewer
 // ---------------------------------------------------------------------------
+
+type StudyMode = 'classic' | 'multiple-choice';
 
 interface FlashcardViewerProps {
   questions: LegacyQuestion[];
@@ -97,13 +217,16 @@ interface FlashcardViewerProps {
 }
 
 export const FlashcardViewer = ({ questions, shuffleQuestions }: FlashcardViewerProps) => {
+  const [studyMode, setStudyMode] = useState<StudyMode>('classic');
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isRevealed, setIsRevealed] = useState(false);
   const [knownCount, setKnownCount] = useState(0);
   const [stillLearningCount, setStillLearningCount] = useState(0);
   const [sessionComplete, setSessionComplete] = useState(false);
 
-  if (!questions.length) return <div>Loading questions...</div>;
+  if (!questions.length) return (
+    <div className="py-10 text-center text-gray-500 text-sm">Loading questions…</div>
+  );
 
   // ── Helpers ──────────────────────────────────────────────────────────────
 
@@ -125,11 +248,8 @@ export const FlashcardViewer = ({ questions, shuffleQuestions }: FlashcardViewer
     const newKnown = known ? knownCount + 1 : knownCount;
     const newStillLearning = known ? stillLearningCount : stillLearningCount + 1;
 
-    if (known) {
-      setKnownCount(newKnown);
-    } else {
-      setStillLearningCount(newStillLearning);
-    }
+    if (known) setKnownCount(newKnown);
+    else setStillLearningCount(newStillLearning);
 
     const isLastCard = currentIndex === questions.length - 1;
 
@@ -148,6 +268,11 @@ export const FlashcardViewer = ({ questions, shuffleQuestions }: FlashcardViewer
     setKnownCount(0);
     setStillLearningCount(0);
     setSessionComplete(false);
+  };
+
+  const handleModeChange = (mode: StudyMode) => {
+    setStudyMode(mode);
+    handleStartOver();
   };
 
   // ── Session complete screen ───────────────────────────────────────────────
@@ -170,23 +295,55 @@ export const FlashcardViewer = ({ questions, shuffleQuestions }: FlashcardViewer
 
   return (
     <div className="space-y-4">
-      {/* Header row: progress + shuffle */}
+      {/* Header row: progress + mode toggle + shuffle */}
       <div className="flex justify-between items-center">
         <div className="text-sm text-gray-400">
           Card {currentIndex + 1} of {questions.length}
         </div>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => {
-            shuffleQuestions();
-            handleStartOver();
-          }}
-          aria-label="Shuffle cards and restart session"
-        >
-          <Shuffle className="w-4 h-4 mr-2" />
-          Shuffle
-        </Button>
+        <div className="flex items-center gap-2">
+          {/* Mode toggle */}
+          <div className="flex rounded-lg border border-gray-700 overflow-hidden text-xs">
+            <button
+              onClick={() => handleModeChange('classic')}
+              className={`flex items-center gap-1 px-3 py-1.5 transition-colors ${
+                studyMode === 'classic'
+                  ? 'bg-blue-700 text-white'
+                  : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800'
+              }`}
+              aria-pressed={studyMode === 'classic'}
+              title="Classic flashcard mode"
+            >
+              <CreditCard className="w-3 h-3" />
+              Classic
+            </button>
+            <button
+              onClick={() => handleModeChange('multiple-choice')}
+              className={`flex items-center gap-1 px-3 py-1.5 transition-colors ${
+                studyMode === 'multiple-choice'
+                  ? 'bg-blue-700 text-white'
+                  : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800'
+              }`}
+              aria-pressed={studyMode === 'multiple-choice'}
+              title="Multiple choice mode"
+            >
+              <ListChecks className="w-3 h-3" />
+              Multiple Choice
+            </button>
+          </div>
+
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              shuffleQuestions();
+              handleStartOver();
+            }}
+            aria-label="Shuffle cards and restart session"
+          >
+            <Shuffle className="w-4 h-4 mr-2" />
+            Shuffle
+          </Button>
+        </div>
       </div>
 
       {/* Running tally */}
@@ -201,60 +358,81 @@ export const FlashcardViewer = ({ questions, shuffleQuestions }: FlashcardViewer
         </span>
       </div>
 
-      {/* Card */}
-      <Card className="min-h-64">
-        <CardContent className="pt-6 flex flex-col items-center justify-center min-h-64">
-          {/* Front — always visible */}
-          <p className="text-lg text-center mb-6">{question.question}</p>
+      {/* ── Multiple-choice mode ── */}
+      {studyMode === 'multiple-choice' && (
+        <MultipleChoiceCard
+          key={currentIndex}
+          question={question}
+          onResult={(correct) => advanceCard(correct)}
+        />
+      )}
 
-          {/* Back — shown after reveal */}
-          {isRevealed && (
-            <div className="w-full space-y-2 mt-2 border-t border-gray-700 pt-4">
-              <p className="text-sm text-gray-400 mb-2 text-center">Answer</p>
-              {correctAnswers.map((answer, idx) => (
-                <div
-                  key={idx}
-                  className="p-3 rounded-lg border bg-green-900/20 border-green-600 text-sm"
-                >
-                  {answer}
+      {/* ── Classic mode ── */}
+      {studyMode === 'classic' && (
+        <>
+          <Card className="min-h-64">
+            <CardContent className="pt-6 flex flex-col items-center justify-center min-h-64">
+              {/* Front — always visible */}
+              <p className="text-lg text-center mb-6">{question.question}</p>
+
+              {/* Back — shown after reveal */}
+              {isRevealed && (
+                <div className="w-full space-y-2 mt-2 border-t border-gray-700 pt-4">
+                  <p className="text-sm text-gray-400 mb-2 text-center">Answer</p>
+                  {correctAnswers.map((answer, idx) => (
+                    <div
+                      key={idx}
+                      className="p-3 rounded-lg border bg-green-900/20 border-green-600 text-sm"
+                    >
+                      {answer}
+                    </div>
+                  ))}
+
+                  {/* Explanation */}
+                  {question.explanation && (
+                    <div className="mt-3 p-3 rounded-lg bg-blue-900/20 border border-blue-700/50 text-sm text-blue-200">
+                      <p className="font-semibold text-blue-300 mb-1">Explanation</p>
+                      <p>{question.explanation}</p>
+                    </div>
+                  )}
                 </div>
-              ))}
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Action buttons */}
+          {!isRevealed ? (
+            <Button
+              className="w-full"
+              size="lg"
+              onClick={() => setIsRevealed(true)}
+            >
+              Reveal Answer
+            </Button>
+          ) : (
+            <div className="grid grid-cols-2 gap-3">
+              <Button
+                size="lg"
+                className="bg-green-700 hover:bg-green-600 text-white border-0"
+                onClick={() => advanceCard(true)}
+                aria-label="Mark card as known"
+              >
+                <CheckCircle className="w-4 h-4 mr-2" />
+                Known ✓
+              </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                className="border-yellow-600 text-yellow-400 hover:bg-yellow-900/20"
+                onClick={() => advanceCard(false)}
+                aria-label="Mark card as still learning"
+              >
+                <BookOpen className="w-4 h-4 mr-2" />
+                Still Learning
+              </Button>
             </div>
           )}
-        </CardContent>
-      </Card>
-
-      {/* Action buttons */}
-      {!isRevealed ? (
-        <Button
-          className="w-full"
-          size="lg"
-          onClick={() => setIsRevealed(true)}
-        >
-          Reveal Answer
-        </Button>
-      ) : (
-        <div className="grid grid-cols-2 gap-3">
-          <Button
-            size="lg"
-            className="bg-green-700 hover:bg-green-600 text-white border-0"
-            onClick={() => advanceCard(true)}
-            aria-label="Mark card as known"
-          >
-            <CheckCircle className="w-4 h-4 mr-2" />
-            Known ✓
-          </Button>
-          <Button
-            size="lg"
-            variant="outline"
-            className="border-yellow-600 text-yellow-400 hover:bg-yellow-900/20"
-            onClick={() => advanceCard(false)}
-            aria-label="Mark card as still learning"
-          >
-            <BookOpen className="w-4 h-4 mr-2" />
-            Still Learning
-          </Button>
-        </div>
+        </>
       )}
     </div>
   );

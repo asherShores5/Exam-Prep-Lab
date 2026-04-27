@@ -21,7 +21,9 @@ const ReviewMode = ({ questions, shuffleQuestions }: { questions: LegacyQuestion
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showAnswer, setShowAnswer] = useState(false);
   
-  if (!questions.length) return <div>Loading questions...</div>;
+  if (!questions.length) return (
+    <div className="py-10 text-center text-gray-500 text-sm">Loading questions…</div>
+  );
   
   const question = questions[currentIndex];
   
@@ -921,6 +923,9 @@ const QuizApp = () => {
         </div>
       )}
       <div className="mb-4">
+        <label className="block text-sm font-medium text-gray-300 mb-1.5">
+          Select an exam to get started
+        </label>
         <Select value={selectedExam} onValueChange={setSelectedExam}>
           <SelectTrigger>
             <SelectValue placeholder="Choose an exam..." />
@@ -934,6 +939,13 @@ const QuizApp = () => {
           </SelectContent>
         </Select>
       </div>
+
+      {!selectedExam && (
+        <div className="mt-8 flex flex-col items-center gap-3 text-center text-gray-500">
+          <PlayCircle className="w-10 h-10 opacity-30" aria-hidden="true" />
+          <p className="text-sm">Choose an exam from the dropdown above to start studying.</p>
+        </div>
+      )}
       
       {selectedExam && (
         <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as TabValue)}>
