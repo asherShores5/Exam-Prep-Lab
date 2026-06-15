@@ -1,185 +1,72 @@
 # Exam Prep Lab
 
-A modern React application for exam preparation, featuring interactive study modes, progress tracking, and performance analytics. Deployed on AWS Amplify at [exampreplab.com](https://www.exampreplab.com)
+A fully static, client-side exam-preparation web app. Pick a certification exam, then study
+it through Review, Quiz, and Flashcard modes with local progress tracking and analytics.
+Deployed as static files (AWS Amplify / S3) at [exampreplab.com](https://www.exampreplab.com).
 
-## Features
-- **Multiple Study Modes**
-  - Review Mode: Study questions with detailed explanations
-  - Quiz Mode: Timed assessments with configurable settings
-  - Flashcard Mode: Quick memorization and recall practice
-- **Advanced Quiz Features**
-  - Configurable question count (10-50 questions)
-  - Adjustable time limits (15-90 minutes)
-  - Support for multiple correct answers
-  - Real-time progress tracking
-  - Automatic scoring
-- **Performance Analytics**
-  - Progress tracking across attempts
-  - Score trends visualization
-  - Average performance metrics
-  - Time spent analysis
-  - Best score tracking
-- **User Experience**
-  - Modern, responsive interface
-  - Dark mode design
-  - Question shuffling
-  - Persistent progress saving
-  - Cross-device compatibility
+There is **no backend and no accounts.** Exam content is served from static JSON committed to
+this repo; all user progress lives in the browser's `localStorage`.
 
-## Technical Stack
-- React
-- TypeScript
-- Tailwind CSS
-- shadcn/ui components
-- Recharts for data visualization
-- Local Storage for data persistence
-- AWS Amplify for hosting and CI/CD
-- AWS Route 53 for domain management
+## Documentation map
 
-## Project Structure
-```
-src/
-├── components/
-│   └── ui/           # shadcn/ui components
-├── types/
-│   └── index.ts      # TypeScript interfaces
-├── public/
-│   └── exams/        # Exam JSON files
-└── QuizApp.tsx       # Main application component
+- **[CLAUDE.md](CLAUDE.md)** — architecture primer: how the code is laid out and how the
+  pieces fit together (accurate for the code as it exists today).
+- **[SPEC.md](SPEC.md)** — product direction and the in-progress overhaul. **Read this before
+  starting feature work** — it's the source of truth for what's changing and why.
+
+## Tech stack
+
+React 18 · TypeScript · Vite · Tailwind CSS · shadcn/ui-style primitives (Radix) ·
+Recharts · Vitest + Testing Library. State persists to `localStorage`.
+
+## Getting started
+
+Requires Node.js 20+ (ships with npm). All commands run from `quiz-app/`:
+
+```bash
+cd quiz-app
+npm install      # first time only
+npm run dev      # Vite dev server with HMR
+npm run build    # tsc -b && vite build → dist/
+npm run lint     # eslint .
+npm test         # vitest --run (one-shot)
 ```
 
-## Data Structure
-Exams are stored as JSON files with the following structure:
-```typescript
-interface Question {
-  question: string;
-  options: string[];
-  correctAnswers: number[];
-  explanation: string;
-}
+Run a single test:
 
-interface ExamIndex {
-  id: string;
-  name: string;
-  path: string;
-}
+```bash
+npx vitest run src/__tests__/bug-conditions.test.ts
+npx vitest run -t "name of the test"
 ```
 
-## AWS Deployment Setup
+## Project structure
 
-### Domain Registration (Route 53)
-1. Register domain in AWS Route 53:
-   ```bash
-   aws route53domains register-domain --domain-name exampreplab.com --duration-in-years 1
-   ```
+```
+quiz-app/
+├── public/exams/        # static exam content: index.json + one JSON per exam bank
+├── src/
+│   ├── components/       # UI grouped by area: quiz/ review/ flashcard/ progress/ ui/ ...
+│   ├── services/         # storage, validation, spaced repetition, analytics helpers
+│   ├── types/            # shared TypeScript types
+│   └── __tests__/        # vitest suites
+└── ...config (vite, vitest, tailwind, eslint, tsconfig)
 
-2. Create hosted zone:
-   ```bash
-   aws route53 create-hosted-zone --name exampreplab.com --caller-reference $(date +%s)
-   ```
+unsorted-data/           # raw source question banks (input for content conversion; not shipped)
+```
 
-3. Note the nameservers assigned to your hosted zone for domain configuration.
+## Exam content
 
-### AWS Amplify Setup
-1. Install Amplify CLI:
-   ```bash
-   npm install -g @aws-amplify/cli
-   amplify configure
-   ```
+Each exam is a JSON file in `quiz-app/public/exams/`, listed in `index.json`. Questions are
+added or edited **by committing changes to these files** — the repo is the content "backend."
+There is intentionally no in-app question editor. See **[SPEC.md](SPEC.md) §4 and Appendix A**
+for the question/index JSON schemas.
 
-2. Initialize Amplify in project:
-   ```bash
-   amplify init
-   ```
+## Deployment
 
-3. Add hosting:
-   ```bash
-   amplify add hosting
-   ```
-
-4. Configure build settings in `amplify.yml`:
-   ```yaml
-   version: 1
-   frontend:
-     phases:
-       preBuild:
-         commands:
-           - npm ci
-       build:
-         commands:
-           - npm run build
-     artifacts:
-       baseDirectory: dist
-       files:
-         - '**/*'
-     cache:
-       paths:
-         - node_modules/**/*
-   ```
-
-5. Enable automatic deployments:
-   - Connect repository in Amplify Console
-   - Configure branch settings
-   - Set up build specifications
-
-### Domain Configuration
-1. Add domain in Amplify Console:
-   - Go to Domain Management
-   - Add domain: exampreplab.com
-   - Verify domain ownership
-   - Wait for SSL certificate provisioning
-
-2. Update DNS settings:
-   - Amplify will automatically create required records in Route 53
-   - Verify DNS propagation (may take up to 48 hours)
-
-## Development Workflow
-
-1. **Installation**
-   ```bash
-   npm install
-   ```
-
-2. **Add Exam Data**
-   - Create exam JSON files in `public/exams/`
-   - Update `index.json` with exam metadata
-
-3. **Local Development**
-   ```bash
-   npm run dev
-   ```
-
-4. **Deployment**
-   ```bash
-   # Deploy to production
-   git push origin main
-   
-   # Preview changes (creates preview URL)
-   git push origin feature/branch
-   ```
-
-## CI/CD Pipeline
-- **Automated builds** trigger on push to main branch
-- **Preview environments** created for feature branches
-- **Production deployments** require manual approval
-- **Build cache** enabled for faster deployments
-- **Environment variables** managed in Amplify Console
-
-## Monitoring and Maintenance
-- View deployment status in Amplify Console
-- Monitor application metrics
-- Access build logs and history
-- Manage environment variables
-- Configure access controls
-
-## Contributing
-Contributions welcome! Some areas for enhancement:
-- Question categorization/tagging
-- Study schedules and reminders
-- Expanded analytics features
-- Additional study modes
-- Performance optimizations
-- Automated testing improvements
+Pushing to `main` triggers the AWS Amplify build (`npm ci` → `npm run build`, publishing
+`dist/`). A manual S3 sync alternative is in `quiz-app/sync_to_s3.ps1` (reads bucket/credentials
+from a `.env` file in `quiz-app/`).
 
 ## License
-Apache 2.0
+
+Apache 2.0 — see [LICENSE](LICENSE).
