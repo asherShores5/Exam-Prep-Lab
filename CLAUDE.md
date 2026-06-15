@@ -40,6 +40,23 @@ overhaul is in progress. Read `SPEC.md` before planning any feature work. Progre
   (`hooks/useKeyboardNav.ts` in Quiz + Review), quiz question-grid + flag-for-review, low-time warning +
   finish-confirm. **Remaining §6:** deck ergonomics, mobile 44px polish, time-per-question, spacing/type tokens.
 
+**All 7 sequenced steps (`SPEC.md` §8) are done or substantially done.** What remains, for picking
+this up later (none blocking; pick by priority):
+- **Deferred — custom-deck identity migration.** Custom `Deck`/`Flashcard` records and `tagService.ts`
+  still key on the prompt string; migrate to `(examId, id)` membership (`Deck.questionIds`, SPEC §3.3 /
+  Appendix A.3). This is the last prompt-string-keyed code.
+- **§6 remainder (P2 polish):** deck ergonomics (detail view, bulk add/remove, card preview), mobile
+  44px-target audit + swipe-vs-scroll, time-per-question in results, spacing/typography token pass,
+  tokenize accent colors (`text-blue-200` etc.) for per-theme contrast.
+- **§8 step 8 (later/separate):** domain-metadata backfill via batched subagents (§4); convert more
+  exam banks from `unsorted-data/` (run `npm run assign-ids` after adding any).
+- **§7 repo cleanup:** stale scrape artifacts, `assets/old/`, rewrite the stale root `README.md`,
+  retire `CHANGES.md`.
+
+Working style that's been used here: one step at a time, propose before editing, keep `npm test` /
+`npm run build` / `npm run lint` green after each, and update SPEC.md + this file's progress bullets +
+the baseline memory when a step lands.
+
 The sections below describe the codebase **as it exists today** — accurate for understanding
 current code, but check `SPEC.md` for where a given subsystem is headed.
 
@@ -111,12 +128,20 @@ There is **no import/export** — it was removed in step 2. The "Settings" tab (
 ### UI conventions
 
 - shadcn/ui-style primitives in `src/components/ui/` (Tailwind + Radix + `cva`); `cn()` from `src/lib/utils.ts` merges classes. **Light + dark themes** (step 4): colors come from CSS-var tokens in `src/index.css` (`gray-*` scale reverses under light mode; named `background`/`foreground`/`card`/`border`/`ring` tokens for new work). Theme is managed by `services/theme.ts` (`.dark` class on `<html>`). New components should use the token-backed Tailwind classes (e.g. `bg-gray-900`, `text-foreground`) rather than hardcoded hex/`bg-[#…]` so they theme correctly.
-- Feature components are grouped by area: `quiz/`, `review/`, `flashcard/`, `progress/`, `management/`, `analytics/`.
+- Feature components are grouped by area: `quiz/`, `review/`, `flashcard/`, `progress/`, `settings/`, `analytics/`, and shared primitives in `ui/`. (The old `management/` dir was deleted in step 2.)
 - Each top-level tab is wrapped in an `ErrorBoundary` in `App.tsx` so one mode crashing doesn't take down the app.
 
 ## Testing
 
-Vitest + jsdom + `@testing-library/react`, with `fast-check` for property tests. Matchers are wired via `src/__tests__/setup.ts` (`@testing-library/jest-dom`). The suite is **all-green** (SPEC.md "Verified baseline"). `src/__tests__/bug-conditions.test.ts` was re-authored in §8 step 1: it now imports and exercises the **real** modules (`lib/shuffle.ts`, `lib/answers.ts`, and renders `FlashcardViewer`/`QuestionSearchPanel`) instead of inlined buggy copies, so it acts as a genuine regression guard. `question-ids.test.ts` asserts every shipped bank has unique integer ids. `preservation.test.ts` guards refactors.
+Vitest + jsdom + `@testing-library/react`, with `fast-check` for property tests. Matchers are wired via `src/__tests__/setup.ts` (`@testing-library/jest-dom`). The suite is **all-green** (66 tests as of step 7 — see SPEC.md "Verified baseline"). Test files:
+- `bug-conditions.test.ts` — re-authored in step 1 to exercise the **real** modules (`lib/shuffle.ts`, `lib/answers.ts`, rendering `FlashcardViewer`/`QuestionSearchPanel`); a genuine regression guard.
+- `question-ids.test.ts` — every shipped bank has unique integer ids (`findIdIssues`).
+- `studyState.test.ts` — per-question study state: transforms, stateful ops, counts, auto-deck migration, practice-incorrect.
+- `examSim.test.ts` — sim preset resolution/defaults/cap-to-bank, pass/fail, and a guard that index.json presets are feasible.
+- `theme.test.ts` — theme resolution + persist/apply.
+- `preservation.test.ts` — guards refactors (incl. a check that the import/export surface stays removed).
+
+⚠️ **Gotcha:** components that call `useToast()` (FlashcardViewer, QuestionSearchPanel, QuizMode) must be rendered inside a `ToastProvider` in tests, or they throw "useToast must be used within a ToastProvider".
 
 ## Content pipeline
 

@@ -27,25 +27,19 @@ These constraints frame every decision below. They are settled, not open questio
 
 Toolchain confirmed working: Node v26.x, npm 11.x. `npm install` and `npm run build` succeed.
 
-`npm test` shows **13 passing / 0 failing** (updated after §8 step 1 — Stabilize). It previously
-showed 5 failing + 6 passing, where the 5 failures were **broken tests that could not be fixed by
-changing source**: `src/__tests__/bug-conditions.test.ts` was exploration scaffolding for 5
-historical bugs (Bug 1 = index typo, Bugs 2–5 below) whose Bug 2–5 tests asserted against
-**private copies of the old buggy logic inlined into the test file**, not against the real app.
+`npm test` shows **66 passing / 0 failing** (after §8 steps 1–7). `npm run build` succeeds and also
+emits the PWA service worker (`sw.js`) + `manifest.webmanifest`. `npm run lint` reports **0 errors +
+2 warnings** (a QuizMode exhaustive-deps warning and a button.tsx react-refresh warning — both
+pre-existing and benign).
 
-✅ **Resolved in step 1.** The suite was re-authored to import and exercise the **real** modules,
-so it now genuinely guards the fixes (and goes red if one is reverted). A test setup file
-(`src/__tests__/setup.ts`) wires `@testing-library/jest-dom` matchers (§5.3). Source state of the
-five tracked bugs — all fixed and guarded:
-- **Bug 1** — exam index id `AWS-SAP-C02` correct ✅
-- **Bug 2** — answer comparison is non-mutating; extracted to `lib/answers.ts#isAnswerCorrect` ✅
-- **Bug 3** — `FlashcardViewer` honors the `deckId` prop (`deckId ?? 'legacy'`) ✅
-- **Bug 4** — shuffle reorders via shared `lib/shuffle.ts#shuffle` (Fisher-Yates) ✅
-- **Bug 5** — `QuestionSearchPanel` duplicate check is scoped to the target deck ✅
+> Test files: `bug-conditions` (regression guards for 5 historical bugs — all fixed), `question-ids`
+> (unique integer ids per bank), `studyState`, `examSim`, `theme`, and `preservation` (refactor guard,
+> incl. a check the import/export surface stays removed). Matchers wired via `src/__tests__/setup.ts`.
 
-`preservation.test.ts` (the other suite) passes and guards refactors. `npm run lint` reports 2
-errors + 2 warnings (test-file `any`, an unused `_examId` param, two refresh warnings);
-pre-existing, safe to clean up opportunistically.
+> History: the baseline was once 5 failing + 6 passing, where the 5 reds were **broken tests** —
+> `bug-conditions.test.ts` asserted against private copies of buggy logic inlined into the test file,
+> unfixable by changing source. Step 1 re-authored it to exercise the real modules. Don't reintroduce
+> that pattern.
 
 ---
 
