@@ -18,10 +18,13 @@
 import { useState, useMemo, useEffect, useRef } from 'react';
 import { Card, CardContent } from '../ui/card';
 import { Button } from '../ui/button';
-import { Shuffle, RotateCcw, CheckCircle, BookOpen, ListChecks, CreditCard, BookmarkPlus } from 'lucide-react';
+import { Shuffle, RotateCcw, CheckCircle, BookOpen, ListChecks, CreditCard, BookmarkPlus, Star } from 'lucide-react';
 import type { LegacyQuestion, Deck } from '../../types/index';
 import { StorageService } from '../../services/storage';
 import { useSwipe } from '../../hooks/useSwipe';
+import { shuffle } from '../../lib/shuffle';
+import { useToast } from '../ui/toast';
+import { QuestionSkeleton } from '../ui/skeleton';
 
 // ---------------------------------------------------------------------------
 // ReviewSummary sub-component
@@ -95,20 +98,6 @@ const ReviewSummary = ({ totalCards, knownCount, stillLearningCount, onStartOver
 };
 
 // ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-/** Shuffle an array (Fisher-Yates) without mutating the original. */
-function shuffleArray<T>(arr: T[]): T[] {
-  const copy = [...arr];
-  for (let i = copy.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [copy[i], copy[j]] = [copy[j], copy[i]];
-  }
-  return copy;
-}
-
-// ---------------------------------------------------------------------------
 // MultipleChoiceCard sub-component
 // ---------------------------------------------------------------------------
 
@@ -120,7 +109,7 @@ interface MultipleChoiceCardProps {
 const MultipleChoiceCard = ({ question, onResult }: MultipleChoiceCardProps) => {
   // Shuffle options once per question render (stable via useMemo keyed to question)
   const shuffledOptions = useMemo(
-    () => shuffleArray(question.options.map((text, originalIdx) => ({ text, originalIdx }))),
+    () => shuffle(question.options.map((text, originalIdx) => ({ text, originalIdx }))),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [question.question]
   );
@@ -221,27 +210,28 @@ interface FlashcardViewerProps {
   onSaveCardToDeck: (question: LegacyQuestion, deckId: string) => boolean;
   /** Create a new deck and return it */
   onCreateDeck: (name: string) => Deck;
-  /** Optional: flashcard IDs mapped to their data (for mastery tracking) */
-  flashcardMap?: Map<string, { id: string; masteryLevel: number }>;
-  /** Optional: callback to update mastery when card is rated */
-  onUpdateMastery?: (flashcardId: string, known: boolean) => void;
   /** Optional: deck ID for the current review session (omit for legacy mode) */
   deckId?: string;
   /** Optional: callback fired when a card is rated Known or Still Learning */
   onCardRated?: (question: LegacyQuestion, known: boolean) => void;
+  /** Optional: toggle the starred flag for a question (per-question study state) */
+  onToggleStar?: (question: LegacyQuestion) => void;
+  /** Optional: set of starred question ids (drives the star button's filled state) */
+  starredIds?: Set<number>;
 }
 
-export const FlashcardViewer = ({ 
-  questions, 
-  shuffleQuestions, 
-  decks, 
-  onSaveCardToDeck, 
+export const FlashcardViewer = ({
+  questions,
+  shuffleQuestions,
+  decks,
+  onSaveCardToDeck,
   onCreateDeck,
-  flashcardMap,
-  onUpdateMastery,
   deckId,
   onCardRated,
+  onToggleStar,
+  starredIds,
 }: FlashcardViewerProps) => {
+  const { toast } = useToast();
   const [studyMode, setStudyMode] = useState<StudyMode>('classic');
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isRevealed, setIsRevealed] = useState(false);
@@ -278,11 +268,8 @@ export const FlashcardViewer = ({
   const [saveDeckId, setSaveDeckId] = useState('');
   const [newDeckNameForSave, setNewDeckNameForSave] = useState('');
   const [showSavePanel, setShowSavePanel] = useState(false);
-  const [saveToast, setSaveToast] = useState<string | null>(null);
 
-  if (!localQuestions.length) return (
-    <div className="py-10 text-center text-gray-500 text-sm">Loading questions…</div>
-  );
+  if (!localQuestions.length) return <QuestionSkeleton />;
 
   // ── Current question (safe after the empty guard) ─────────────────────────
   const question = localQuestions[currentIndex];
@@ -311,15 +298,7 @@ export const FlashcardViewer = ({
     if (known) setKnownCount(newKnown);
     else setStillLearningCount(newStillLearning);
 
-    // Update mastery if this is a deck-based review
-    if (flashcardMap && onUpdateMastery) {
-      const flashcardData = flashcardMap.get(question.question);
-      if (flashcardData) {
-        onUpdateMastery(flashcardData.id, known);
-      }
-    }
-
-    // Notify parent about the card rating (for Known/Still Learning deck sorting)
+    // Notify parent about the card rating — parent writes per-question study state.
     onCardRated?.(question, known);
 
     const isLastCard = currentIndex === localQuestions.length - 1;
@@ -340,7 +319,6 @@ export const FlashcardViewer = ({
     setStillLearningCount(0);
     setSessionComplete(false);
     setShowSavePanel(false);
-    setSaveToast(null);
   };
 
   const handleModeChange = (mode: StudyMode) => {
@@ -350,15 +328,10 @@ export const FlashcardViewer = ({
 
   // ── Save-to-deck helpers ──────────────────────────────────────────────────
 
-  function showToast(msg: string) {
-    setSaveToast(msg);
-    setTimeout(() => setSaveToast(null), 2500);
-  }
-
   function handleSaveToDeck() {
     if (!saveDeckId) return;
     const saved = onSaveCardToDeck(question, saveDeckId);
-    showToast(saved ? 'Saved to deck!' : 'Already in that deck');
+    toast(saved ? 'Saved to deck!' : 'Already in that deck', saved ? 'success' : 'default');
     setShowSavePanel(false);
   }
 
@@ -368,7 +341,7 @@ export const FlashcardViewer = ({
     const deck = onCreateDeck(name);
     setNewDeckNameForSave('');
     const saved = onSaveCardToDeck(question, deck.id);
-    showToast(saved ? `Saved to new deck "${deck.name}"` : 'Already in that deck');
+    toast(saved ? `Saved to new deck "${deck.name}"` : 'Already in that deck', saved ? 'success' : 'default');
     setShowSavePanel(false);
   }
 
@@ -425,11 +398,27 @@ export const FlashcardViewer = ({
             </button>
           </div>
 
+          {onToggleStar && typeof question.id === 'number' && (() => {
+            const starred = starredIds?.has(question.id) ?? false;
+            return (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => onToggleStar(question)}
+                aria-label={starred ? 'Unstar this question' : 'Star this question'}
+                aria-pressed={starred}
+                title={starred ? 'Starred' : 'Star this question'}
+              >
+                <Star className={`w-4 h-4 ${starred ? 'fill-amber-400 text-amber-400' : ''}`} />
+              </Button>
+            );
+          })()}
+
           <Button
             variant="outline"
             size="sm"
             onClick={() => {
-              setLocalQuestions(shuffleArray([...localQuestions]));
+              setLocalQuestions(shuffle(localQuestions));
               shuffleQuestions();
               handleStartOver();
             }}
@@ -513,13 +502,6 @@ export const FlashcardViewer = ({
             </div>
           </CardContent>
         </Card>
-      )}
-
-      {/* Save toast */}
-      {saveToast && (
-        <div role="status" aria-live="polite" className="px-3 py-2 rounded-lg bg-green-900/30 border border-green-700 text-green-200 text-xs text-center">
-          {saveToast}
-        </div>
       )}
 
       {/* ── Multiple-choice mode ── */}

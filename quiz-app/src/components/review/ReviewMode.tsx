@@ -3,19 +3,29 @@ import { Card, CardContent } from '../ui/card';
 import { Button } from '../ui/button';
 import { Shuffle } from 'lucide-react';
 import type { LegacyQuestion } from '../../types';
+import { StarToggle } from '../flashcard/StarToggle';
+import { QuestionSkeleton } from '../ui/skeleton';
+import { useKeyboardNav } from '../../hooks/useKeyboardNav';
 
 export interface ReviewModeProps {
   questions: LegacyQuestion[];
   shuffleQuestions: () => void;
+  examId: string;
 }
 
-export const ReviewMode = ({ questions, shuffleQuestions }: ReviewModeProps) => {
+export const ReviewMode = ({ questions, shuffleQuestions, examId }: ReviewModeProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showAnswer, setShowAnswer] = useState(false);
 
-  if (!questions.length) return (
-    <div className="py-10 text-center text-gray-500 text-sm">Loading questions…</div>
-  );
+  const lastIndex = questions.length - 1;
+  useKeyboardNav({
+    enabled: questions.length > 0,
+    onPrev: () => { setCurrentIndex(i => Math.max(0, i - 1)); setShowAnswer(false); },
+    onNext: () => { setCurrentIndex(i => Math.min(lastIndex, i + 1)); setShowAnswer(false); },
+    onPrimary: () => setShowAnswer(a => !a),
+  });
+
+  if (!questions.length) return <QuestionSkeleton />;
 
   const question = questions[currentIndex];
 
@@ -25,10 +35,13 @@ export const ReviewMode = ({ questions, shuffleQuestions }: ReviewModeProps) => 
         <div className="text-sm text-gray-400">
           Question {currentIndex + 1} of {questions.length}
         </div>
-        <Button variant="outline" size="sm" onClick={shuffleQuestions}>
-          <Shuffle className="w-4 h-4 mr-2" />
-          Shuffle
-        </Button>
+        <div className="flex items-center gap-1">
+          <StarToggle key={question.id ?? currentIndex} examId={examId} questionId={question.id} size="md" />
+          <Button variant="outline" size="sm" onClick={shuffleQuestions}>
+            <Shuffle className="w-4 h-4 mr-2" />
+            Shuffle
+          </Button>
+        </div>
       </div>
 
       <Card>
@@ -52,7 +65,10 @@ export const ReviewMode = ({ questions, shuffleQuestions }: ReviewModeProps) => 
           </div>
 
           <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-between">
-            <Button onClick={() => setCurrentIndex(i => Math.max(0, i - 1))} disabled={currentIndex === 0}>
+            <Button
+              onClick={() => { setCurrentIndex(i => Math.max(0, i - 1)); setShowAnswer(false); }}
+              disabled={currentIndex === 0}
+            >
               Previous
             </Button>
             <Button variant="outline" onClick={() => setShowAnswer(!showAnswer)}>

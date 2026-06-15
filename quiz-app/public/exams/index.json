@@ -1,32 +1,42 @@
 [
-    {
-      "id": "AWS-SAP-C02",
-      "name": "AWS Solutions Architect - Professional",
-      "path": "/exams/AWS-SAP-C02.json"
-    },
-    {
-      "id": "AWS-SAA-C03",
-      "name": "AWS Solutions Architect - Associate",
-      "path": "/exams/AWS-SAA-C03.json"
-    },
-    {
-        "id": "AWS-DVA-C02",
-        "name": "AWS Developer - Associate",
-        "path": "/exams/AWS-DVA-C02.json"
-    },
-    {
-      "id": "PSM-I",
-      "name": "Professional Scrum Master - Scrum.org",
-      "path": "/exams/PSM-I.json"
-    },
-    {
-      "id": "CompTIA-SYO-701",
-      "name": "CompTIA Security+",
-      "path": "/exams/CompTIA-SYO-701.json"
-    },
-    {
-      "id": "AWS-ADC-Prep",
-      "name": "AWS ADC Prep",
-      "path": "/exams/AWS-ADC-Prep.json"
-    }
-  ]
+  {
+    "id": "AWS-SAP-C02",
+    "name": "AWS Solutions Architect - Professional",
+    "path": "/exams/AWS-SAP-C02.json",
+    "code": "SAP-C02",
+    "sim": { "questionCount": 75, "timeLimitMinutes": 180, "passThresholdPercent": 75 }
+  },
+  {
+    "id": "AWS-SAA-C03",
+    "name": "AWS Solutions Architect - Associate",
+    "path": "/exams/AWS-SAA-C03.json",
+    "code": "SAA-C03",
+    "sim": { "questionCount": 65, "timeLimitMinutes": 130, "passThresholdPercent": 72 }
+  },
+  {
+    "id": "AWS-DVA-C02",
+    "name": "AWS Developer - Associate",
+    "path": "/exams/AWS-DVA-C02.json",
+    "code": "DVA-C02",
+    "sim": { "questionCount": 65, "timeLimitMinutes": 130, "passThresholdPercent": 72 }
+  },
+  {
+    "id": "PSM-I",
+    "name": "Professional Scrum Master - Scrum.org",
+    "path": "/exams/PSM-I.json",
+    "code": "PSM I",
+    "sim": { "questionCount": 80, "timeLimitMinutes": 60, "passThresholdPercent": 85 }
+  },
+  {
+    "id": "CompTIA-SYO-701",
+    "name": "CompTIA Security+",
+    "path": "/exams/CompTIA-SYO-701.json",
+    "code": "SY0-701",
+    "sim": { "questionCount": 90, "timeLimitMinutes": 90, "passThresholdPercent": 75 }
+  },
+  {
+    "id": "AWS-ADC-Prep",
+    "name": "AWS ADC Prep",
+    "path": "/exams/AWS-ADC-Prep.json"
+  }
+]

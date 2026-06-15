@@ -1,14 +1,29 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Button } from '../ui/button';
 import { Modal } from '../ui/Modal';
-import { ArrowLeft, PlayCircle, Plus, Trash2 } from 'lucide-react';
-import type { LegacyQuestion, Deck, Flashcard } from '../../types/index';
+import { ArrowLeft, PlayCircle, Plus, Trash2, CheckCircle, BookOpen, Star, Target } from 'lucide-react';
+import type { LegacyQuestion, Deck, Flashcard, QuestionStudyState } from '../../types/index';
 import { StorageService } from '../../services/storage';
 import { isDue, sortByDueFirst } from '../../services/spacedRepetition';
+import {
+  getExamStudyState,
+  rateQuestion,
+  toggleStar,
+  countStudyState,
+  indexByQuestionId,
+  migrateAutoDecksForExam,
+  getPracticeIncorrectIds,
+} from '../../services/studyState';
 import { FlashcardViewer } from './FlashcardViewer';
 import { QuestionSearchPanel } from './QuestionSearchPanel';
 
 const ALL_QUESTIONS_DECK_ID = '__all_questions__';
+// Virtual study-state views (filtered over the exam bank, not stored decks).
+const KNOWN_VIEW_ID = '__view_known__';
+const LEARNING_VIEW_ID = '__view_learning__';
+const STARRED_VIEW_ID = '__view_starred__';
+const INCORRECT_VIEW_ID = '__view_incorrect__';
+type ViewId = typeof ALL_QUESTIONS_DECK_ID | typeof KNOWN_VIEW_ID | typeof LEARNING_VIEW_ID | typeof STARRED_VIEW_ID | typeof INCORRECT_VIEW_ID;
 
 export interface FlashcardsTabProps {
   examId: string;
@@ -19,6 +34,7 @@ export interface FlashcardsTabProps {
 export const FlashcardsTab = ({ examId, legacyQuestions, shuffleLegacy }: FlashcardsTabProps) => {
   const [decks, setDecks] = useState<Deck[]>([]);
   const [flashcards, setFlashcards] = useState<Flashcard[]>([]);
+  const [studyState, setStudyState] = useState<QuestionStudyState[]>([]);
   const [selectedDeckId, setSelectedDeckId] = useState<string | null>(null);
   const [deckView, setDeckView] = useState<'manage' | 'review'>('manage');
   const [manageView, setManageView] = useState<'decks' | 'search'>('decks');
@@ -32,15 +48,50 @@ export const FlashcardsTab = ({ examId, legacyQuestions, shuffleLegacy }: Flashc
   useEffect(() => {
     const allDecks = StorageService.getDecks().filter(d => d.examIds.includes(examId));
     const allCards = StorageService.getFlashcards();
+
+    // One-time migration: fold legacy __known__/__learning__ auto-deck cards for
+    // this exam into per-question study state, then drop those cards.
+    const existingState = StorageService.getStudyState();
+    const { merged, consumedCardIds, migratedCount } = migrateAutoDecksForExam(
+      examId, legacyQuestions, allCards, existingState,
+    );
+    let cards = allCards;
+    if (migratedCount > 0 || consumedCardIds.length > 0) {
+      StorageService.saveStudyState(merged);
+      cards = allCards.filter(c => !consumedCardIds.includes(c.id));
+      StorageService.saveFlashcards(cards);
+    }
+
     setDecks(allDecks);
-    setFlashcards(allCards);
+    setFlashcards(cards);
+    setStudyState(getExamStudyState(examId));
     setSelectedDeckId(null);
     setDeckView('manage');
     setManageView('decks');
     setShowNewDeckForm(false);
-  }, [examId]);
+  }, [examId, legacyQuestions]);
 
   const selectedDeck = decks.find(d => d.id === selectedDeckId) ?? null;
+
+  // Study-state counts for the view chips.
+  const counts = useMemo(
+    () => countStudyState(
+      legacyQuestions.map(q => q.id).filter((id): id is number => typeof id === 'number'),
+      studyState,
+    ),
+    [legacyQuestions, studyState],
+  );
+
+  // Practice-Incorrect source: still-learning ∪ missed-in-quiz-history (§3.2).
+  // Restricted to ids present in the current bank.
+  const practiceIncorrectIds = useMemo(() => {
+    const bankIds = new Set(
+      legacyQuestions.map(q => q.id).filter((id): id is number => typeof id === 'number'),
+    );
+    return new Set(getPracticeIncorrectIds(examId).filter(id => bankIds.has(id)));
+    // studyState is included so the view refreshes after ratings.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [examId, legacyQuestions, studyState]);
 
   // ── Deck CRUD ─────────────────────────────────────────────────────────────
 
@@ -86,7 +137,7 @@ export const FlashcardsTab = ({ examId, legacyQuestions, shuffleLegacy }: Flashc
     setPendingDeleteDeckId(null);
   }
 
-  // ── Card CRUD ─────────────────────────────────────────────────────────────
+  // ── Card CRUD (custom decks only) ─────────────────────────────────────────
 
   function handleCardAdded(card: Flashcard) {
     const allCards = StorageService.getFlashcards();
@@ -94,64 +145,6 @@ export const FlashcardsTab = ({ examId, legacyQuestions, shuffleLegacy }: Flashc
     setFlashcards(prev => [...prev, card]);
   }
 
-  // ── Auto-decks: "Known" and "Still Learning" ──────────────────────────────
-
-  const KNOWN_DECK_PREFIX = '__known__';
-  const LEARNING_DECK_PREFIX = '__learning__';
-  const knownDeckId = `${KNOWN_DECK_PREFIX}${examId}`;
-  const learningDeckId = `${LEARNING_DECK_PREFIX}${examId}`;
-
-  function getOrCreateAutoDeck(id: string, name: string): Deck {
-    const allDecks = StorageService.getDecks();
-    let deck = allDecks.find(d => d.id === id);
-    if (!deck) {
-      deck = { id, name, examIds: [examId], createdAt: new Date().toISOString() };
-      StorageService.saveDecks([...allDecks, deck]);
-      setDecks(prev => [...prev, deck!]);
-    }
-    return deck;
-  }
-
-  function handleCardRated(question: LegacyQuestion, known: boolean) {
-    const targetDeckId = known ? knownDeckId : learningDeckId;
-    const otherDeckId = known ? learningDeckId : knownDeckId;
-    const targetName = known ? '✓ Known' : '📖 Still Learning';
-
-    getOrCreateAutoDeck(targetDeckId, targetName);
-
-    const allCards = StorageService.getFlashcards();
-
-    // Remove from the other auto-deck if present
-    const filtered = allCards.filter(
-      c => !(c.front === question.question && c.deckId === otherDeckId)
-    );
-
-    // Check if already in target deck
-    const alreadyInTarget = filtered.some(
-      c => c.front === question.question && c.deckId === targetDeckId
-    );
-
-    let updatedCards = filtered;
-    if (!alreadyInTarget) {
-      const correctText = question.correctAnswers.map(i => question.options[i]).join(' / ');
-      const newCard: Flashcard = {
-        id: crypto.randomUUID(),
-        deckId: targetDeckId,
-        front: question.question,
-        back: correctText,
-        masteryLevel: known ? 1 : 0,
-        lastReviewedAt: new Date().toISOString(),
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
-      updatedCards = [...filtered, newCard];
-    }
-
-    StorageService.saveFlashcards(updatedCards);
-    setFlashcards(updatedCards);
-  }
-
-  // ── Save card to deck ─────────────────────────────────────────────────────
   function handleSaveCardToDeck(question: LegacyQuestion, deckId: string): boolean {
     const alreadyExists = flashcards.some(f => f.front === question.question && f.deckId === deckId);
     if (alreadyExists) return false;
@@ -169,12 +162,27 @@ export const FlashcardsTab = ({ examId, legacyQuestions, shuffleLegacy }: Flashc
     return true;
   }
 
-  // ── Convert Flashcard[] → LegacyQuestion[] for FlashcardViewer ───────────
+  // ── Study-state writes (rating + star) ────────────────────────────────────
+
+  function handleCardRated(question: LegacyQuestion, known: boolean) {
+    if (typeof question.id !== 'number') return; // study state keys on id
+    rateQuestion(examId, question.id, known);
+    setStudyState(getExamStudyState(examId));
+  }
+
+  function handleToggleStar(question: LegacyQuestion) {
+    if (typeof question.id !== 'number') return;
+    toggleStar(examId, question.id);
+    setStudyState(getExamStudyState(examId));
+  }
+
+  // ── Convert custom-deck Flashcard[] → LegacyQuestion[] for FlashcardViewer ──
   function toViewerQuestions(cards: Flashcard[]): LegacyQuestion[] {
     const bankMap = new Map(legacyQuestions.map(q => [q.question, q]));
     return cards.map(c => {
       const bankQ = bankMap.get(c.front);
       return {
+        id: bankQ?.id,
         question: c.front,
         options: bankQ ? bankQ.options : [c.back],
         correctAnswers: bankQ ? bankQ.correctAnswers : [0],
@@ -184,44 +192,51 @@ export const FlashcardsTab = ({ examId, legacyQuestions, shuffleLegacy }: Flashc
     });
   }
 
+  // ── Build the question list for a study-state view ─────────────────────────
+  function questionsForView(view: ViewId): LegacyQuestion[] {
+    if (view === ALL_QUESTIONS_DECK_ID) return legacyQuestions;
+    const byId = indexByQuestionId(studyState);
+    return legacyQuestions.filter(q => {
+      if (typeof q.id !== 'number') return false;
+      const rec = byId.get(q.id);
+      if (view === STARRED_VIEW_ID) return !!rec?.starred;
+      if (view === KNOWN_VIEW_ID) return rec?.status === 'known';
+      if (view === LEARNING_VIEW_ID) return rec?.status === 'still-learning';
+      if (view === INCORRECT_VIEW_ID) return practiceIncorrectIds.has(q.id);
+      return false;
+    });
+  }
+
+  const isViewId = (id: string | null): id is ViewId =>
+    id === ALL_QUESTIONS_DECK_ID || id === KNOWN_VIEW_ID || id === LEARNING_VIEW_ID || id === STARRED_VIEW_ID || id === INCORRECT_VIEW_ID;
+
   // ── Review view ───────────────────────────────────────────────────────────
 
-  if (deckView === 'review' && (selectedDeck || selectedDeckId === ALL_QUESTIONS_DECK_ID || selectedDeckId === knownDeckId || selectedDeckId === learningDeckId)) {
-    const isAllQuestionsDeck = selectedDeckId === ALL_QUESTIONS_DECK_ID;
-    const isAutoDeck = selectedDeckId === knownDeckId || selectedDeckId === learningDeckId;
-    const reviewCards = isAllQuestionsDeck ? [] : flashcards.filter(f => f.deckId === selectedDeckId);
-    const sortedCards = isAutoDeck ? reviewCards : sortByDueFirst(reviewCards);
-    const viewerQuestions = isAllQuestionsDeck ? legacyQuestions : toViewerQuestions(sortedCards);
-    const reviewDeckName = isAllQuestionsDeck ? 'All Exam Questions'
-      : selectedDeckId === knownDeckId ? '✓ Known'
-      : selectedDeckId === learningDeckId ? '📖 Still Learning'
-      : selectedDeck!.name;
-    const reviewDeckId = isAllQuestionsDeck ? 'legacy' : selectedDeckId!;
+  if (deckView === 'review' && (selectedDeck || isViewId(selectedDeckId))) {
+    const viewId = isViewId(selectedDeckId) ? selectedDeckId : null;
 
-    // Build flashcard map for mastery tracking — for custom and auto decks
-    const flashcardMap = isAllQuestionsDeck
-      ? undefined
-      : new Map<string, { id: string; masteryLevel: number }>(
-          sortedCards.map(c => [c.front, { id: c.id, masteryLevel: c.masteryLevel }])
-        );
+    let viewerQuestions: LegacyQuestion[];
+    let reviewDeckName: string;
+    let reviewDeckId: string;
+    let starredSet: Set<number> | undefined;
 
-    function handleUpdateMastery(flashcardId: string, known: boolean) {
-      const allCards = StorageService.getFlashcards();
-      const card = allCards.find(c => c.id === flashcardId);
-      if (!card) return;
-      
-      const updated = allCards.map(c => 
-        c.id === flashcardId 
-          ? { 
-              ...c, 
-              masteryLevel: known ? c.masteryLevel + 1 : 0,
-              lastReviewedAt: new Date().toISOString(),
-              updatedAt: new Date().toISOString(),
-            }
-          : c
-      );
-      StorageService.saveFlashcards(updated);
-      setFlashcards(updated);
+    if (viewId) {
+      viewerQuestions = questionsForView(viewId);
+      reviewDeckName = viewId === ALL_QUESTIONS_DECK_ID ? 'All Exam Questions'
+        : viewId === KNOWN_VIEW_ID ? '✓ Known'
+        : viewId === LEARNING_VIEW_ID ? '📖 Still Learning'
+        : viewId === INCORRECT_VIEW_ID ? '🎯 Practice Incorrect'
+        : '⭐ Starred';
+      reviewDeckId = 'legacy';
+      const byId = indexByQuestionId(studyState);
+      starredSet = new Set(viewerQuestions.filter(q => byId.get(q.id as number)?.starred).map(q => q.id as number));
+    } else {
+      const reviewCards = sortByDueFirst(flashcards.filter(f => f.deckId === selectedDeckId));
+      viewerQuestions = toViewerQuestions(reviewCards);
+      reviewDeckName = selectedDeck!.name;
+      reviewDeckId = selectedDeckId!;
+      const byId = indexByQuestionId(studyState);
+      starredSet = new Set(viewerQuestions.filter(q => typeof q.id === 'number' && byId.get(q.id)?.starred).map(q => q.id as number));
     }
 
     return (
@@ -238,18 +253,18 @@ export const FlashcardsTab = ({ examId, legacyQuestions, shuffleLegacy }: Flashc
         {viewerQuestions.length > 0 ? (
           <FlashcardViewer
             questions={viewerQuestions}
-            shuffleQuestions={isAllQuestionsDeck ? shuffleLegacy : () => {}}
+            shuffleQuestions={viewId === ALL_QUESTIONS_DECK_ID ? shuffleLegacy : () => {}}
             decks={decks}
             onSaveCardToDeck={handleSaveCardToDeck}
             onCreateDeck={createDeck}
-            flashcardMap={flashcardMap}
-            onUpdateMastery={isAllQuestionsDeck ? undefined : handleUpdateMastery}
             deckId={reviewDeckId}
             onCardRated={handleCardRated}
+            onToggleStar={handleToggleStar}
+            starredIds={starredSet}
           />
         ) : (
           <div className="py-10 text-center text-gray-500 text-sm">
-            This deck has no cards yet. Use "Add from Exam Bank" to populate it.
+            No questions in this view yet. Rate or star questions while studying to populate it.
           </div>
         )}
       </div>
@@ -269,6 +284,10 @@ export const FlashcardsTab = ({ examId, legacyQuestions, shuffleLegacy }: Flashc
     </button>
   );
 
+  const startReview = (id: ViewId) => { setSelectedDeckId(id); setDeckView('review'); };
+
+  const customDecks = decks; // auto-decks no longer stored; all stored decks are custom
+
   return (
     <div className="space-y-4">
       {/* Sub-nav */}
@@ -280,8 +299,66 @@ export const FlashcardsTab = ({ examId, legacyQuestions, shuffleLegacy }: Flashc
       {/* ── Decks view ── */}
       {manageView === 'decks' && (
         <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-400">{decks.length} deck{decks.length !== 1 ? 's' : ''}</span>
+          {/* Study-state views (filtered over the exam bank) */}
+          <ul className="space-y-2" role="list">
+            {legacyQuestions.length > 0 && (
+              <li className="rounded-lg border border-gray-700 bg-gray-900/40 px-4 py-3">
+                <div className="flex items-center justify-between gap-2">
+                  <div>
+                    <p className="text-sm font-medium text-gray-200">All Exam Questions</p>
+                    <p className="text-xs text-gray-500 mt-0.5">
+                      {legacyQuestions.length} card{legacyQuestions.length !== 1 ? 's' : ''}
+                    </p>
+                  </div>
+                  <Button
+                    size="sm" variant="outline"
+                    onClick={() => startReview(ALL_QUESTIONS_DECK_ID)}
+                    className="text-xs h-7 px-2 shrink-0"
+                    aria-label="Start review for All Exam Questions"
+                  >
+                    <PlayCircle className="w-3.5 h-3.5 mr-1" aria-hidden="true" />
+                    Review
+                  </Button>
+                </div>
+              </li>
+            )}
+
+            {([
+              { id: INCORRECT_VIEW_ID, name: 'Practice Incorrect', icon: <Target className="w-3.5 h-3.5" />, color: 'text-red-400', count: practiceIncorrectIds.size },
+              { id: KNOWN_VIEW_ID, name: 'Known', icon: <CheckCircle className="w-3.5 h-3.5" />, color: 'text-green-400', count: counts.known },
+              { id: LEARNING_VIEW_ID, name: 'Still Learning', icon: <BookOpen className="w-3.5 h-3.5" />, color: 'text-yellow-400', count: counts.stillLearning },
+              { id: STARRED_VIEW_ID, name: 'Starred', icon: <Star className="w-3.5 h-3.5" />, color: 'text-amber-400', count: counts.starred },
+            ] as const).map(view => (
+              <li key={view.id} className="rounded-lg border border-gray-700 bg-gray-900/40 px-4 py-3">
+                <div className="flex items-center justify-between gap-2">
+                  <div>
+                    <p className={`text-sm font-medium flex items-center gap-1.5 ${view.color}`}>
+                      {view.icon}{view.name}
+                    </p>
+                    <p className="text-xs text-gray-500 mt-0.5">
+                      {view.count} question{view.count !== 1 ? 's' : ''}
+                    </p>
+                  </div>
+                  <Button
+                    size="sm" variant="outline"
+                    onClick={() => startReview(view.id)}
+                    disabled={view.count === 0}
+                    className="text-xs h-7 px-2 shrink-0"
+                    aria-label={`Start review for ${view.name}`}
+                  >
+                    <PlayCircle className="w-3.5 h-3.5 mr-1" aria-hidden="true" />
+                    Review
+                  </Button>
+                </div>
+              </li>
+            ))}
+          </ul>
+
+          {/* Custom decks */}
+          <div className="flex items-center justify-between pt-2">
+            <span className="text-sm text-gray-400">
+              {customDecks.length} custom deck{customDecks.length !== 1 ? 's' : ''}
+            </span>
             {!showNewDeckForm && (
               <Button size="sm" onClick={() => setShowNewDeckForm(true)}>
                 <Plus className="w-3.5 h-3.5 mr-1" aria-hidden="true" />
@@ -311,67 +388,7 @@ export const FlashcardsTab = ({ examId, legacyQuestions, shuffleLegacy }: Flashc
           )}
 
           <ul className="space-y-2" role="list">
-            {/* Virtual "All Exam Questions" deck — always shown at the top */}
-            {legacyQuestions.length > 0 && (
-              <li className="rounded-lg border border-gray-700 bg-gray-900/40 px-4 py-3">
-                <div className="flex items-center justify-between gap-2">
-                  <div>
-                    <p className="text-sm font-medium text-gray-200">All Exam Questions</p>
-                    <p className="text-xs text-gray-500 mt-0.5">
-                      {legacyQuestions.length} card{legacyQuestions.length !== 1 ? 's' : ''}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-1.5 shrink-0">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => { setSelectedDeckId(ALL_QUESTIONS_DECK_ID); setDeckView('review'); }}
-                      className="text-xs h-7 px-2"
-                      aria-label="Start review for All Exam Questions"
-                    >
-                      <PlayCircle className="w-3.5 h-3.5 mr-1" aria-hidden="true" />
-                      Review
-                    </Button>
-                  </div>
-                </div>
-              </li>
-            )}
-
-            {/* Auto-decks: Known and Still Learning */}
-            {[
-              { id: knownDeckId, name: '✓ Known', color: 'text-green-400' },
-              { id: learningDeckId, name: '📖 Still Learning', color: 'text-yellow-400' },
-            ].map(autoDeck => {
-              const count = flashcards.filter(f => f.deckId === autoDeck.id).length;
-              if (count === 0) return null;
-              return (
-                <li key={autoDeck.id} className="rounded-lg border border-gray-700 bg-gray-900/40 px-4 py-3">
-                  <div className="flex items-center justify-between gap-2">
-                    <div>
-                      <p className={`text-sm font-medium ${autoDeck.color}`}>{autoDeck.name}</p>
-                      <p className="text-xs text-gray-500 mt-0.5">
-                        {count} card{count !== 1 ? 's' : ''}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-1.5 shrink-0">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => { setSelectedDeckId(autoDeck.id); setDeckView('review'); }}
-                        className="text-xs h-7 px-2"
-                        aria-label={`Start review for ${autoDeck.name}`}
-                      >
-                        <PlayCircle className="w-3.5 h-3.5 mr-1" aria-hidden="true" />
-                        Review
-                      </Button>
-                    </div>
-                  </div>
-                </li>
-              );
-            })}
-
-            {/* Custom decks */}
-            {decks.filter(d => d.id !== knownDeckId && d.id !== learningDeckId).map(deck => {
+            {customDecks.map(deck => {
               const count = flashcards.filter(f => f.deckId === deck.id).length;
               const dueCount = flashcards.filter(f => f.deckId === deck.id && isDue(f)).length;
               const isRenaming = renamingDeckId === deck.id;

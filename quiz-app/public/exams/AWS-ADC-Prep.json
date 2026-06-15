@@ -1,827 +1,927 @@
 [
-    {
-      "question": "What is the first step in the DNS resolution process when a user types a domain name into their browser?",
-      "options": [
-        "The browser sends a request directly to the root DNS server.",
-        "The browser checks its local DNS cache for the IP address.",
-        "The browser contacts the ISP's recursive DNS resolver.",
-        "The browser queries the authoritative DNS server for the domain."
-      ],
-      "correctAnswers": [
-        1
-      ],
-      "explanation": "The browser first checks its local DNS cache to see if it already has the IP address for the domain."
-    },
-    {
-      "question": "What is the key difference between a recursive DNS query and an iterative DNS query?",
-      "options": [
-        "Recursive queries are faster but less reliable than iterative queries.",
-        "Recursive queries require the DNS resolver to provide the final answer, while iterative queries may return referrals.",
-        "Iterative queries are only used by clients, while recursive queries are used by DNS servers.",
-        "There is no practical difference between recursive and iterative queries."
-      ],
-      "correctAnswers": [
-        1
-      ],
-      "explanation": "In recursive queries, the resolver must return the final answer or an error. In iterative queries, the resolver may return a referral to another DNS server."
-    },
-    {
-      "question": "Which of the following DNS record types are commonly used? (Select THREE)",
-      "options": [
-        "A record",
-        "B record",
-        "CNAME record",
-        "MX record",
-        "Z record"
-      ],
-      "correctAnswers": [
-        0,
-        2,
-        3
-      ],
-      "explanation": "A records map hostnames to IPv4 addresses, CNAME records create aliases, and MX records specify mail servers."
-    },
-    {
-      "question": "A customer reports they can access a website by IP address but not by hostname. What are likely causes? (Select TWO)",
-      "options": [
-        "The web server is down.",
-        "There is a DNS resolution problem.",
-        "The customer's local DNS cache is corrupted.",
-        "The website's SSL certificate is expired.",
-        "The customer's hosts file has incorrect entries."
-      ],
-      "correctAnswers": [
-        1,
-        4
-      ],
-      "explanation": "When IP access works but hostname access fails, it typically indicates either DNS resolution issues or local host file problems."
-    },
-    {
-      "question": "What information does `dig +trace` provide that a regular `dig` command doesn't?",
-      "options": [
-        "The complete path of DNS servers queried during resolution.",
-        "The geographic location of DNS servers.",
-        "The encryption status of DNS queries.",
-        "The load balancing configuration of the domain."
-      ],
-      "correctAnswers": [
-        0
-      ],
-      "explanation": "`dig +trace` shows the complete resolution path from root servers to authoritative servers."
-    },
-    {
-      "question": "When would you use an MX record instead of an A record?",
-      "options": [
-        "When you need to point a domain to an IPv4 address.",
-        "When you need to specify mail servers for a domain.",
-        "When you need to create a domain alias.",
-        "When you need to verify domain ownership."
-      ],
-      "correctAnswers": [
-        1
-      ],
-      "explanation": "MX records are specifically used to designate mail exchange servers for a domain."
-    },
-    {
-      "question": "What is the primary advantage of using `dig` over `nslookup`?",
-      "options": [
-        "`dig` provides more detailed output and is more scriptable.",
-        "`dig` works on all operating systems while `nslookup` doesn't.",
-        "`dig` can bypass DNS caching while `nslookup` cannot.",
-        "`dig` is more user-friendly with a graphical interface."
-      ],
-      "correctAnswers": [
-        0
-      ],
-      "explanation": "`dig` provides more detailed information in its output and is better suited for scripting and automation."
-    },
-    {
-      "question": "Which DNS record type would you use to point a domain to another domain name?",
-      "options": [
-        "A record",
-        "AAAA record",
-        "CNAME record",
-        "TXT record"
-      ],
-      "correctAnswers": [
-        2
-      ],
-      "explanation": "CNAME records are used to create aliases, pointing one domain name to another."
-    },
-    {
-      "question": "What is the purpose of a TTL (Time To Live) value in DNS records?",
-      "options": [
-        "To specify how long a DNS server should cache the record.",
-        "To indicate the geographical region where the record is valid.",
-        "To set the encryption level for DNS queries.",
-        "To determine the priority of multiple records."
-      ],
-      "correctAnswers": [
-        0
-      ],
-      "explanation": "TTL specifies how long resolvers should cache the DNS record before checking for updates."
-    },
-    {
-      "question": "Which of the following are common DNS-related issues customers might experience? (Select THREE)",
-      "options": [
-        "DNS cache poisoning",
-        "DNS propagation delays",
-        "DNS server hardware failure",
-        "DNS record misconfiguration",
-        "DNS query encryption failure"
-      ],
-      "correctAnswers": [
-        0,
-        1,
-        3
-      ],
-      "explanation": "Common DNS issues include cache poisoning, propagation delays during changes, and misconfigured records."
-    },
-    {
-      "question": "What is the role of the root DNS servers in DNS resolution?",
-      "options": [
-        "They provide the final IP address for all domains.",
-        "They direct resolvers to the appropriate TLD servers.",
-        "They cache all DNS records for faster resolution.",
-        "They validate the security of DNS queries."
-      ],
-      "correctAnswers": [
-        1
-      ],
-      "explanation": "Root servers direct resolvers to the appropriate top-level domain (TLD) servers for the next step in resolution."
-    },
-    {
-      "question": "When troubleshooting DNS issues, why might you check the hosts file on a local computer?",
-      "options": [
-        "To verify the computer's network connectivity.",
-        "To check for manual overrides of DNS resolution.",
-        "To view the computer's DNS cache contents.",
-        "To modify the computer's DNS server settings."
-      ],
-      "correctAnswers": [
-        1
-      ],
-      "explanation": "The hosts file can contain manual mappings that override normal DNS resolution."
-    },
-    {
-      "question": "What is the purpose of a TXT record in DNS?",
-      "options": [
-        "To map a hostname to an IP address.",
-        "To provide text information for various verification purposes.",
-        "To specify the mail servers for a domain.",
-        "To create redirects from one domain to another."
-      ],
-      "correctAnswers": [
-        1
-      ],
-      "explanation": "TXT records are used to hold text information, often for verification, SPF records, or other metadata."
-    },
-    {
-      "question": "In DNS resolution, what is the final step before the IP address is returned to the client?",
-      "options": [
-        "Querying the root DNS servers.",
-        "Querying the TLD servers.",
-        "Querying the authoritative name servers for the domain.",
-        "Checking the local router's DNS cache."
-      ],
-      "correctAnswers": [
-        2
-      ],
-      "explanation": "The authoritative name servers for the domain provide the final answer in DNS resolution."
-    },
-    {
-      "question": "Why might you use both A and AAAA records for a domain?",
-      "options": [
-        "To provide both IPv4 and IPv6 addresses for the domain.",
-        "To create a backup in case one record fails.",
-        "To specify different servers for different geographic regions.",
-        "To enable both HTTP and HTTPS access to the domain."
-      ],
-      "correctAnswers": [
-        0
-      ],
-      "explanation": "A records are for IPv4 addresses while AAAA records are for IPv6 addresses, allowing support for both protocols."
-    },
-    {
-        "question": "A customer can't connect to their EC2 instance on port 443. Which tools would you recommend they use to troubleshoot? (Select TWO)",
-        "options": [
-        "Use `ping` to check basic connectivity",
-        "Use `telnet` to test the specific port",
-        "Use `dig` to check DNS resolution",
-        "Use `netstat` to check local port availability",
-        "Use `traceroute` to check the network path"
-        ],
-        "correctAnswers": [
-        1,
-        3
-        ],
-        "explanation": "For port connectivity issues, `telnet` can test if the port is reachable and `netstat` can verify if the service is listening locally."
-    },
-    {
-        "question": "What is the primary purpose of `tcpdump`?",
-        "options": [
-        "To measure network bandwidth usage",
-        "To capture and analyze network packets",
-        "To test DNS resolution times",
-        "To monitor CPU usage of network services"
-        ],
-        "correctAnswers": [
-        1
-        ],
-        "explanation": "`tcpdump` is a packet analyzer that captures and displays network traffic in real-time."
-    },
-    {
-        "question": "What does the command `netstat -tlnp` display? (Select THREE)",
-        "options": [
-        "All listening TCP ports",
-        "The process ID using each port",
-        "The program name associated with each port",
-        "The MAC addresses of connected devices",
-        "The total network bandwidth usage"
-        ],
-        "correctAnswers": [
-        0,
-        1,
-        2
-        ],
-        "explanation": "`-t` shows TCP ports, `-l` shows listening ports, `-n` shows numerical addresses, and `-p` shows process information."
-    },
-    {
-        "question": "Which tool would be most appropriate for verifying a TLS/SSL connection?",
-        "options": [
-        "ping",
-        "openssl s_client",
-        "traceroute",
-        "netcat"
-        ],
-        "correctAnswers": [
-        1
-        ],
-        "explanation": "`openssl s_client` can establish and debug TLS/SSL connections and verify certificates."
-    },
-    {
-        "question": "What information would you get from running `nc -zv example.com 443`?",
-        "options": [
-        "A packet capture of all traffic on port 443",
-        "A verification if port 443 is open and reachable",
-        "A list of all services running on example.com",
-        "The SSL certificate details for example.com"
-        ],
-        "correctAnswers": [
-        1
-        ],
-        "explanation": "`nc -zv` (netcat) performs a basic port scan to verify if a specific port is open (-z) and provides verbose output (-v)."
-    },
-    {
-        "question": "When would you use `traceroute` in network troubleshooting?",
-        "options": [
-        "To identify where packets are being dropped in the network path",
-        "To test if a specific port is open on a remote server",
-        "To measure the bandwidth between two hosts",
-        "To decrypt SSL/TLS traffic"
-        ],
-        "correctAnswers": [
-        0
-        ],
-        "explanation": "`traceroute` shows the path packets take to reach a destination and can identify where connectivity fails."
-    },
-    {
-        "question": "What does the following `tcpdump` command do: `tcpdump -i eth0 port 80`?",
-        "options": [
-        "Captures all traffic on interface eth0",
-        "Captures only HTTP traffic on interface eth0",
-        "Captures all traffic on port 80 across all interfaces",
-        "Displays statistics for port 80 usage"
-        ],
-        "correctAnswers": [
-        1
-        ],
-        "explanation": "This command captures traffic on interface eth0 (-i eth0) specifically for port 80 (HTTP)."
-    },
-    {
-        "question": "Which tool would you use to quickly check if a remote UDP port is open?",
-        "options": [
-        "telnet",
-        "netcat",
-        "ping",
-        "tcpdump"
-        ],
-        "correctAnswers": [
-        1
-        ],
-        "explanation": "Netcat (`nc`) can test both TCP and UDP ports, while telnet only works with TCP."
-    },
-    {
-        "question": "What is the key difference between `ping` and `traceroute`?",
-        "options": [
-        "Ping tests connectivity while traceroute shows the network path",
-        "Ping works on Windows while traceroute only works on Linux",
-        "Ping uses TCP while traceroute uses UDP",
-        "Ping shows bandwidth while traceroute shows latency"
-        ],
-        "correctAnswers": [
-        0
-        ],
-        "explanation": "Ping simply tests if a host is reachable, while traceroute shows each hop along the path to the host."
-    },
-    {
-        "question": "How would you interpret seeing 'Connection refused' when using `telnet` to test a port?",
-        "options": [
-        "The port is open and accepting connections",
-        "The host is unreachable",
-        "The port is closed or no service is listening",
-        "There's a firewall blocking ICMP packets"
-        ],
-        "correctAnswers": [
-        2
-        ],
-        "explanation": "'Connection refused' typically means the port is closed or no service is listening on that port."
-    },
-    {
-        "question": "Which command would show active network connections and the processes using them?",
-        "options": [
-        "netstat -a",
-        "netstat -tulnp",
-        "tcpdump -i any",
-        "ss -tulnp"
-        ],
-        "correctAnswers": [
-        1,
-        3
-        ],
-        "explanation": "Both `netstat -tulnp` and `ss -tulnp` show active connections with process information."
-    },
-    {
-        "question": "What is the purpose of the `curl -v` command when testing web connectivity?",
-        "options": [
-        "To download a file faster",
-        "To show verbose output including HTTP headers",
-        "To verify SSL certificate validity",
-        "To test multiple ports simultaneously"
-        ],
-        "correctAnswers": [
-        1
-        ],
-        "explanation": "The `-v` flag in curl enables verbose mode, showing request and response headers which is useful for debugging."
-    },
-    {
-        "question": "When troubleshooting, why might you use `ss` instead of `netstat`?",
-        "options": [
-        "`ss` shows more colorful output",
-        "`ss` is faster and shows more detailed TCP information",
-        "`ss` works on Windows systems",
-        "`ss` can modify firewall rules"
-        ],
-        "correctAnswers": [
-        1
-        ],
-        "explanation": "`ss` (socket statistics) is generally faster than netstat and provides more detailed TCP state information."
-    },
-    {
-        "question": "What would `telnet example.com 25` help you determine?",
-        "options": [
-        "If the SMTP service is running on example.com",
-        "The TLS certificate for example.com's email server",
-        "The round-trip time to example.com",
-        "The web server version running on example.com"
-        ],
-        "correctAnswers": [
-        0
-        ],
-        "explanation": "Port 25 is typically used for SMTP, so this would test if the mail server is reachable and responding."
-    },
-    {
-        "question": "Which tool would be most useful for capturing HTTPS traffic for analysis?",
-        "options": [
-        "ping",
-        "tcpdump",
-        "openssl s_client",
-        "netstat"
-        ],
-        "correctAnswers": [
-        1
-        ],
-        "explanation": "While you can't decrypt HTTPS with tcpdump, you can capture the encrypted packets to analyze timing, volume, and basic connection patterns."
-    },
-    {
-        "question": "What does the /16 mean in 172.16.0.0/16?",
-        "options": [
-        "The first 16 bits are the network portion",
-        "There are 16 available subnets",
-        "There are 16 available hosts per subnet",
-        "The subnet mask is 16.0.0.0"
-        ],
-        "correctAnswers": [0],
-        "explanation": "The /16 indicates the first 16 bits of the 32-bit IP address represent the network portion, leaving the remaining 16 bits for host addresses."
-    },
-    {
-        "question": "What are the private IP ranges? (Select THREE)",
-        "options": [
-        "10.0.0.0/8",
-        "172.16.0.0/12",
-        "192.168.0.0/16",
-        "169.254.0.0/16",
-        "224.0.0.0/4"
-        ],
-        "correctAnswers": [0,1,2],
-        "explanation": "RFC 1918 defines these three ranges for private networks. 169.254.x.x is for link-local addresses, and 224.x.x.x is multicast."
-    },
-    {
-        "question": "If a customer has 172.16.0.0/16 and needs 4 equal subnets, what would the new subnet mask be?",
-        "options": [
-        "/18",
-        "/20",
-        "/22",
-        "/24"
-        ],
-        "correctAnswers": [0],
-        "explanation": "To create 4 subnets from a /16, you borrow 2 bits (2^2=4), making the new prefix /18 (16+2)."
-    },
-    {
-        "question": "What's the difference between a /24 and a /28 subnet in terms of available hosts?",
-        "options": [
-        "/24 has 254 hosts, /28 has 14 hosts",
-        "/24 has 256 hosts, /28 has 16 hosts",
-        "/24 has 255 hosts, /28 has 15 hosts",
-        "Both support the same number of hosts"
-        ],
-        "correctAnswers": [0],
-        "explanation": "A /24 leaves 8 host bits (2^8-2=254), while /28 leaves 4 host bits (2^4-2=14). We subtract 2 for network and broadcast addresses."
-    },
-    {
-        "question": "What are key differences between BIOS and UEFI? (Select TWO)",
-        "options": [
-        "UEFI supports larger disks (>2TB)",
-        "BIOS has faster boot times",
-        "UEFI uses GPT partitioning",
-        "BIOS supports Secure Boot",
-        "UEFI can't boot from network"
-        ],
-        "correctAnswers": [0,2],
-        "explanation": "UEFI supports modern features like large disks and GPT, while BIOS is limited to MBR and 2TB disks."
-    },
-    {
-        "question": "Why might a customer choose GPT over MBR? (Select TWO)",
-        "options": [
-        "They need to boot legacy operating systems",
-        "Their disk is larger than 2TB",
-        "They need more than 4 primary partitions",
-        "They want slower partition lookup times",
-        "They need compatibility with Windows XP"
-        ],
-        "correctAnswers": [1,2],
-        "explanation": "GPT supports disks >2TB and up to 128 partitions, while MBR is limited to 2TB and 4 primary partitions."
-    },
-    {
-        "question": "What does Secure Boot in UEFI accomplish?",
-        "options": [
-        "Encrypts all disk contents",
-        "Verifies bootloader signatures",
-        "Speeds up boot process",
-        "Enables PXE booting"
-        ],
-        "correctAnswers": [1],
-        "explanation": "Secure Boot verifies cryptographic signatures of boot components to prevent malware from loading during boot."
-    },
-    {
-        "question": "When would PXE boot be used in an enterprise?",
-        "options": [
-        "To boot legacy BIOS systems",
-        "To remotely install operating systems",
-        "To recover deleted files",
-        "To test memory modules"
-        ],
-        "correctAnswers": [1],
-        "explanation": "PXE (Preboot Execution Environment) allows network booting, commonly used for OS deployment across many machines."
-    },
-    {
-        "question": "When would you recommend migrating from GP2 to GP3? (Select TWO)",
-        "options": [
-        "When they need consistent baseline performance",
-        "When they want lower costs",
-        "When they need maximum possible IOPS",
-        "When they need compatibility with Windows Server 2008",
-        "When they use infrequent access patterns"
-        ],
-        "correctAnswers": [0,1],
-        "explanation": "GP3 provides consistent baseline performance at lower costs than GP2, with optional IOPS provisioning."
-    },
-    {
-        "question": "What are key differences between GP2 and GP3? (Select TWO)",
-        "options": [
-        "GP3 has separate IOPS provisioning",
-        "GP2 has higher maximum throughput",
-        "GP3 uses SSD storage while GP2 uses HDD",
-        "GP2 has burst capability while GP3 doesn't",
-        "GP3 supports larger volume sizes"
-        ],
-        "correctAnswers": [0,1],
-        "explanation": "GP3 decouples IOPS from volume size and allows IOPS provisioning, while GP2 has higher max throughput (250 vs 1000 MB/s)."
-    },
-    {
-        "question": "How would you explain inconsistent GP2 I/O performance?",
-        "options": [
-        "It's caused by network latency fluctuations",
-        "GP2 uses burst credits that deplete under sustained load",
-        "It indicates disk hardware failure",
-        "This is normal for all EBS volume types"
-        ],
-        "correctAnswers": [1],
-        "explanation": "GP2 provides burst performance using credits that accumulate during idle periods and deplete during sustained activity."
-    },
-    {
-        "question": "When would you recommend migrating from GP2 to GP3? (Select TWO)",
-        "options": [
-        "When they need consistent baseline performance",
-        "When they want lower costs",
-        "When they need maximum possible IOPS",
-        "When they need compatibility with Windows Server 2008",
-        "When they use infrequent access patterns"
-        ],
-        "correctAnswers": [0,1],
-        "explanation": "GP3 provides consistent baseline performance at lower costs than GP2, with optional IOPS provisioning."
-    },
-    {
-        "question": "What are key differences between GP2 and GP3? (Select TWO)",
-        "options": [
-        "GP3 has separate IOPS provisioning",
-        "GP2 has higher maximum throughput",
-        "GP3 uses SSD storage while GP2 uses HDD",
-        "GP2 has burst capability while GP3 doesn't",
-        "GP3 supports larger volume sizes"
-        ],
-        "correctAnswers": [0,1],
-        "explanation": "GP3 decouples IOPS from volume size and allows IOPS provisioning, while GP2 has higher max throughput (250 vs 1000 MB/s)."
-    },
-    {
-        "question": "How would you explain inconsistent GP2 I/O performance?",
-        "options": [
-        "It's caused by network latency fluctuations",
-        "GP2 uses burst credits that deplete under sustained load",
-        "It indicates disk hardware failure",
-        "This is normal for all EBS volume types"
-        ],
-        "correctAnswers": [1],
-        "explanation": "GP2 provides burst performance using credits that accumulate during idle periods and deplete during sustained activity."
-    },
-    {
-      "question": "What is the key difference between BIOS and UEFI firmware?",
-      "options": [
-        "BIOS is faster but less secure than UEFI",
-        "BIOS uses 16-bit mode and MBR, while UEFI uses 32/64-bit mode and supports GPT with secure boot",
-        "UEFI is only used for Windows systems, while BIOS is for Linux",
-        "There is no practical difference between BIOS and UEFI"
-      ],
-      "correctAnswers": [
-        1
-      ],
-      "explanation": "UEFI is modern firmware that supports 32/64-bit architecture, GPT partitioning, secure boot capabilities, and faster boot times compared to legacy BIOS which uses 16-bit mode and MBR."
-    },
-    {
-      "question": "In the TCP 3-way handshake, what is the correct sequence of flags?",
-      "options": [
-        "SYN → ACK → SYN-ACK",
-        "SYN → SYN-ACK → ACK",
-        "ACK → SYN → SYN-ACK",
-        "SYN-ACK → SYN → ACK"
-      ],
-      "correctAnswers": [
-        1
-      ],
-      "explanation": "The TCP 3-way handshake follows: Client sends SYN, Server responds with SYN-ACK, Client sends final ACK to establish the connection."
-    },
-    {
-      "question": "What does the CIDR notation /12 represent in terms of subnet mask?",
-      "options": [
-        "255.255.0.0",
-        "255.240.0.0",
-        "255.255.240.0",
-        "255.255.255.0"
-      ],
-      "correctAnswers": [
-        1
-      ],
-      "explanation": "/12 means the first 12 bits are network bits. This translates to 255.240.0.0 (11111111.11110000.00000000.00000000)."
-    },
-    {
-      "question": "What is the correct order of the DHCP DORA process?",
-      "options": [
-        "Discover → Offer → Acknowledge → Request",
-        "Discover → Offer → Request → Acknowledge",
-        "Offer → Discover → Request → Acknowledge",
-        "Request → Discover → Offer → Acknowledge"
-      ],
-      "correctAnswers": [
-        1
-      ],
-      "explanation": "DHCP follows DORA: Discover (client broadcasts), Offer (server responds), Request (client requests specific offer), Acknowledge (server confirms lease)."
-    },
-    {
-      "question": "Which private IP address range corresponds to 172.16.0.0/12?",
-      "options": [
-        "172.0.0.0 - 172.255.255.255",
-        "172.16.0.0 - 172.31.255.255",
-        "172.16.0.0 - 172.16.255.255",
-        "172.1.0.0 - 172.32.255.255"
-      ],
-      "correctAnswers": [
-        1
-      ],
-      "explanation": "The /12 subnet mask gives us 172.16.0.0 through 172.31.255.255 as the private IP range for Class B addresses."
-    },
-    {
-      "question": "What command would you use to test SSL/TLS connectivity to a specific host and port?",
-      "options": [
-        "telnet hostname 443",
-        "nc -zv hostname 443",
-        "openssl s_client -connect hostname:443",
-        "curl -I hostname:443"
-      ],
-      "correctAnswers": [
-        2
-      ],
-      "explanation": "openssl s_client -connect hostname:443 specifically tests SSL/TLS handshake and shows certificate details, while other options test basic connectivity."
-    },
-    {
-      "question": "In DNS resolution, what does the '+trace' option in dig command show?",
-      "options": [
-        "Only the final DNS response",
-        "The complete path from root servers through TLD to authoritative servers",
-        "DNS cache entries",
-        "Reverse DNS lookups only"
-      ],
-      "correctAnswers": [
-        1
-      ],
-      "explanation": "dig +trace shows the complete DNS resolution path: root nameserver → TLD nameserver → authoritative nameserver, displaying each step."
-    },
-    {
-      "question": "What is the main advantage of GP3 EBS volumes over GP2?",
-      "options": [
-        "GP3 volumes are always faster than GP2",
-        "GP3 provides baseline 3000 IOPS with independently configurable throughput, while GP2 provides 3 IOPS per GB with burstable performance",
-        "GP3 volumes are cheaper but slower than GP2",
-        "GP3 only works with specific instance types"
-      ],
-      "correctAnswers": [
-        1
-      ],
-      "explanation": "GP3 offers consistent baseline performance (3000 IOPS) and allows independent configuration of IOPS and throughput, providing better price/performance predictability."
-    },
-    {
-      "question": "What does PXE (Preboot Execution Environment) enable?",
-      "options": [
-        "Faster local boot times",
-        "Network-based booting without local storage",
-        "Secure boot verification",
-        "Dual-boot configuration"
-      ],
-      "correctAnswers": [
-        1
-      ],
-      "explanation": "PXE allows computers to boot from network resources using DHCP and TFTP, enabling diskless workstations and automated OS deployments."
-    },
-    {
-      "question": "Which command shows listening TCP ports along with the process IDs?",
-      "options": [
-        "netstat -an",
-        "netstat -tlnp",
-        "ss -a",
-        "lsof -n"
-      ],
-      "correctAnswers": [
-        1
-      ],
-      "explanation": "netstat -tlnp shows TCP (-t) listening (-l) ports in numeric format (-n) with process IDs (-p)."
-    },
-    {
-      "question": "What is the difference between MBR and GPT partition tables?",
-      "options": [
-        "MBR supports larger drives but fewer partitions than GPT",
-        "GPT supports drives larger than 2TB and unlimited partitions, while MBR is limited to 2TB and 4 primary partitions",
-        "GPT is older technology compared to MBR",
-        "MBR provides better security features than GPT"
-      ],
-      "correctAnswers": [
-        1
-      ],
-      "explanation": "GPT (GUID Partition Table) overcomes MBR limitations by supporting drives >2TB, virtually unlimited partitions, and includes redundancy and CRC protection."
-    },
-    {
-      "question": "In network troubleshooting, what does 'mtr' command provide that 'traceroute' doesn't?",
-      "options": [
-        "DNS resolution capabilities",
-        "Real-time continuous monitoring with packet loss statistics per hop",
-        "Port scanning functionality",
-        "SSL certificate verification"
-      ],
-      "correctAnswers": [
-        1
-      ],
-      "explanation": "mtr (My TraceRoute) combines traceroute and ping functionality, providing continuous real-time monitoring with packet loss and latency statistics for each hop."
-    },
-    {
-      "question": "What DNS record type is used for reverse DNS lookups (IP to hostname)?",
-      "options": [
-        "A record",
-        "CNAME record",
-        "PTR record",
-        "MX record"
-      ],
-      "correctAnswers": [
-        2
-      ],
-      "explanation": "PTR (Pointer) records are used for reverse DNS lookups, mapping IP addresses back to hostnames in the in-addr.arpa domain."
-    },
-    {
-      "question": "Which command combination would you use to capture network traffic on interface eth0 for HTTP traffic?",
-      "options": [
-        "wireshark -i eth0 port 80",
-        "tcpdump -i eth0 port 80",
-        "netstat -i eth0 | grep 80",
-        "ss -i eth0 port 80"
-      ],
-      "correctAnswers": [
-        1
-      ],
-      "explanation": "tcpdump -i eth0 port 80 captures packets on interface eth0 for HTTP traffic (port 80). Wireshark has different syntax and netstat/ss don't capture packets."
-    },
-    {
-      "question": "What is the correct boot process order for a Linux system?",
-      "options": [
-        "Kernel → POST → Bootloader → Init System → User Space",
-        "POST → Firmware → Bootloader → Kernel → Init System → User Space",
-        "Bootloader → POST → Kernel → User Space → Init System",
-        "Firmware → Kernel → POST → Init System → User Space"
-      ],
-      "correctAnswers": [
-        1
-      ],
-      "explanation": "Linux boot sequence: POST (Power-On Self Test) → Firmware (BIOS/UEFI) → Bootloader (GRUB) → Kernel → Init System (systemd) → User Space processes."
-    },
-    {
-      "question": "When troubleshooting DNS, what does an iterative query mean?",
-      "options": [
-        "The client repeatedly queries the same server until it gets an answer",
-        "The DNS resolver queries multiple servers step-by-step, following referrals to find the authoritative answer",
-        "The query is automatically repeated if it fails",
-        "Multiple DNS servers are queried simultaneously"
-      ],
-      "correctAnswers": [
-        1
-      ],
-      "explanation": "In iterative queries, the DNS resolver follows referrals from root to TLD to authoritative servers, querying each step until it finds the final answer."
-    },
-    {
-      "question": "What does the 'ss' command do in Linux networking?",
-      "options": [
-        "Scans for open SSL certificates",
-        "Shows socket statistics and is the modern replacement for netstat",
-        "Starts SSH connections",
-        "Manages systemd services"
-      ],
-      "correctAnswers": [
-        1
-      ],
-      "explanation": "ss (socket statistics) is the modern replacement for netstat, providing faster and more detailed information about network connections and listening ports."
-    },
-    {
-      "question": "In the context of AWS EBS, what does IOPS stand for and why is it important?",
-      "options": [
-        "Internet Operations Per Second - measures network throughput",
-        "Input/Output Operations Per Second - measures storage performance for database and application workloads",
-        "Integrated Operating Performance Standard - a security certification",
-        "Instance Optimization Protocol System - for EC2 performance"
-      ],
-      "correctAnswers": [
-        1
-      ],
-      "explanation": "IOPS (Input/Output Operations Per Second) measures storage performance, critical for applications requiring high disk I/O like databases. It determines how many read/write operations storage can handle per second."
-    },
-    {
-      "question": "What information does 'dig +short' provide compared to regular 'dig' command?",
-      "options": [
-        "More detailed information including all DNS records",
-        "Only the IP address or answer without additional details",
-        "Shortened domain names only",
-        "Quick network connectivity test"
-      ],
-      "correctAnswers": [
-        1
-      ],
-      "explanation": "dig +short returns only the essential answer (like IP address) without the verbose output, headers, and additional sections that regular dig provides."
-    },
-    {
-      "question": "When using 'netcat (nc)' for network troubleshooting, what does the '-zv' flag combination do?",
-      "options": [
-        "Enables encryption and verbose logging",
-        "Zero I/O mode for port scanning with verbose output",
-        "Sets timeout and enables IPv6",
-        "Compresses data and validates certificates"
-      ],
-      "correctAnswers": [
-        1
-      ],
-      "explanation": "nc -zv enables zero I/O mode (-z) for port scanning without sending data, and verbose mode (-v) to show connection status, making it perfect for testing port connectivity."
-    }
-  ]
+  {
+    "id": 1,
+    "question": "What is the first step in the DNS resolution process when a user types a domain name into their browser?",
+    "options": [
+      "The browser sends a request directly to the root DNS server.",
+      "The browser checks its local DNS cache for the IP address.",
+      "The browser contacts the ISP's recursive DNS resolver.",
+      "The browser queries the authoritative DNS server for the domain."
+    ],
+    "correctAnswers": [
+      1
+    ],
+    "explanation": "The browser first checks its local DNS cache to see if it already has the IP address for the domain."
+  },
+  {
+    "id": 2,
+    "question": "What is the key difference between a recursive DNS query and an iterative DNS query?",
+    "options": [
+      "Recursive queries are faster but less reliable than iterative queries.",
+      "Recursive queries require the DNS resolver to provide the final answer, while iterative queries may return referrals.",
+      "Iterative queries are only used by clients, while recursive queries are used by DNS servers.",
+      "There is no practical difference between recursive and iterative queries."
+    ],
+    "correctAnswers": [
+      1
+    ],
+    "explanation": "In recursive queries, the resolver must return the final answer or an error. In iterative queries, the resolver may return a referral to another DNS server."
+  },
+  {
+    "id": 3,
+    "question": "Which of the following DNS record types are commonly used? (Select THREE)",
+    "options": [
+      "A record",
+      "B record",
+      "CNAME record",
+      "MX record",
+      "Z record"
+    ],
+    "correctAnswers": [
+      0,
+      2,
+      3
+    ],
+    "explanation": "A records map hostnames to IPv4 addresses, CNAME records create aliases, and MX records specify mail servers."
+  },
+  {
+    "id": 4,
+    "question": "A customer reports they can access a website by IP address but not by hostname. What are likely causes? (Select TWO)",
+    "options": [
+      "The web server is down.",
+      "There is a DNS resolution problem.",
+      "The customer's local DNS cache is corrupted.",
+      "The website's SSL certificate is expired.",
+      "The customer's hosts file has incorrect entries."
+    ],
+    "correctAnswers": [
+      1,
+      4
+    ],
+    "explanation": "When IP access works but hostname access fails, it typically indicates either DNS resolution issues or local host file problems."
+  },
+  {
+    "id": 5,
+    "question": "What information does `dig +trace` provide that a regular `dig` command doesn't?",
+    "options": [
+      "The complete path of DNS servers queried during resolution.",
+      "The geographic location of DNS servers.",
+      "The encryption status of DNS queries.",
+      "The load balancing configuration of the domain."
+    ],
+    "correctAnswers": [
+      0
+    ],
+    "explanation": "`dig +trace` shows the complete resolution path from root servers to authoritative servers."
+  },
+  {
+    "id": 6,
+    "question": "When would you use an MX record instead of an A record?",
+    "options": [
+      "When you need to point a domain to an IPv4 address.",
+      "When you need to specify mail servers for a domain.",
+      "When you need to create a domain alias.",
+      "When you need to verify domain ownership."
+    ],
+    "correctAnswers": [
+      1
+    ],
+    "explanation": "MX records are specifically used to designate mail exchange servers for a domain."
+  },
+  {
+    "id": 7,
+    "question": "What is the primary advantage of using `dig` over `nslookup`?",
+    "options": [
+      "`dig` provides more detailed output and is more scriptable.",
+      "`dig` works on all operating systems while `nslookup` doesn't.",
+      "`dig` can bypass DNS caching while `nslookup` cannot.",
+      "`dig` is more user-friendly with a graphical interface."
+    ],
+    "correctAnswers": [
+      0
+    ],
+    "explanation": "`dig` provides more detailed information in its output and is better suited for scripting and automation."
+  },
+  {
+    "id": 8,
+    "question": "Which DNS record type would you use to point a domain to another domain name?",
+    "options": [
+      "A record",
+      "AAAA record",
+      "CNAME record",
+      "TXT record"
+    ],
+    "correctAnswers": [
+      2
+    ],
+    "explanation": "CNAME records are used to create aliases, pointing one domain name to another."
+  },
+  {
+    "id": 9,
+    "question": "What is the purpose of a TTL (Time To Live) value in DNS records?",
+    "options": [
+      "To specify how long a DNS server should cache the record.",
+      "To indicate the geographical region where the record is valid.",
+      "To set the encryption level for DNS queries.",
+      "To determine the priority of multiple records."
+    ],
+    "correctAnswers": [
+      0
+    ],
+    "explanation": "TTL specifies how long resolvers should cache the DNS record before checking for updates."
+  },
+  {
+    "id": 10,
+    "question": "Which of the following are common DNS-related issues customers might experience? (Select THREE)",
+    "options": [
+      "DNS cache poisoning",
+      "DNS propagation delays",
+      "DNS server hardware failure",
+      "DNS record misconfiguration",
+      "DNS query encryption failure"
+    ],
+    "correctAnswers": [
+      0,
+      1,
+      3
+    ],
+    "explanation": "Common DNS issues include cache poisoning, propagation delays during changes, and misconfigured records."
+  },
+  {
+    "id": 11,
+    "question": "What is the role of the root DNS servers in DNS resolution?",
+    "options": [
+      "They provide the final IP address for all domains.",
+      "They direct resolvers to the appropriate TLD servers.",
+      "They cache all DNS records for faster resolution.",
+      "They validate the security of DNS queries."
+    ],
+    "correctAnswers": [
+      1
+    ],
+    "explanation": "Root servers direct resolvers to the appropriate top-level domain (TLD) servers for the next step in resolution."
+  },
+  {
+    "id": 12,
+    "question": "When troubleshooting DNS issues, why might you check the hosts file on a local computer?",
+    "options": [
+      "To verify the computer's network connectivity.",
+      "To check for manual overrides of DNS resolution.",
+      "To view the computer's DNS cache contents.",
+      "To modify the computer's DNS server settings."
+    ],
+    "correctAnswers": [
+      1
+    ],
+    "explanation": "The hosts file can contain manual mappings that override normal DNS resolution."
+  },
+  {
+    "id": 13,
+    "question": "What is the purpose of a TXT record in DNS?",
+    "options": [
+      "To map a hostname to an IP address.",
+      "To provide text information for various verification purposes.",
+      "To specify the mail servers for a domain.",
+      "To create redirects from one domain to another."
+    ],
+    "correctAnswers": [
+      1
+    ],
+    "explanation": "TXT records are used to hold text information, often for verification, SPF records, or other metadata."
+  },
+  {
+    "id": 14,
+    "question": "In DNS resolution, what is the final step before the IP address is returned to the client?",
+    "options": [
+      "Querying the root DNS servers.",
+      "Querying the TLD servers.",
+      "Querying the authoritative name servers for the domain.",
+      "Checking the local router's DNS cache."
+    ],
+    "correctAnswers": [
+      2
+    ],
+    "explanation": "The authoritative name servers for the domain provide the final answer in DNS resolution."
+  },
+  {
+    "id": 15,
+    "question": "Why might you use both A and AAAA records for a domain?",
+    "options": [
+      "To provide both IPv4 and IPv6 addresses for the domain.",
+      "To create a backup in case one record fails.",
+      "To specify different servers for different geographic regions.",
+      "To enable both HTTP and HTTPS access to the domain."
+    ],
+    "correctAnswers": [
+      0
+    ],
+    "explanation": "A records are for IPv4 addresses while AAAA records are for IPv6 addresses, allowing support for both protocols."
+  },
+  {
+    "id": 16,
+    "question": "A customer can't connect to their EC2 instance on port 443. Which tools would you recommend they use to troubleshoot? (Select TWO)",
+    "options": [
+      "Use `ping` to check basic connectivity",
+      "Use `telnet` to test the specific port",
+      "Use `dig` to check DNS resolution",
+      "Use `netstat` to check local port availability",
+      "Use `traceroute` to check the network path"
+    ],
+    "correctAnswers": [
+      1,
+      3
+    ],
+    "explanation": "For port connectivity issues, `telnet` can test if the port is reachable and `netstat` can verify if the service is listening locally."
+  },
+  {
+    "id": 17,
+    "question": "What is the primary purpose of `tcpdump`?",
+    "options": [
+      "To measure network bandwidth usage",
+      "To capture and analyze network packets",
+      "To test DNS resolution times",
+      "To monitor CPU usage of network services"
+    ],
+    "correctAnswers": [
+      1
+    ],
+    "explanation": "`tcpdump` is a packet analyzer that captures and displays network traffic in real-time."
+  },
+  {
+    "id": 18,
+    "question": "What does the command `netstat -tlnp` display? (Select THREE)",
+    "options": [
+      "All listening TCP ports",
+      "The process ID using each port",
+      "The program name associated with each port",
+      "The MAC addresses of connected devices",
+      "The total network bandwidth usage"
+    ],
+    "correctAnswers": [
+      0,
+      1,
+      2
+    ],
+    "explanation": "`-t` shows TCP ports, `-l` shows listening ports, `-n` shows numerical addresses, and `-p` shows process information."
+  },
+  {
+    "id": 19,
+    "question": "Which tool would be most appropriate for verifying a TLS/SSL connection?",
+    "options": [
+      "ping",
+      "openssl s_client",
+      "traceroute",
+      "netcat"
+    ],
+    "correctAnswers": [
+      1
+    ],
+    "explanation": "`openssl s_client` can establish and debug TLS/SSL connections and verify certificates."
+  },
+  {
+    "id": 20,
+    "question": "What information would you get from running `nc -zv example.com 443`?",
+    "options": [
+      "A packet capture of all traffic on port 443",
+      "A verification if port 443 is open and reachable",
+      "A list of all services running on example.com",
+      "The SSL certificate details for example.com"
+    ],
+    "correctAnswers": [
+      1
+    ],
+    "explanation": "`nc -zv` (netcat) performs a basic port scan to verify if a specific port is open (-z) and provides verbose output (-v)."
+  },
+  {
+    "id": 21,
+    "question": "When would you use `traceroute` in network troubleshooting?",
+    "options": [
+      "To identify where packets are being dropped in the network path",
+      "To test if a specific port is open on a remote server",
+      "To measure the bandwidth between two hosts",
+      "To decrypt SSL/TLS traffic"
+    ],
+    "correctAnswers": [
+      0
+    ],
+    "explanation": "`traceroute` shows the path packets take to reach a destination and can identify where connectivity fails."
+  },
+  {
+    "id": 22,
+    "question": "What does the following `tcpdump` command do: `tcpdump -i eth0 port 80`?",
+    "options": [
+      "Captures all traffic on interface eth0",
+      "Captures only HTTP traffic on interface eth0",
+      "Captures all traffic on port 80 across all interfaces",
+      "Displays statistics for port 80 usage"
+    ],
+    "correctAnswers": [
+      1
+    ],
+    "explanation": "This command captures traffic on interface eth0 (-i eth0) specifically for port 80 (HTTP)."
+  },
+  {
+    "id": 23,
+    "question": "Which tool would you use to quickly check if a remote UDP port is open?",
+    "options": [
+      "telnet",
+      "netcat",
+      "ping",
+      "tcpdump"
+    ],
+    "correctAnswers": [
+      1
+    ],
+    "explanation": "Netcat (`nc`) can test both TCP and UDP ports, while telnet only works with TCP."
+  },
+  {
+    "id": 24,
+    "question": "What is the key difference between `ping` and `traceroute`?",
+    "options": [
+      "Ping tests connectivity while traceroute shows the network path",
+      "Ping works on Windows while traceroute only works on Linux",
+      "Ping uses TCP while traceroute uses UDP",
+      "Ping shows bandwidth while traceroute shows latency"
+    ],
+    "correctAnswers": [
+      0
+    ],
+    "explanation": "Ping simply tests if a host is reachable, while traceroute shows each hop along the path to the host."
+  },
+  {
+    "id": 25,
+    "question": "How would you interpret seeing 'Connection refused' when using `telnet` to test a port?",
+    "options": [
+      "The port is open and accepting connections",
+      "The host is unreachable",
+      "The port is closed or no service is listening",
+      "There's a firewall blocking ICMP packets"
+    ],
+    "correctAnswers": [
+      2
+    ],
+    "explanation": "'Connection refused' typically means the port is closed or no service is listening on that port."
+  },
+  {
+    "id": 26,
+    "question": "Which command would show active network connections and the processes using them?",
+    "options": [
+      "netstat -a",
+      "netstat -tulnp",
+      "tcpdump -i any",
+      "ss -tulnp"
+    ],
+    "correctAnswers": [
+      1,
+      3
+    ],
+    "explanation": "Both `netstat -tulnp` and `ss -tulnp` show active connections with process information."
+  },
+  {
+    "id": 27,
+    "question": "What is the purpose of the `curl -v` command when testing web connectivity?",
+    "options": [
+      "To download a file faster",
+      "To show verbose output including HTTP headers",
+      "To verify SSL certificate validity",
+      "To test multiple ports simultaneously"
+    ],
+    "correctAnswers": [
+      1
+    ],
+    "explanation": "The `-v` flag in curl enables verbose mode, showing request and response headers which is useful for debugging."
+  },
+  {
+    "id": 28,
+    "question": "When troubleshooting, why might you use `ss` instead of `netstat`?",
+    "options": [
+      "`ss` shows more colorful output",
+      "`ss` is faster and shows more detailed TCP information",
+      "`ss` works on Windows systems",
+      "`ss` can modify firewall rules"
+    ],
+    "correctAnswers": [
+      1
+    ],
+    "explanation": "`ss` (socket statistics) is generally faster than netstat and provides more detailed TCP state information."
+  },
+  {
+    "id": 29,
+    "question": "What would `telnet example.com 25` help you determine?",
+    "options": [
+      "If the SMTP service is running on example.com",
+      "The TLS certificate for example.com's email server",
+      "The round-trip time to example.com",
+      "The web server version running on example.com"
+    ],
+    "correctAnswers": [
+      0
+    ],
+    "explanation": "Port 25 is typically used for SMTP, so this would test if the mail server is reachable and responding."
+  },
+  {
+    "id": 30,
+    "question": "Which tool would be most useful for capturing HTTPS traffic for analysis?",
+    "options": [
+      "ping",
+      "tcpdump",
+      "openssl s_client",
+      "netstat"
+    ],
+    "correctAnswers": [
+      1
+    ],
+    "explanation": "While you can't decrypt HTTPS with tcpdump, you can capture the encrypted packets to analyze timing, volume, and basic connection patterns."
+  },
+  {
+    "id": 31,
+    "question": "What does the /16 mean in 172.16.0.0/16?",
+    "options": [
+      "The first 16 bits are the network portion",
+      "There are 16 available subnets",
+      "There are 16 available hosts per subnet",
+      "The subnet mask is 16.0.0.0"
+    ],
+    "correctAnswers": [
+      0
+    ],
+    "explanation": "The /16 indicates the first 16 bits of the 32-bit IP address represent the network portion, leaving the remaining 16 bits for host addresses."
+  },
+  {
+    "id": 32,
+    "question": "What are the private IP ranges? (Select THREE)",
+    "options": [
+      "10.0.0.0/8",
+      "172.16.0.0/12",
+      "192.168.0.0/16",
+      "169.254.0.0/16",
+      "224.0.0.0/4"
+    ],
+    "correctAnswers": [
+      0,
+      1,
+      2
+    ],
+    "explanation": "RFC 1918 defines these three ranges for private networks. 169.254.x.x is for link-local addresses, and 224.x.x.x is multicast."
+  },
+  {
+    "id": 33,
+    "question": "If a customer has 172.16.0.0/16 and needs 4 equal subnets, what would the new subnet mask be?",
+    "options": [
+      "/18",
+      "/20",
+      "/22",
+      "/24"
+    ],
+    "correctAnswers": [
+      0
+    ],
+    "explanation": "To create 4 subnets from a /16, you borrow 2 bits (2^2=4), making the new prefix /18 (16+2)."
+  },
+  {
+    "id": 34,
+    "question": "What's the difference between a /24 and a /28 subnet in terms of available hosts?",
+    "options": [
+      "/24 has 254 hosts, /28 has 14 hosts",
+      "/24 has 256 hosts, /28 has 16 hosts",
+      "/24 has 255 hosts, /28 has 15 hosts",
+      "Both support the same number of hosts"
+    ],
+    "correctAnswers": [
+      0
+    ],
+    "explanation": "A /24 leaves 8 host bits (2^8-2=254), while /28 leaves 4 host bits (2^4-2=14). We subtract 2 for network and broadcast addresses."
+  },
+  {
+    "id": 35,
+    "question": "What are key differences between BIOS and UEFI? (Select TWO)",
+    "options": [
+      "UEFI supports larger disks (>2TB)",
+      "BIOS has faster boot times",
+      "UEFI uses GPT partitioning",
+      "BIOS supports Secure Boot",
+      "UEFI can't boot from network"
+    ],
+    "correctAnswers": [
+      0,
+      2
+    ],
+    "explanation": "UEFI supports modern features like large disks and GPT, while BIOS is limited to MBR and 2TB disks."
+  },
+  {
+    "id": 36,
+    "question": "Why might a customer choose GPT over MBR? (Select TWO)",
+    "options": [
+      "They need to boot legacy operating systems",
+      "Their disk is larger than 2TB",
+      "They need more than 4 primary partitions",
+      "They want slower partition lookup times",
+      "They need compatibility with Windows XP"
+    ],
+    "correctAnswers": [
+      1,
+      2
+    ],
+    "explanation": "GPT supports disks >2TB and up to 128 partitions, while MBR is limited to 2TB and 4 primary partitions."
+  },
+  {
+    "id": 37,
+    "question": "What does Secure Boot in UEFI accomplish?",
+    "options": [
+      "Encrypts all disk contents",
+      "Verifies bootloader signatures",
+      "Speeds up boot process",
+      "Enables PXE booting"
+    ],
+    "correctAnswers": [
+      1
+    ],
+    "explanation": "Secure Boot verifies cryptographic signatures of boot components to prevent malware from loading during boot."
+  },
+  {
+    "id": 38,
+    "question": "When would PXE boot be used in an enterprise?",
+    "options": [
+      "To boot legacy BIOS systems",
+      "To remotely install operating systems",
+      "To recover deleted files",
+      "To test memory modules"
+    ],
+    "correctAnswers": [
+      1
+    ],
+    "explanation": "PXE (Preboot Execution Environment) allows network booting, commonly used for OS deployment across many machines."
+  },
+  {
+    "id": 39,
+    "question": "When would you recommend migrating from GP2 to GP3? (Select TWO)",
+    "options": [
+      "When they need consistent baseline performance",
+      "When they want lower costs",
+      "When they need maximum possible IOPS",
+      "When they need compatibility with Windows Server 2008",
+      "When they use infrequent access patterns"
+    ],
+    "correctAnswers": [
+      0,
+      1
+    ],
+    "explanation": "GP3 provides consistent baseline performance at lower costs than GP2, with optional IOPS provisioning."
+  },
+  {
+    "id": 40,
+    "question": "What are key differences between GP2 and GP3? (Select TWO)",
+    "options": [
+      "GP3 has separate IOPS provisioning",
+      "GP2 has higher maximum throughput",
+      "GP3 uses SSD storage while GP2 uses HDD",
+      "GP2 has burst capability while GP3 doesn't",
+      "GP3 supports larger volume sizes"
+    ],
+    "correctAnswers": [
+      0,
+      1
+    ],
+    "explanation": "GP3 decouples IOPS from volume size and allows IOPS provisioning, while GP2 has higher max throughput (250 vs 1000 MB/s)."
+  },
+  {
+    "id": 41,
+    "question": "How would you explain inconsistent GP2 I/O performance?",
+    "options": [
+      "It's caused by network latency fluctuations",
+      "GP2 uses burst credits that deplete under sustained load",
+      "It indicates disk hardware failure",
+      "This is normal for all EBS volume types"
+    ],
+    "correctAnswers": [
+      1
+    ],
+    "explanation": "GP2 provides burst performance using credits that accumulate during idle periods and deplete during sustained activity."
+  },
+  {
+    "id": 42,
+    "question": "When would you recommend migrating from GP2 to GP3? (Select TWO)",
+    "options": [
+      "When they need consistent baseline performance",
+      "When they want lower costs",
+      "When they need maximum possible IOPS",
+      "When they need compatibility with Windows Server 2008",
+      "When they use infrequent access patterns"
+    ],
+    "correctAnswers": [
+      0,
+      1
+    ],
+    "explanation": "GP3 provides consistent baseline performance at lower costs than GP2, with optional IOPS provisioning."
+  },
+  {
+    "id": 43,
+    "question": "What are key differences between GP2 and GP3? (Select TWO)",
+    "options": [
+      "GP3 has separate IOPS provisioning",
+      "GP2 has higher maximum throughput",
+      "GP3 uses SSD storage while GP2 uses HDD",
+      "GP2 has burst capability while GP3 doesn't",
+      "GP3 supports larger volume sizes"
+    ],
+    "correctAnswers": [
+      0,
+      1
+    ],
+    "explanation": "GP3 decouples IOPS from volume size and allows IOPS provisioning, while GP2 has higher max throughput (250 vs 1000 MB/s)."
+  },
+  {
+    "id": 44,
+    "question": "How would you explain inconsistent GP2 I/O performance?",
+    "options": [
+      "It's caused by network latency fluctuations",
+      "GP2 uses burst credits that deplete under sustained load",
+      "It indicates disk hardware failure",
+      "This is normal for all EBS volume types"
+    ],
+    "correctAnswers": [
+      1
+    ],
+    "explanation": "GP2 provides burst performance using credits that accumulate during idle periods and deplete during sustained activity."
+  },
+  {
+    "id": 45,
+    "question": "What is the key difference between BIOS and UEFI firmware?",
+    "options": [
+      "BIOS is faster but less secure than UEFI",
+      "BIOS uses 16-bit mode and MBR, while UEFI uses 32/64-bit mode and supports GPT with secure boot",
+      "UEFI is only used for Windows systems, while BIOS is for Linux",
+      "There is no practical difference between BIOS and UEFI"
+    ],
+    "correctAnswers": [
+      1
+    ],
+    "explanation": "UEFI is modern firmware that supports 32/64-bit architecture, GPT partitioning, secure boot capabilities, and faster boot times compared to legacy BIOS which uses 16-bit mode and MBR."
+  },
+  {
+    "id": 46,
+    "question": "In the TCP 3-way handshake, what is the correct sequence of flags?",
+    "options": [
+      "SYN → ACK → SYN-ACK",
+      "SYN → SYN-ACK → ACK",
+      "ACK → SYN → SYN-ACK",
+      "SYN-ACK → SYN → ACK"
+    ],
+    "correctAnswers": [
+      1
+    ],
+    "explanation": "The TCP 3-way handshake follows: Client sends SYN, Server responds with SYN-ACK, Client sends final ACK to establish the connection."
+  },
+  {
+    "id": 47,
+    "question": "What does the CIDR notation /12 represent in terms of subnet mask?",
+    "options": [
+      "255.255.0.0",
+      "255.240.0.0",
+      "255.255.240.0",
+      "255.255.255.0"
+    ],
+    "correctAnswers": [
+      1
+    ],
+    "explanation": "/12 means the first 12 bits are network bits. This translates to 255.240.0.0 (11111111.11110000.00000000.00000000)."
+  },
+  {
+    "id": 48,
+    "question": "What is the correct order of the DHCP DORA process?",
+    "options": [
+      "Discover → Offer → Acknowledge → Request",
+      "Discover → Offer → Request → Acknowledge",
+      "Offer → Discover → Request → Acknowledge",
+      "Request → Discover → Offer → Acknowledge"
+    ],
+    "correctAnswers": [
+      1
+    ],
+    "explanation": "DHCP follows DORA: Discover (client broadcasts), Offer (server responds), Request (client requests specific offer), Acknowledge (server confirms lease)."
+  },
+  {
+    "id": 49,
+    "question": "Which private IP address range corresponds to 172.16.0.0/12?",
+    "options": [
+      "172.0.0.0 - 172.255.255.255",
+      "172.16.0.0 - 172.31.255.255",
+      "172.16.0.0 - 172.16.255.255",
+      "172.1.0.0 - 172.32.255.255"
+    ],
+    "correctAnswers": [
+      1
+    ],
+    "explanation": "The /12 subnet mask gives us 172.16.0.0 through 172.31.255.255 as the private IP range for Class B addresses."
+  },
+  {
+    "id": 50,
+    "question": "What command would you use to test SSL/TLS connectivity to a specific host and port?",
+    "options": [
+      "telnet hostname 443",
+      "nc -zv hostname 443",
+      "openssl s_client -connect hostname:443",
+      "curl -I hostname:443"
+    ],
+    "correctAnswers": [
+      2
+    ],
+    "explanation": "openssl s_client -connect hostname:443 specifically tests SSL/TLS handshake and shows certificate details, while other options test basic connectivity."
+  },
+  {
+    "id": 51,
+    "question": "In DNS resolution, what does the '+trace' option in dig command show?",
+    "options": [
+      "Only the final DNS response",
+      "The complete path from root servers through TLD to authoritative servers",
+      "DNS cache entries",
+      "Reverse DNS lookups only"
+    ],
+    "correctAnswers": [
+      1
+    ],
+    "explanation": "dig +trace shows the complete DNS resolution path: root nameserver → TLD nameserver → authoritative nameserver, displaying each step."
+  },
+  {
+    "id": 52,
+    "question": "What is the main advantage of GP3 EBS volumes over GP2?",
+    "options": [
+      "GP3 volumes are always faster than GP2",
+      "GP3 provides baseline 3000 IOPS with independently configurable throughput, while GP2 provides 3 IOPS per GB with burstable performance",
+      "GP3 volumes are cheaper but slower than GP2",
+      "GP3 only works with specific instance types"
+    ],
+    "correctAnswers": [
+      1
+    ],
+    "explanation": "GP3 offers consistent baseline performance (3000 IOPS) and allows independent configuration of IOPS and throughput, providing better price/performance predictability."
+  },
+  {
+    "id": 53,
+    "question": "What does PXE (Preboot Execution Environment) enable?",
+    "options": [
+      "Faster local boot times",
+      "Network-based booting without local storage",
+      "Secure boot verification",
+      "Dual-boot configuration"
+    ],
+    "correctAnswers": [
+      1
+    ],
+    "explanation": "PXE allows computers to boot from network resources using DHCP and TFTP, enabling diskless workstations and automated OS deployments."
+  },
+  {
+    "id": 54,
+    "question": "Which command shows listening TCP ports along with the process IDs?",
+    "options": [
+      "netstat -an",
+      "netstat -tlnp",
+      "ss -a",
+      "lsof -n"
+    ],
+    "correctAnswers": [
+      1
+    ],
+    "explanation": "netstat -tlnp shows TCP (-t) listening (-l) ports in numeric format (-n) with process IDs (-p)."
+  },
+  {
+    "id": 55,
+    "question": "What is the difference between MBR and GPT partition tables?",
+    "options": [
+      "MBR supports larger drives but fewer partitions than GPT",
+      "GPT supports drives larger than 2TB and unlimited partitions, while MBR is limited to 2TB and 4 primary partitions",
+      "GPT is older technology compared to MBR",
+      "MBR provides better security features than GPT"
+    ],
+    "correctAnswers": [
+      1
+    ],
+    "explanation": "GPT (GUID Partition Table) overcomes MBR limitations by supporting drives >2TB, virtually unlimited partitions, and includes redundancy and CRC protection."
+  },
+  {
+    "id": 56,
+    "question": "In network troubleshooting, what does 'mtr' command provide that 'traceroute' doesn't?",
+    "options": [
+      "DNS resolution capabilities",
+      "Real-time continuous monitoring with packet loss statistics per hop",
+      "Port scanning functionality",
+      "SSL certificate verification"
+    ],
+    "correctAnswers": [
+      1
+    ],
+    "explanation": "mtr (My TraceRoute) combines traceroute and ping functionality, providing continuous real-time monitoring with packet loss and latency statistics for each hop."
+  },
+  {
+    "id": 57,
+    "question": "What DNS record type is used for reverse DNS lookups (IP to hostname)?",
+    "options": [
+      "A record",
+      "CNAME record",
+      "PTR record",
+      "MX record"
+    ],
+    "correctAnswers": [
+      2
+    ],
+    "explanation": "PTR (Pointer) records are used for reverse DNS lookups, mapping IP addresses back to hostnames in the in-addr.arpa domain."
+  },
+  {
+    "id": 58,
+    "question": "Which command combination would you use to capture network traffic on interface eth0 for HTTP traffic?",
+    "options": [
+      "wireshark -i eth0 port 80",
+      "tcpdump -i eth0 port 80",
+      "netstat -i eth0 | grep 80",
+      "ss -i eth0 port 80"
+    ],
+    "correctAnswers": [
+      1
+    ],
+    "explanation": "tcpdump -i eth0 port 80 captures packets on interface eth0 for HTTP traffic (port 80). Wireshark has different syntax and netstat/ss don't capture packets."
+  },
+  {
+    "id": 59,
+    "question": "What is the correct boot process order for a Linux system?",
+    "options": [
+      "Kernel → POST → Bootloader → Init System → User Space",
+      "POST → Firmware → Bootloader → Kernel → Init System → User Space",
+      "Bootloader → POST → Kernel → User Space → Init System",
+      "Firmware → Kernel → POST → Init System → User Space"
+    ],
+    "correctAnswers": [
+      1
+    ],
+    "explanation": "Linux boot sequence: POST (Power-On Self Test) → Firmware (BIOS/UEFI) → Bootloader (GRUB) → Kernel → Init System (systemd) → User Space processes."
+  },
+  {
+    "id": 60,
+    "question": "When troubleshooting DNS, what does an iterative query mean?",
+    "options": [
+      "The client repeatedly queries the same server until it gets an answer",
+      "The DNS resolver queries multiple servers step-by-step, following referrals to find the authoritative answer",
+      "The query is automatically repeated if it fails",
+      "Multiple DNS servers are queried simultaneously"
+    ],
+    "correctAnswers": [
+      1
+    ],
+    "explanation": "In iterative queries, the DNS resolver follows referrals from root to TLD to authoritative servers, querying each step until it finds the final answer."
+  },
+  {
+    "id": 61,
+    "question": "What does the 'ss' command do in Linux networking?",
+    "options": [
+      "Scans for open SSL certificates",
+      "Shows socket statistics and is the modern replacement for netstat",
+      "Starts SSH connections",
+      "Manages systemd services"
+    ],
+    "correctAnswers": [
+      1
+    ],
+    "explanation": "ss (socket statistics) is the modern replacement for netstat, providing faster and more detailed information about network connections and listening ports."
+  },
+  {
+    "id": 62,
+    "question": "In the context of AWS EBS, what does IOPS stand for and why is it important?",
+    "options": [
+      "Internet Operations Per Second - measures network throughput",
+      "Input/Output Operations Per Second - measures storage performance for database and application workloads",
+      "Integrated Operating Performance Standard - a security certification",
+      "Instance Optimization Protocol System - for EC2 performance"
+    ],
+    "correctAnswers": [
+      1
+    ],
+    "explanation": "IOPS (Input/Output Operations Per Second) measures storage performance, critical for applications requiring high disk I/O like databases. It determines how many read/write operations storage can handle per second."
+  },
+  {
+    "id": 63,
+    "question": "What information does 'dig +short' provide compared to regular 'dig' command?",
+    "options": [
+      "More detailed information including all DNS records",
+      "Only the IP address or answer without additional details",
+      "Shortened domain names only",
+      "Quick network connectivity test"
+    ],
+    "correctAnswers": [
+      1
+    ],
+    "explanation": "dig +short returns only the essential answer (like IP address) without the verbose output, headers, and additional sections that regular dig provides."
+  },
+  {
+    "id": 64,
+    "question": "When using 'netcat (nc)' for network troubleshooting, what does the '-zv' flag combination do?",
+    "options": [
+      "Enables encryption and verbose logging",
+      "Zero I/O mode for port scanning with verbose output",
+      "Sets timeout and enables IPv6",
+      "Compresses data and validates certificates"
+    ],
+    "correctAnswers": [
+      1
+    ],
+    "explanation": "nc -zv enables zero I/O mode (-z) for port scanning without sending data, and verbose mode (-v) to show connection status, making it perfect for testing port connectivity."
+  }
+]

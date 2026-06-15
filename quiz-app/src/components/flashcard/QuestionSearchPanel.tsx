@@ -1,10 +1,12 @@
 import { useState, useMemo } from 'react';
 import { Search, Plus } from 'lucide-react';
 import { Button } from '../ui/button';
+import { useToast } from '../ui/toast';
 import type { LegacyQuestion, Deck, Flashcard } from '../../types/index';
 
 export interface QuestionSearchPanelProps {
-  examId: string;
+  /** Reserved: per-question study state (step 3) will key on (examId, id). */
+  examId?: string;
   questions: LegacyQuestion[];
   decks: Deck[];
   flashcards: Flashcard[];
@@ -13,15 +15,14 @@ export interface QuestionSearchPanelProps {
 }
 
 export const QuestionSearchPanel = ({
-  examId: _examId,
   questions,
   decks,
   flashcards,
   onCardAdded,
   onCreateDeck,
 }: QuestionSearchPanelProps) => {
+  const { toast } = useToast();
   const [query, setQuery] = useState('');
-  const [addedToast, setAddedToast] = useState<string | null>(null);
   const [newDeckName, setNewDeckName] = useState('');
   const [showNewDeckFor, setShowNewDeckFor] = useState<number | null>(null);
   const [targetDeckId, setTargetDeckId] = useState<string>('');
@@ -52,11 +53,6 @@ export const QuestionSearchPanel = ({
     return map;
   }, [flashcards, decks]);
 
-  function showToast(msg: string) {
-    setAddedToast(msg);
-    setTimeout(() => setAddedToast(null), 2500);
-  }
-
   function addToDeck(question: LegacyQuestion, deckId: string) {
     const deck = decks.find(d => d.id === deckId);
     if (!deck) return;
@@ -71,7 +67,7 @@ export const QuestionSearchPanel = ({
       updatedAt: new Date().toISOString(),
     };
     onCardAdded(card);
-    showToast(`Added to "${deck.name}"`);
+    toast(`Added to "${deck.name}"`, 'success');
   }
 
   function handleCreateDeckAndAdd(question: LegacyQuestion) {
@@ -97,11 +93,6 @@ export const QuestionSearchPanel = ({
         />
       </div>
 
-      {addedToast && (
-        <div role="status" aria-live="polite" className="px-3 py-2 rounded-lg bg-green-900/30 border border-green-700 text-green-200 text-xs text-center">
-          {addedToast}
-        </div>
-      )}
 
       {query.trim() && results.length === 0 && (
         <p className="text-sm text-gray-500 text-center py-4">No questions match your search.</p>

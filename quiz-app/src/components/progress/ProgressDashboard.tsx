@@ -4,7 +4,7 @@ import { Button } from '../ui/button';
 import { Modal } from '../ui/Modal';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { StorageService } from '../../services/storage';
-import { computeMasteryPercentage } from '../../services/analyticsHelpers';
+import { getExamStudyState } from '../../services/studyState';
 import type { ReviewSession, Deck, ExamAnalytics } from '../../types/index';
 
 interface ProgressDashboardProps {
@@ -38,11 +38,14 @@ export function ProgressDashboard({ selectedExam }: ProgressDashboardProps) {
     const allAnalytics = StorageService.getExamAnalytics();
     setAnalytics(allAnalytics[selectedExam] ?? null);
 
-    // Load flashcards for this exam's decks and compute mastery
-    const allCards = StorageService.getFlashcards();
-    const examFlashcards = allCards.filter(c => examDeckIds.has(c.deckId));
-    setMasteryPct(computeMasteryPercentage(examFlashcards));
-    setTotalReviewed(examFlashcards.filter(c => c.lastReviewedAt !== undefined).length);
+    // Mastery now reads from per-question study state (the single source of
+    // truth, §3.3). Mastery % = known / questions the user has engaged with;
+    // "reviewed" = records with a lastReviewedAt timestamp.
+    const examState = getExamStudyState(selectedExam);
+    const engaged = examState.filter(s => s.status !== 'unrated');
+    const knownCount = examState.filter(s => s.status === 'known').length;
+    setMasteryPct(engaged.length === 0 ? 0 : Math.round((knownCount / engaged.length) * 100));
+    setTotalReviewed(examState.filter(s => s.lastReviewedAt !== undefined).length);
   }, [selectedExam]);
 
   useEffect(() => {
@@ -75,6 +78,10 @@ export function ProgressDashboard({ selectedExam }: ProgressDashboardProps) {
       s => !examDeckIds.has(s.deckId)
     );
     StorageService.saveReviewSessions(remaining);
+
+    // Clear per-question study state (known/unknown + stars) for this exam.
+    const otherExamState = StorageService.getStudyState().filter(s => s.examId !== selectedExam);
+    StorageService.saveStudyState(otherExamState);
 
     setShowClearModal(false);
     loadData();

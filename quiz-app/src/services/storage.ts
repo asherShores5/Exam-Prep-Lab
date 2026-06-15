@@ -10,12 +10,10 @@
 
 import type {
   ExamAnalytics,
-  Exam,
-  Question,
   Deck,
   Flashcard,
-  QuizSession,
   ReviewSession,
+  QuestionStudyState,
 } from '../types/index';
 
 // ---------------------------------------------------------------------------
@@ -23,14 +21,12 @@ import type {
 // ---------------------------------------------------------------------------
 
 export const STORAGE_KEYS = {
-  SCHEMA_VERSION: 'epl_schema_version',
-  EXAMS: 'epl_exams',
-  QUESTIONS: 'epl_questions',
   DECKS: 'epl_decks',
   FLASHCARDS: 'epl_flashcards',
-  QUIZ_SESSIONS: 'epl_quiz_sessions',
   REVIEW_SESSIONS: 'epl_review_sessions',
   QUESTION_TAGS: 'epl_question_tags',
+  STUDY_STATE: 'epl_study_state',
+  THEME: 'epl_theme',
   // Legacy keys kept for backward-compat migration
   QUIZ_ANALYTICS: 'quizAnalytics',
   SELECTED_EXAM: 'selectedExam',
@@ -49,7 +45,7 @@ export interface QuotaExceededDetail {
 
 function dispatchQuotaExceeded(): void {
   const detail: QuotaExceededDetail = {
-    message: 'Storage limit reached. Export your data to free up space.',
+    message: 'Storage limit reached. Clear data you no longer need from Settings to free up space.',
   };
   window.dispatchEvent(new CustomEvent<QuotaExceededDetail>(QUOTA_EXCEEDED_EVENT, { detail }));
 }
@@ -91,16 +87,6 @@ function writeJson<T>(key: string, value: T): void {
 // ---------------------------------------------------------------------------
 
 export const StorageService = {
-  // ── Schema version ────────────────────────────────────────────────────────
-
-  getSchemaVersion(): string | null {
-    return localStorage.getItem(STORAGE_KEYS.SCHEMA_VERSION);
-  },
-
-  saveSchemaVersion(version: string): void {
-    writeJson(STORAGE_KEYS.SCHEMA_VERSION, version);
-  },
-
   // ── Legacy: quiz analytics (quizAnalytics key) ────────────────────────────
 
   getExamAnalytics(): ExamAnalytics {
@@ -131,26 +117,6 @@ export const StorageService = {
     localStorage.setItem(STORAGE_KEYS.SELECTED_EXAM, examId);
   },
 
-  // ── Exams ─────────────────────────────────────────────────────────────────
-
-  getExams(): Exam[] {
-    return readJson<Exam[]>(STORAGE_KEYS.EXAMS, []);
-  },
-
-  saveExams(exams: Exam[]): void {
-    writeJson(STORAGE_KEYS.EXAMS, exams);
-  },
-
-  // ── Questions ─────────────────────────────────────────────────────────────
-
-  getQuestions(): Question[] {
-    return readJson<Question[]>(STORAGE_KEYS.QUESTIONS, []);
-  },
-
-  saveQuestions(questions: Question[]): void {
-    writeJson(STORAGE_KEYS.QUESTIONS, questions);
-  },
-
   // ── Decks ─────────────────────────────────────────────────────────────────
 
   getDecks(): Deck[] {
@@ -171,16 +137,6 @@ export const StorageService = {
     writeJson(STORAGE_KEYS.FLASHCARDS, flashcards);
   },
 
-  // ── Quiz sessions ─────────────────────────────────────────────────────────
-
-  getQuizSessions(): QuizSession[] {
-    return readJson<QuizSession[]>(STORAGE_KEYS.QUIZ_SESSIONS, []);
-  },
-
-  saveQuizSessions(sessions: QuizSession[]): void {
-    writeJson(STORAGE_KEYS.QUIZ_SESSIONS, sessions);
-  },
-
   // ── Review sessions ───────────────────────────────────────────────────────
 
   getReviewSessions(): ReviewSession[] {
@@ -189,6 +145,16 @@ export const StorageService = {
 
   saveReviewSessions(sessions: ReviewSession[]): void {
     writeJson(STORAGE_KEYS.REVIEW_SESSIONS, sessions);
+  },
+
+  // ── Per-question study state (epl_study_state) ────────────────────────────
+
+  getStudyState(): QuestionStudyState[] {
+    return readJson<QuestionStudyState[]>(STORAGE_KEYS.STUDY_STATE, []);
+  },
+
+  saveStudyState(state: QuestionStudyState[]): void {
+    writeJson(STORAGE_KEYS.STUDY_STATE, state);
   },
 
   /** Compute current localStorage usage in bytes and as a percentage of estimated 5MB quota. */

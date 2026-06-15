@@ -1,5 +1,3 @@
-import type { Flashcard } from '../types/index';
-
 /**
  * Compute study streak: count of consecutive calendar days ending at today
  * with at least one activity (quiz or review session).
@@ -47,20 +45,4 @@ export function findFocusAreas(
     .map(d => ({ domain: d.domain, percentage: (d.correct / d.total) * 100 }))
     .sort((a, b) => a.percentage - b.percentage);
   return scored.slice(0, count);
-}
-
-/**
- * Compute overall mastery percentage across flashcards.
- * Mastery is capped at maxLevel per card.
- */
-export function computeMasteryPercentage(
-  flashcards: Flashcard[],
-  maxLevel = 3,
-): number {
-  if (flashcards.length === 0) return 0;
-  const sum = flashcards.reduce(
-    (acc, c) => acc + Math.min(c.masteryLevel, maxLevel),
-    0,
-  );
-  return (sum / (flashcards.length * maxLevel)) * 100;
 }

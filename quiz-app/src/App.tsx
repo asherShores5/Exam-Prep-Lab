@@ -5,29 +5,31 @@ import { Button } from './components/ui/button';
 import { X, PlayCircle } from 'lucide-react';
 import type { LegacyQuestion, ExamIndex } from './types/index';
 import { StorageService, STORAGE_KEYS, QUOTA_EXCEEDED_EVENT, type QuotaExceededDetail } from './services/storage';
-import { ImportExportPanel } from './components/management/ImportExportPanel';
+import { SettingsPanel } from './components/settings/SettingsPanel';
 import { ProgressDashboard } from './components/progress/ProgressDashboard';
 import { ReviewMode } from './components/review/ReviewMode';
 import { QuizMode } from './components/quiz/QuizMode';
 import { FlashcardsTab } from './components/flashcard/FlashcardsTab';
 import { ErrorBoundary } from './components/ui/ErrorBoundary';
 import { validateExamQuestions } from './services/validateExam';
+import { shuffle } from './lib/shuffle';
+import { watchSystemTheme } from './services/theme';
 
 // ---------------------------------------------------------------------------
 // QuizApp — root component
 // ---------------------------------------------------------------------------
 
-type TabValue = 'review' | 'quiz' | 'flashcards' | 'data' | 'progress';
+type TabValue = 'review' | 'quiz' | 'flashcards' | 'settings' | 'progress';
 
 const TAB_LABELS: Record<TabValue, string> = {
   review: 'Review',
   quiz: 'Quiz',
   flashcards: 'Flashcards',
-  data: 'Data',
+  settings: 'Settings',
   progress: 'Progress',
 };
 
-const TAB_ORDER: TabValue[] = ['review', 'quiz', 'flashcards', 'data', 'progress'];
+const TAB_ORDER: TabValue[] = ['review', 'quiz', 'flashcards', 'settings', 'progress'];
 
 const QuizApp = () => {
   const [examIndex, setExamIndex] = useState<ExamIndex[]>([]);
@@ -51,11 +53,15 @@ const QuizApp = () => {
     return () => window.removeEventListener(QUOTA_EXCEEDED_EVENT, handleQuotaExceeded);
   }, [handleQuotaExceeded]);
 
+  // Keep 'system' theme tracking live OS changes (initial theme is applied by
+  // the no-FOUC script in index.html before React mounts).
+  useEffect(() => watchSystemTheme(() => {}), []);
+
   // Check storage usage on mount and warn if >80%
   useEffect(() => {
     const usage = StorageService.getStorageUsage();
     if (usage.percentage > 80) {
-      setStorageWarning(`Storage is ${usage.percentage.toFixed(0)}% full. Export your data to avoid losing progress.`);
+      setStorageWarning(`Storage is ${usage.percentage.toFixed(0)}% full. Clear data you no longer need from Settings to free up space.`);
     }
   }, []);
 
@@ -129,7 +135,7 @@ const QuizApp = () => {
   }, [selectedExam, examIndex, fetchExamQuestions]);
 
   const shuffleQuestions = () => {
-    setQuestions(questions => [...questions].sort(() => Math.random() - 0.5));
+    setQuestions(questions => shuffle(questions));
   };
 
   return (
@@ -212,7 +218,7 @@ const QuizApp = () => {
             <TabsTrigger value="review" className="flex-1">Review</TabsTrigger>
             <TabsTrigger value="quiz" className="flex-1">Quiz</TabsTrigger>
             <TabsTrigger value="flashcards" className="flex-1">Flashcards</TabsTrigger>
-            <TabsTrigger value="data" className="flex-1">Data</TabsTrigger>
+            <TabsTrigger value="settings" className="flex-1">Settings</TabsTrigger>
             <TabsTrigger value="progress" className="flex-1">Progress</TabsTrigger>
           </TabsList>
 
@@ -261,12 +267,16 @@ const QuizApp = () => {
           <div className="mt-4">
             <TabsContent value="review">
               <ErrorBoundary fallbackTitle="Review Mode Error">
-                <ReviewMode questions={questions} shuffleQuestions={shuffleQuestions} />
+                <ReviewMode questions={questions} shuffleQuestions={shuffleQuestions} examId={selectedExam} />
               </ErrorBoundary>
             </TabsContent>
             <TabsContent value="quiz">
               <ErrorBoundary fallbackTitle="Quiz Mode Error">
-                <QuizMode questions={questions} selectedExam={selectedExam} />
+                <QuizMode
+                  questions={questions}
+                  selectedExam={selectedExam}
+                  simPreset={examIndex.find(e => e.id === selectedExam)?.sim}
+                />
               </ErrorBoundary>
             </TabsContent>
             <TabsContent value="flashcards">
@@ -278,9 +288,9 @@ const QuizApp = () => {
                 />
               </ErrorBoundary>
             </TabsContent>
-            <TabsContent value="data">
-              <ErrorBoundary fallbackTitle="Data Management Error">
-                <ImportExportPanel />
+            <TabsContent value="settings">
+              <ErrorBoundary fallbackTitle="Settings Error">
+                <SettingsPanel />
               </ErrorBoundary>
             </TabsContent>
             <TabsContent value="progress">
