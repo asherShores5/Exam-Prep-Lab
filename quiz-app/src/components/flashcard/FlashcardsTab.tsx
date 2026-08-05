@@ -65,11 +65,17 @@ export const FlashcardsTab = ({ examId, legacyQuestions, shuffleLegacy }: Flashc
     setDecks(allDecks);
     setFlashcards(cards);
     setStudyState(getExamStudyState(examId));
+    setShowNewDeckForm(false);
+  }, [examId, legacyQuestions]);
+
+  // Reset navigation only when the EXAM changes — not when legacyQuestions gets a
+  // new array identity from shuffling (that would kick an active review back to the
+  // deck list mid-session).
+  useEffect(() => {
     setSelectedDeckId(null);
     setDeckView('manage');
     setManageView('decks');
-    setShowNewDeckForm(false);
-  }, [examId, legacyQuestions]);
+  }, [examId]);
 
   const selectedDeck = decks.find(d => d.id === selectedDeckId) ?? null;
 

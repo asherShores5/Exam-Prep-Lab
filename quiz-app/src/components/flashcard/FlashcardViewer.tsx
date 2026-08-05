@@ -23,8 +23,26 @@ import type { LegacyQuestion, Deck } from '../../types/index';
 import { StorageService } from '../../services/storage';
 import { useSwipe } from '../../hooks/useSwipe';
 import { shuffle } from '../../lib/shuffle';
+import { isAnswerCorrect, isSingleSelect } from '../../lib/answers';
 import { useToast } from '../ui/toast';
 import { QuestionSkeleton } from '../ui/skeleton';
+
+// ---------------------------------------------------------------------------
+// DomainBadge — shows the exam-guide domain a question belongs to. Rendered
+// alongside the explanation across all review surfaces (flashcards, quiz review).
+// ---------------------------------------------------------------------------
+
+export const DomainBadge = ({ domain }: { domain?: string }) => {
+  if (!domain) return null;
+  return (
+    <div className="mt-3">
+      <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-gray-800 border border-gray-700 text-xs text-gray-300">
+        <BookOpen className="w-3 h-3" aria-hidden="true" />
+        <span className="text-gray-500">Domain:</span> {domain}
+      </span>
+    </div>
+  );
+};
 
 // ---------------------------------------------------------------------------
 // ReviewSummary sub-component
@@ -114,38 +132,64 @@ const MultipleChoiceCard = ({ question, onResult }: MultipleChoiceCardProps) => 
     [question.question]
   );
 
-  const [selectedIdx, setSelectedIdx] = useState<number | null>(null); // index into shuffledOptions
-  const answered = selectedIdx !== null;
+  const singleSelect = isSingleSelect(question.correctAnswers);
+  const requiredCount = question.correctAnswers.length; // # to pick for multi-select
+  const [selected, setSelected] = useState<number[]>([]); // indices into shuffledOptions
+  const [answered, setAnswered] = useState(false);
 
   const isCorrectChoice = (shuffledIdx: number) =>
     question.correctAnswers.includes(shuffledOptions[shuffledIdx].originalIdx);
 
   function handleSelect(idx: number) {
     if (answered) return;
-    setSelectedIdx(idx);
+    if (singleSelect) {
+      // single-answer: selecting reveals feedback immediately (unchanged behavior)
+      setSelected([idx]);
+      setAnswered(true);
+      return;
+    }
+    // multi-select: toggle membership, wait for explicit Submit
+    setSelected(prev => prev.includes(idx) ? prev.filter(i => i !== idx) : [...prev, idx]);
+  }
+
+  function handleSubmit() {
+    if (answered || selected.length === 0) return;
+    setAnswered(true);
   }
 
   function getOptionStyle(idx: number): string {
     const base = 'p-3 rounded-lg border text-sm transition-colors ';
     if (!answered) {
-      return base + 'border-gray-700 hover:border-gray-500 cursor-pointer';
+      const picked = selected.includes(idx);
+      return base + (picked
+        ? 'border-blue-500 bg-blue-900/20 cursor-pointer'
+        : 'border-gray-700 hover:border-gray-500 cursor-pointer');
     }
     if (isCorrectChoice(idx)) {
       return base + 'bg-green-900/30 border-green-600 text-green-200';
     }
-    if (idx === selectedIdx) {
+    if (selected.includes(idx)) {
       return base + 'bg-red-900/30 border-red-600 text-red-200';
     }
     return base + 'border-gray-700 opacity-50';
   }
 
-  const wasCorrect = answered && selectedIdx !== null && isCorrectChoice(selectedIdx);
+  // Correct only when the picked set exactly matches the correct set.
+  const wasCorrect = answered && isAnswerCorrect(
+    selected.map(i => shuffledOptions[i].originalIdx),
+    question.correctAnswers,
+  );
 
   return (
     <div className="space-y-4">
       <Card className="min-h-48">
         <CardContent className="pt-6 space-y-4">
           <p className="text-base">{question.question}</p>
+          {!singleSelect && (
+            <p className="text-xs text-gray-400">
+              Select {requiredCount}. {selected.length}/{requiredCount} chosen.
+            </p>
+          )}
 
           <div className="space-y-2" role="group" aria-label="Answer options">
             {shuffledOptions.map((opt, idx) => (
@@ -153,7 +197,7 @@ const MultipleChoiceCard = ({ question, onResult }: MultipleChoiceCardProps) => 
                 key={idx}
                 role="button"
                 tabIndex={answered ? -1 : 0}
-                aria-pressed={selectedIdx === idx}
+                aria-pressed={selected.includes(idx)}
                 aria-disabled={answered}
                 onClick={() => handleSelect(idx)}
                 onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleSelect(idx); }}
@@ -167,7 +211,19 @@ const MultipleChoiceCard = ({ question, onResult }: MultipleChoiceCardProps) => 
             ))}
           </div>
 
-          {/* Explanation — shown after answering */}
+          {/* Submit — multi-select only, before answering */}
+          {!singleSelect && !answered && (
+            <Button
+              className="w-full"
+              onClick={handleSubmit}
+              disabled={selected.length === 0}
+            >
+              Submit Answer
+            </Button>
+          )}
+
+          {/* Domain + explanation — shown after answering */}
+          {answered && <DomainBadge domain={question.domain} />}
           {answered && question.explanation && (
             <div className="mt-3 p-3 rounded-lg bg-blue-900/20 border border-blue-700/50 text-sm text-blue-200">
               <p className="font-semibold text-blue-300 mb-1">Explanation</p>
@@ -537,7 +593,8 @@ export const FlashcardViewer = ({
                       </div>
                     ))}
 
-                    {/* Explanation */}
+                    {/* Domain + explanation */}
+                    <DomainBadge domain={question.domain} />
                     {question.explanation && (
                       <div className="mt-3 p-3 rounded-lg bg-blue-900/20 border border-blue-700/50 text-sm text-blue-200">
                         <p className="font-semibold text-blue-300 mb-1">Explanation</p>

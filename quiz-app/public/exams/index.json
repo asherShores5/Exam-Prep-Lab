@@ -38,5 +38,12 @@
     "id": "AWS-ADC-Prep",
     "name": "AWS ADC Prep",
     "path": "/exams/AWS-ADC-Prep.json"
+  },
+  {
+    "id": "AWS-MLA-C01",
+    "name": "AWS Machine Learning Engineer - Associate",
+    "path": "/exams/AWS-MLA-C01.json",
+    "code": "MLA-C01",
+    "sim": { "questionCount": 65, "timeLimitMinutes": 130, "passThresholdPercent": 72 }
   }
 ]
