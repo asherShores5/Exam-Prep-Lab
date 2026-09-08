@@ -15,7 +15,7 @@ import { QuestionSkeleton } from '../ui/skeleton';
 import { useKeyboardNav } from '../../hooks/useKeyboardNav';
 import { useToast } from '../ui/toast';
 import { StarToggle } from '../flashcard/StarToggle';
-import { DomainBadge } from '../flashcard/FlashcardViewer';
+import { DomainBadge, ExplanationBlock } from '../flashcard/FlashcardViewer';
 import { getPracticeIncorrectIds } from '../../services/studyState';
 
 // ---------------------------------------------------------------------------
@@ -620,12 +620,7 @@ export const QuizMode = ({ questions, selectedExam, simPreset }: QuizModeProps) 
                           );
                         })}
                         <DomainBadge domain={q.domain} />
-                        {q.explanation && (
-                          <div className="p-2 rounded-lg bg-blue-900/20 border border-blue-700/50 text-xs text-blue-200">
-                            <p className="font-semibold text-blue-300 mb-1">Explanation</p>
-                            <p>{q.explanation}</p>
-                          </div>
-                        )}
+                        <ExplanationBlock text={q.explanation} dense />
                       </CardContent>
                     </Card>
                   );

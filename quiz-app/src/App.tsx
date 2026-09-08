@@ -190,11 +190,13 @@ const QuizApp = () => {
             <SelectValue placeholder="Choose an exam..." />
           </SelectTrigger>
           <SelectContent>
-            {examIndex.map(exam => (
-              <SelectItem key={exam.id} value={exam.id}>
-                {exam.name}{exam.description ? ` — ${exam.description}` : ''}
-              </SelectItem>
-            ))}
+            {[...examIndex]
+              .sort((a, b) => a.name.localeCompare(b.name))
+              .map(exam => (
+                <SelectItem key={exam.id} value={exam.id}>
+                  {exam.name}{exam.description ? ` — ${exam.description}` : ''}
+                </SelectItem>
+              ))}
           </SelectContent>
         </Select>
         {skippedCount > 0 && (

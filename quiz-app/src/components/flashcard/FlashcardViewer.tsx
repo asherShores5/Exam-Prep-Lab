@@ -45,6 +45,36 @@ export const DomainBadge = ({ domain }: { domain?: string }) => {
 };
 
 // ---------------------------------------------------------------------------
+// ExplanationBlock — renders a question's explanation with logical paragraph
+// breaks. Source explanations pack multiple points into one string separated by
+// blank lines; a single <p> collapses that into an unreadable blob, so we split
+// on blank lines into paragraphs and preserve single newlines within each.
+// Shared across review surfaces (Review, Quiz review, Flashcards).
+// ---------------------------------------------------------------------------
+
+export const ExplanationBlock = ({ text, dense = false }: { text?: string; dense?: boolean }) => {
+  const paragraphs = (text ?? '')
+    .split(/\n{2,}/)
+    .map(s => s.trim())
+    .filter(Boolean);
+  if (paragraphs.length === 0) return null;
+  return (
+    <div
+      className={`mt-3 rounded-lg bg-blue-900/20 border border-blue-700/50 text-blue-200 ${
+        dense ? 'p-2 text-xs' : 'p-3 text-sm'
+      }`}
+    >
+      <p className="font-semibold text-blue-300 mb-1">Explanation</p>
+      <div className="space-y-2">
+        {paragraphs.map((p, i) => (
+          <p key={i} className="whitespace-pre-line leading-relaxed">{p}</p>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+// ---------------------------------------------------------------------------
 // ReviewSummary sub-component
 // ---------------------------------------------------------------------------
 
@@ -224,12 +254,7 @@ const MultipleChoiceCard = ({ question, onResult }: MultipleChoiceCardProps) => 
 
           {/* Domain + explanation — shown after answering */}
           {answered && <DomainBadge domain={question.domain} />}
-          {answered && question.explanation && (
-            <div className="mt-3 p-3 rounded-lg bg-blue-900/20 border border-blue-700/50 text-sm text-blue-200">
-              <p className="font-semibold text-blue-300 mb-1">Explanation</p>
-              <p>{question.explanation}</p>
-            </div>
-          )}
+          {answered && <ExplanationBlock text={question.explanation} />}
         </CardContent>
       </Card>
 

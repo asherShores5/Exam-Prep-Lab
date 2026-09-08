@@ -4,6 +4,7 @@ import { Button } from '../ui/button';
 import { Shuffle } from 'lucide-react';
 import type { LegacyQuestion } from '../../types';
 import { StarToggle } from '../flashcard/StarToggle';
+import { DomainBadge, ExplanationBlock } from '../flashcard/FlashcardViewer';
 import { QuestionSkeleton } from '../ui/skeleton';
 import { useKeyboardNav } from '../../hooks/useKeyboardNav';
 
@@ -63,6 +64,9 @@ export const ReviewMode = ({ questions, shuffleQuestions, examId }: ReviewModePr
               </div>
             ))}
           </div>
+
+          {showAnswer && <DomainBadge domain={question.domain} />}
+          {showAnswer && <ExplanationBlock text={question.explanation} />}
 
           <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-between">
             <Button
