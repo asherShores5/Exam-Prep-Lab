@@ -38,5 +38,33 @@
     "path": "/exams/AWS-MLA-C01.json",
     "code": "MLA-C01",
     "sim": { "questionCount": 65, "timeLimitMinutes": 130, "passThresholdPercent": 72 }
+  },
+  {
+    "id": "AWS-DVA-C02",
+    "name": "AWS Developer - Associate",
+    "path": "/exams/AWS-DVA-C02.json",
+    "code": "DVA-C02",
+    "sim": { "questionCount": 65, "timeLimitMinutes": 130, "passThresholdPercent": 72 }
+  },
+  {
+    "id": "AWS-SOA-C03",
+    "name": "AWS CloudOps Administrator - Associate",
+    "path": "/exams/AWS-SOA-C03.json",
+    "code": "SOA-C03",
+    "sim": { "questionCount": 65, "timeLimitMinutes": 130, "passThresholdPercent": 72 }
+  },
+  {
+    "id": "AWS-AIB-C01",
+    "name": "AWS AI Business Strategist",
+    "path": "/exams/AWS-AIB-C01.json",
+    "code": "AIB-C01",
+    "sim": { "questionCount": 85, "timeLimitMinutes": 170, "passThresholdPercent": 70 }
+  },
+  {
+    "id": "Terraform-Associate-004",
+    "name": "HashiCorp Certified: Terraform Associate",
+    "path": "/exams/Terraform-Associate-004.json",
+    "code": "TA-004",
+    "sim": { "questionCount": 57, "timeLimitMinutes": 60, "passThresholdPercent": 70 }
   }
 ]
