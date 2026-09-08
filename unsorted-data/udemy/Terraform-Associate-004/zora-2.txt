@@ -1,0 +1,1024 @@
+
+2 of 199 complete.
+Home
+HashiCorp Certified: Terraform Associate 2026
+Practice Test - 5 - Results
+Attempt 1
+
+Question 1Skipped
+
+Based on the following configuration file,  will the data block request that Terraform must read from a given data source and export the result so that they can be used as part of resource creation?
+
+
+    resource "aws_instance" "web" {
+      ami           = data.aws_ami.windows.id
+      instance_type = "t3.micro"
+     
+      tags = {
+        Name = "HelloWorld"
+      }
+    }
+
+
+Correct answer
+
+True
+Explanation
+
+The code ami = data.aws_ami.windows.id explicitly instructs Terraform to read from a data source named windows (of type aws_ami) and export its id attribute. This attribute is then used to configure the ami argument for the resource creation, fulfilling the definition of a data block request's purpose.
+
+False
+Explanation
+
+This is incorrect because the syntax data.aws_ami.windows.id is the specific interpolation syntax used to access exported attributes from a data source. If this were false, it would imply that the code is using a static string or a resource attribute, but the prefix data. confirms that Terraform is being asked to query an external source dynamically before creating the resource.
+Overall explanation
+
+In Terraform, Data Sources allow you to fetch information defined outside of your current Terraform configuration (like an existing AMI ID, VPC ID, or hosted zone) and make it available to your code.
+
+In the provided snippet:
+
+    The Request: The line ami = data.aws_ami.windows.id is the "request."
+
+    The Mechanism: Terraform pauses the creation of the aws_instance until it successfully queries the AWS API for the aws_ami data source.
+
+    The Export: Once the data is retrieved, Terraform exports the attributes (like the AMI ID) and injects them into the resource configuration.
+
+    https://www.terraform.io/language/data-sources
+
+Question 2Skipped
+
+An AWS EC2 instance was initially created as a t2.micro using a Terraform configuration file named myec2.tf.
+
+Later, there is a requirement to upgrade the instance type to t2.medium. You modify the configuration file to set the instance type to t2.medium and execute terraform plan. The plan output shows that one instance will be updated from t2.micro to t2.medium.
+
+The following day, before running terraform apply, a teammate manually changes the instance type of the EC2 instance to t2.medium directly via the AWS Management Console.
+
+When you proceed to run terraform apply, what is likely to happen in this situation?
+
+The instance type will be changed to t2.micro and again will be changed to t2.medium
+Explanation
+
+Terraform does not revert resources to the old state file version before applying new changes. It compares the current live state (fetched via API during the refresh phase) against the desired configuration. Since the live state (t2.medium) matches the desired configuration (t2.medium), no action is taken.
+
+1 resource will be updated and you will see the message : Apply Complete ! Resources : 0 added, 1 changed, 0 destroyed
+Explanation
+
+This would only happen if the live infrastructure differed from the configuration file. Because the teammate manually updated the instance to match your configuration, Terraform detects that the goal has already been achieved. Therefore, it will not register a "change" action.
+Correct answer
+
+No resource will be updated and you will see the message: Apply Complete ! Resources : 0 added, 0 changed, 0 destroyed
+Explanation
+
+Upon running apply, Terraform performs an implicit refresh, detects that the actual instance type in AWS (t2.medium) already matches the configuration file (t2.medium), and updates its state file to match reality. It then reports that no changes are necessary to reach the desired state.
+
+terraform apply will through an error
+Explanation
+
+Terraform is designed to handle "drift" (changes made outside of Terraform). It does not error out simply because a resource was modified manually; instead, it attempts to reconcile the state. Since the manual change aligns perfectly with the configuration, it resolves gracefully without errors.
+Overall explanation
+
+This scenario tests your understanding of the Terraform Lifecycle and State Refreshing.
+
+When you execute terraform apply, the following sequence occurs:
+
+    Refresh: Terraform queries the AWS API to get the current, live details of the resources. It discovers the instance is already t2.medium.
+
+    Plan: It compares the live details against your .tf configuration files.
+
+    Reconciliation: It realizes that Live State (t2.medium) == Desired Config (t2.medium).
+
+Because the manual change made by your teammate accidentally "fixed" the drift before Terraform could, Terraform simply updates its local state file (terraform.tfstate) to reflect the new reality and reports that 0 changes are needed. This is a key feature of Terraform's declarative nature: it cares about the end state, not how it got there.
+Question 3Skipped
+
+Based on the following Terraform Setting block, which provider versions satisfy the defined version constraint block?
+
+    terraform { 
+    required_providers { 
+       aws = "~> 1.1.0" 
+      }
+    }
+
+Correct selection
+
+1.1.1
+Explanation
+
+This version satisfies the constraint because the major version (1) and minor version (1) match the requirement. The patch version (1) is greater than 0, making it a valid increment within the 1.1.x range. It falls safely between 1.1.0 and 1.2.0.
+
+1.2.4
+Explanation
+
+The pessimistic operator ~> 1.1.0 locks the minor version to 1. This option attempts to increment the minor version to 2. Since 1.2.4 is greater than or equal to 1.2.0, it violates the upper limit of the constraint.
+Correct selection
+
+1.1.6
+Explanation
+
+Similar to option A, this version maintains the required major and minor versions (1.1). The patch version (6) is a valid increment over 0. As long as the version remains 1.1.x, it is accepted by the ~> 1.1.0 constraint.
+
+1.2.2
+Explanation
+
+This version fails for the same reason as option B. The constraint ~> 1.1.0 only allows the rightmost specified number (the patch version 0) to increase. By changing the minor version from 1 to 2, this version exceeds the allowed range.
+Overall explanation
+
+The symbol ~> in Terraform is known as the pessimistic constraint operator. It is designed to allow the least risky updates (usually patch-level bug fixes) while preventing updates that might introduce breaking changes.
+
+The behavior depends entirely on how many components you specify:
+
+    If you specify three components (e.g., ~> 1.1.0): Terraform allows the patch version to increase, but locks the minor version. It allows 1.1.x but blocks 1.2.0.
+
+    If you specify two components (e.g., ~> 1.1): Terraform allows the minor version to increase, but locks the major version. It allows 1.x but blocks 2.0.
+
+In this specific scenario, because three components were provided (1.1.0), Terraform is looking strictly for 1.1.x versions. Therefore, only A and C are correct.
+Question 4Skipped
+
+According to the Terraform documentation, Terraform will automatically load several variable definition files if they exist.
+
+Which specific files are loaded by default?
+
+terraform.tfvar
+Explanation
+
+While it looks very similar to the correct filename, Terraform specifically looks for the pluralized extension .tfvars. A file named terraform.tfvar (singular) will be ignored by the Terraform CLI during operations like plan or apply unless you explicitly pass it using the -var-file flag.
+Correct selection
+
+Any files with names ending in .auto.tfvars.json
+Explanation
+
+Terraform automatically loads any files ending in .auto.tfvars or .auto.tfvars.json. These files are processed in alphabetical order and are generally used to ensure specific variables are loaded without requiring command-line flags, often overriding values found in standard terraform.tfvars files.
+Correct selection
+
+terraform.tfvars
+Explanation
+
+This is the default, primary file name that Terraform looks for to load variable definitions automatically. It is the standard convention for defining variable values in a root module, and if this file exists in the working directory, Terraform will automatically apply the values defined within it.
+Correct selection
+
+terraform.tfvars.json
+
+
+Explanation
+
+Terraform supports JSON syntax for variable definitions as well as HCL. If a file is named terraform.tfvars.json, Terraform will automatically load it just like it does the standard terraform.tfvars file. This is useful when variable inputs are being generated programmatically by other tools that output JSON.
+Overall explanation
+
+Terraform loads variables from multiple sources, and when the same variable is defined in multiple places, specific rules decide which value wins.
+
+Terraform automatically loads variables from these files in the current directory (in order of precedence, later overrides earlier):
+
+    terraform.tfvars
+
+    terraform.tfvars.json
+
+    *.auto.tfvars or *.auto.tfvars.json (loaded in alphabetical order)
+
+Files named terraform.tfvar (singular) or random names like production.tfvars are not loaded automatically; you must explicitly tell Terraform to use them via the command line (e.g., terraform apply -var-file="production.tfvars"). Always remember the "s" at the end of .tfvars
+
+
+https://www.terraform.io/language/values/variables#variable-definitions-tfvars-files
+Question 5Skipped
+
+Enterprise Corp has different environment running in different AWS regions.
+
+Every region in AWS has a different AMI ID for Linux OS and these AMI IDs keeps on changing at regular intervals from AWS side.
+
+What is the best approach to create the EC2 instances that can deal with different AMI IDs based on regions?
+Correct answer
+
+Use data source aws_ami.
+Explanation
+
+This is the best practice for dynamic environments. The data "aws_ami" block allows Terraform to query the AWS API in real-time during the plan or apply phase. You can filter by name (e.g., "amzn2-ami-hvm-*"), owner (e.g., "amazon"), and architecture. This ensures that no matter which region you are deploying to, Terraform fetches the latest valid AMI ID automatically without manual updates.
+
+Create a map of the region to ami id.
+Explanation
+
+While this is a valid syntactic approach in Terraform (using a variable map like us-east-1 = "ami-xyz"), it is a maintenance burden. Because the question states that AMI IDs are "regularly updated," you would have to manually update this map every time AWS releases a new patch. It fails the requirement for "automatic" updates.
+
+Create different configuration files for different regions.
+Explanation
+
+This violates the DRY (Don't Repeat Yourself) principle and creates significant technical debt. Maintaining separate .tf files for every region just to change an AMI ID is inefficient. Like Option B, it also requires manual intervention to update the hardcoded IDs whenever AWS releases updates, failing the automation requirement.
+
+None of the above
+Explanation
+
+Since Option A provides a native, efficient, and automated solution within Terraform to solve exactly this problem, "None of the above" is not the correct choice.
+Overall explanation
+
+The most robust way to handle AWS resources that vary by region and time (like AMIs) is to use Data Sources.
+
+In Terraform, a resource creates something new, but a data source fetches information about something that already exists. By using data "aws_ami", you are telling Terraform: "Go ask AWS what the latest Amazon Linux 2 AMI is in the current region right now."
+
+Here is how the code typically looks:
+
+    data "aws_ami" "latest_linux" {
+      most_recent = true
+      owners      = ["amazon"]
+     
+      filter {
+        name   = "name"
+        values = ["amzn2-ami-hvm-*-x86_64-gp2"]
+      }
+    }
+     
+    resource "aws_instance" "web" {
+      ami           = data.aws_ami.latest_linux.id
+      instance_type = "t2.micro"
+    }
+
+This approach ensures that your infrastructure code remains static, but the actual AMI ID used is always dynamic and up-to-date with the specific region you are deploying into.
+Question 6Skipped
+
+Enterprise Corp maintains three separate environments: DEV, QA, and PROD.
+
+The Security team has requested full isolation between these environments, including backend separation and configuration differences to accommodate the distinct resources in each environment.
+
+What is the recommended way to structure the Terraform code to achieve this level of segregation?
+
+Make use of terraform workspaces
+Explanation
+
+While workspaces allow multiple state files for the same configuration, they use a single backend and share the exact same codebase. This makes it difficult to manage significant configuration differences (like different instance sizes or distinct resource counts) without complex logic, and it poses a high risk of accidentally applying changes to the wrong environment (e.g., destroying PROD while thinking you are in DEV).
+Correct answer
+
+Create a separate set of folders. Each one will be associated with a specific environment.
+Explanation
+
+This is the standard industry best practice for full isolation. By having a directory structure like env/dev, env/qa, and env/prod, each environment gets its own distinct state file and variable definitions (terraform.tfvars). This ensures that a change in DEV cannot accidentally impact PROD because they are physically separated in the file system and often use Terraform Modules to share common logic while keeping configurations unique.
+
+Make use of Remote Backends.
+Explanation
+
+While using Remote Backends (like S3 with DynamoDB) is a best practice for storing state, it is not a structural strategy for separating environments on its own. You can use a Remote Backend with a single folder (bad for isolation) or with multiple folders (good for isolation). Therefore, this answer describes where state is stored, not how the code is structured to achieve the requested segregation.
+
+None of the Above.
+Explanation
+
+Since Option B provides the widely accepted and recommended solution for the scenario described, "None of the Above" is not the right choice. Option B effectively addresses the requirement for "full isolation" and "configuration differences."
+Overall explanation
+
+It is crucial to understand the difference between Workspaces and Directory/File Separation.
+
+    Workspaces are best suited for temporary branches or very similar environments where the configuration is identical (e.g., spinning up ephemeral feature-branch environments).
+
+
+    Directory Separation (Option B) is the standard for long-lived environments (DEV, QA, PROD). It provides the highest safety blast radius. If you run terraform destroy in the dev folder, there is physically no way for Terraform to touch the prod resources because the state files and configurations are completely decoupled. This approach usually leverages Terraform Modules to avoid code duplication, allowing you to write the infrastructure logic once and call it three times with different parameters in your separate environment folders.
+
+Question 7Skipped
+
+What are the OS that are supported by Terraform Enterprise?
+Correct selection
+
+Ubuntu
+Correct selection
+
+Oracle Linux
+Correct selection
+
+Red Hat Enterprise Linux
+Correct selection
+
+CentOS
+Correct selection
+
+Amazon Linux
+Correct selection
+
+Debian
+Overall explanation
+
+https://www.terraform.io/enterprise/requirements/os-specific/supported-os
+Question 8Skipped
+
+Matthew wants to import a local module named database.
+
+Which of the following configuration parameter can be used?
+
+module "db" { source = "database"}
+Explanation
+
+This syntax implies that the source is a remote module hosted on the Terraform Registry, not a local file path. Without a path prefix like ./ or ../, Terraform interprets the string "database" as a namespace/name format (e.g., hashicorp/consul) or a registry alias, causing it to attempt a network lookup rather than looking locally.
+Correct selection
+
+module "db" { source = "./database"}
+Explanation
+
+This is the standard syntax for referencing a local module located in a subdirectory named "database" within the current working directory. The ./ prefix explicitly tells Terraform to look for the module on the local filesystem relative to the current configuration file, satisfying the requirement for a local import.
+Correct selection
+
+module "db" { source = "../database"}
+Explanation
+
+This is also a valid syntax for a local module, specifically one located in a sibling directory or a parent directory relative to the current configuration. Like option B, the ../ prefix explicitly indicates a local filesystem path. Note: Since the question implies the module is just named "database" without specifying its exact location relative to the root, both B and C are technically valid syntaxes for local modules, though B is the most common assumption for a direct subdirectory.
+
+module "db" { source = "ftp:/database"}
+Explanation
+
+This syntax attempts to use a remote source via the FTP protocol. While Terraform supports various remote sources (like HTTP, Git, Mercurial, and S3), it does not natively support ftp:// as a module source protocol. Furthermore, the question specifically asks for a "local module," and a network protocol inherently implies a remote resource.
+Overall explanation
+
+In Terraform, the source argument is the only mandatory argument for a module block. It tells Terraform where to find the configuration files. To distinguish between a Local Module (on your computer) and a Remote Module (on the Internet/Registry), Terraform relies entirely on the prefix of the path.
+
+    Local Paths: Must begin with ./ (current directory) or ../ (parent directory).
+
+    Terraform Registry: Strings without path prefixes (e.g., aws/ec2-instance) are treated as Registry lookups.
+
+    Remote URLs: Strings starting with git::, http::, s3::, etc., are treated as remote network locations.
+
+Therefore, if you are referencing a folder on your own machine, you must use the relative path syntax (Option B or C).
+Question 9Skipped
+
+Matthew is a DevOps engineer responsible for deploying production infrastructure with Terraform.
+
+Currently, he manages and updates the infrastructure using a single, very large configuration file.
+
+As the infrastructure has expanded and become more complex, he has noticed that running terraform plan has become slow.
+
+What are the possible options he have to address this performance issue?
+Correct selection
+
+Break large configurations into several smaller configurations that can each be independently applied.
+Explanation
+
+This is the standard best practice for managing large Terraform codebases. By splitting a "monolithic" state file into smaller, logical components (e.g., networking, database, app layer), Terraform only needs to refresh and plan the specific subset of resources you are changing. This drastically reduces the number of API calls made to the cloud provider during the plan phase.
+
+Run terraform refresh every time before running terraform plan.
+Explanation
+
+terraform plan automatically performs a refresh by default (unless disabled), so running it manually beforehand adds a redundant step. Furthermore, the slowness Matthew is experiencing is usually caused by the refresh process checking thousands of resources against the real-world AP
+Correct selection
+
+Use -refresh=false flag as well as the -target flag with terraform plan in order to work around this
+
+
+Explanation
+
+Technically, using -refresh=false combined with -target is the most effective way to instantaneously speed up the operation without refactoring code.
+
+    -refresh=false: This tells Terraform: "Do not check the real-world cloud provider API to see if resources have changed; just trust what is in the local state file." This removes the vast majority of the wait time (the API calls).
+
+    -target: This limits the scope of the plan to only the specific resource you are trying to update. Terraform ignores the thousands of other resources in the file.
+
+None of the Above.
+Explanation
+
+Since Option A is a valid, architectural solution to the problem described, "None of the Above" is incorrect. Splitting state files is the primary method recommended by HashiCorp for scaling Terraform management.
+Question 10Skipped
+
+Which among the following Terraform backends support State locking functionality? (Choose 4)
+Correct selection
+
+S3
+Correct selection
+
+artifactory
+Explanation
+
+The Artifactory backend stores the state in a JFrog Artifactory repository. This backend natively supports state locking. When operations are performed, Artifactory handles the locking mechanism to ensure that multiple users cannot write to the state file simultaneously, preventing corruption.
+Correct selection
+
+azurerm
+Explanation
+
+The azurerm backend stores the state as a Blob in an Azure Storage Container. This backend supports state locking natively using Azure Blob Storage leases. When Terraform runs, it acquires a lease on the blob, effectively locking it against other write operations until the process is complete.
+Correct selection
+
+consul
+
+Active Directory
+Explanation
+
+Active Directory is a directory service developed by Microsoft for Windows domain networks; it is not a storage backend for Terraform state files. While Terraform has an Active Directory Provider to manage AD resources, there is no "Active Directory backend" for storing state, and consequently, no locking mechanism associated with it.
+Overall explanation
+
+https://www.terraform.io/language/state/locking
+Question 11Skipped
+
+Which data storage among these is supported in Terraform Enterprise?
+
+DynamoDB
+Explanation
+
+While DynamoDB is a very popular backend for storing Terraform state (specifically when using the S3 backend in open-source Terraform), it is not a supported data storage mechanism for the internal application data of a self-hosted Terraform Enterprise instance. Terraform Enterprise requires a relational database to manage its internal logic, users, and policies.
+
+Excel
+Explanation
+
+Excel is a spreadsheet application used for data analysis and simple record-keeping, not an enterprise-grade relational database management system. It lacks the concurrency, transactional integrity, and scalability required to run a complex infrastructure-as-code platform like Terraform Enterprise, and there is no driver or support for it within the architecture.
+Correct answer
+
+PostgreSQL
+Explanation
+
+PostgreSQL is the primary supported external database for Terraform Enterprise. When deploying Terraform Enterprise in a production environment (Active/Active or External Services mode), HashiCorp explicitly requires and supports PostgreSQL to store the application's internal data, including workspace configurations, run history, and user settings.
+
+MYSQL
+Explanation
+
+Although MySQL is a widely used relational database similar to PostgreSQL, it is not supported for Terraform Enterprise's internal storage. The application is specifically architected and tested against PostgreSQL schemas and data types; therefore, attempting to use MySQL would result in incompatibility and failure to start the application.
+Overall explanation
+
+To understand this question, it is vital to distinguish between Terraform State and Terraform Enterprise Application Data.
+
+    Terraform State: This is the JSON file that tracks your infrastructure. You can store this in many places (S3, Azure Blob, GCS, Consul, etc.).
+
+    Terraform Enterprise Application Data: This is the data required to run the platform itself (user logins, policy sets, workspace metadata, run logs).
+
+Terraform Enterprise (the self-hosted software) requires an external object store (like S3) and an external database. PostgreSQL is the only supported external database for this purpose. While DynamoDB is great for the State file in the open-source version, it cannot run the Enterprise software platform itself.
+https://www.terraform.io/enterprise/install/pre-install-checklist
+Question 12Skipped
+
+Which of the following VCS Providers are supported in Terraform Cloud? (Choose 4)
+Correct selection
+
+GitHub.com
+Explanation
+
+Terraform Cloud has native, first-class integration with GitHub.com. It allows you to link workspaces directly to repositories, enabling automatic runs when pull requests are created or merged. It supports both the OAuth-based connection and the newer Terraform Cloud GitHub App integration.
+Correct selection
+
+Bitbucket Cloud
+Explanation
+
+Bitbucket Cloud is a fully supported Version Control System (VCS) provider within Terraform Cloud. Users can configure an OAuth connection to Bitbucket Cloud to automatically trigger Terraform runs based on repository changes, ensuring seamless infrastructure-as-code workflows for Atlassian users.
+Correct selection
+
+Azure DevOps Server
+Explanation
+
+Terraform Cloud supports Azure DevOps Server (formerly Team Foundation Server or TFS), which is the self-hosted version of Azure DevOps. While it requires a different configuration setup compared to the SaaS version (often involving the Terraform Cloud Agent or specific network configurations if the server is behind a firewall), it is an officially supported provider.
+Correct selection
+
+Azure DevOps Services
+Explanation
+
+Azure DevOps Services (the SaaS cloud offering from Microsoft) is fully supported. Terraform Cloud can connect to Azure DevOps repositories to monitor changes and trigger infrastructure updates. This integration is widely used by organizations leveraging the Microsoft ecosystem for their CI/CD pipelines.
+
+ECR
+Explanation
+
+ECR stands for Elastic Container Registry, which is an AWS service used for storing Docker container images, not for version control of source code files (like .tf files). While Terraform can interact with ECR to provision it, ECR cannot act as the VCS provider to trigger Terraform Cloud runs.
+Overall explanation
+
+Terraform Cloud relies on Version Control Systems (VCS) to drive its core workflow: "VCS-driven runs." This means Terraform watches a specific repository for changes to your infrastructure code. When you commit code or open a Pull Request, Terraform Cloud automatically plans and applies those changes.
+
+To facilitate this, Terraform Cloud supports the major industry-standard VCS providers. The "Big Four" ecosystems supported are:
+
+    GitHub (Enterprise and .com)
+
+    GitLab (EE, CE, and .com)
+
+    Bitbucket (Cloud and Server/Data Center)
+
+    Azure DevOps (Services and Server)
+
+It is important to distinguish between a VCS (which holds text-based source code) and an Artifact Registry (like ECR, Artifactory, or Docker Hub, which hold compiled binaries or images). Terraform Cloud connects to the former, not the latter, for its run triggers.
+
+https://www.terraform.io/docs/cloud/vcs/index.html
+Question 13Skipped
+
+Matt plans to include a series of comments within the Terraform code to describe the purpose of different blocks in this project.
+
+Which of the following methods can be used to add comments in Terraform code? (Choose 3)
+
+<*>
+Explanation
+
+This syntax is not recognized by Terraform (HCL - HashiCorp Configuration Language) as a valid comment. Using this syntax will result in a parsing error when you run terraform plan or terraform apply because Terraform will interpret it as invalid code rather than a comment.
+Correct selection
+
+#
+Explanation
+
+The hash symbol # is the standard and most commonly used method for single-line comments in Terraform. Everything following this character on the same line is ignored by the Terraform parser. It is the preferred style for single-line comments in HCL configurations.
+Correct selection
+
+/* and */
+Explanation
+
+This syntax is used for multi-line comments (block comments). Terraform ignores everything between the opening /* and the closing */. This is particularly useful for temporarily disabling large blocks of code or writing extensive documentation paragraphs within the configuration file.
+Correct selection
+
+//
+Explanation
+
+The double forward slash // is also a valid method for single-line comments in Terraform, similar to languages like C++ or Java. While valid and functional, the Terraform style guide generally prefers the # syntax for single-line comments, but // will work perfectly fine.
+Overall explanation
+
+Terraform (HCL) supports three distinct styles of commenting, giving developers flexibility in how they document their Infrastructure as Code.
+
+    #: The standard single-line comment. Use this for simple explanations or headers.
+
+    //: An alternative single-line comment. Valid, but less common than #.
+
+    /* ... */: The multi-line block comment. Use this for long descriptions or commenting out entire resource blocks during debugging.
+
+Best Practice: Stick to # for single lines to maintain consistency with the wider Terraform community, and use /* */ when you need to write a paragraph or disable a chunk of code.
+https://www.terraform.io/language/syntax/configuration#comments
+Question 14Skipped
+
+Which of the following files are recommended to be excluded while committing Terraform Code to a Git Repository? (Choose 2)
+
+resources.tf
+Explanation
+
+This file contains the actual infrastructure definitions (resources) that you want to provision. It is the core of your Infrastructure as Code (IaC) and must be tracked in version control so that your team can collaborate on and maintain the infrastructure configuration over time.
+
+variables.tf
+Explanation
+
+This file defines the input variables (names, types, and default values) accepted by your Terraform module or configuration. It does not typically contain sensitive data itself, but rather the schema for that data. It is essential for understanding how to interact with the code and should be committed to Git.
+Correct selection
+
+terraform.tfvars
+Explanation
+
+This file is used to assign specific values to the variables defined in variables.tf. It often contains sensitive information (like passwords, API keys, or specific environment settings) or local configuration overrides. Committing this can lead to security breaches; therefore, it is standard practice to exclude it via .gitignore.
+Correct selection
+
+terraform.tfstate
+Explanation
+
+This file stores the mapping between your real-world resources and your configuration, often including sensitive data in plain text. Committing this file causes massive merge conflicts in team environments and poses a severe security risk. State files should be stored in a remote backend (like S3 or Azure Storage), not in the Git repository.
+Overall explanation
+
+When working with Terraform and Git, the goal is to version control the logic of your infrastructure while excluding specific values and state.
+
+    Commit the Logic: Always commit .tf files (like main.tf, variables.tf, outputs.tf). These define what needs to be built and are safe for public viewing.
+
+    Ignore the Secrets: Never commit terraform.tfvars or *.auto.tfvars if they contain passwords or keys. Use environment variables or a secrets manager instead.
+
+    Ignore the State: Never commit terraform.tfstate or terraform.tfstate.backup. This file is the "brain" of Terraform; if two developers try to update it simultaneously via Git, it will break your infrastructure. Always use a Remote Backend for state management.
+
+Best Practice: Create a .gitignore file immediately when starting a project and add .terraform/, *.tfstate, *.tfstate.backup, and *.tfvars to it.
+Question 15Skipped
+
+In a Terraform project, before using a new provider, what are the actions that need to be performed? (Choose 2)
+
+Provider Plugins must be available in the Terraform Registry.
+Explanation
+
+While the public Terraform Registry is the most common source for providers, it is not strictly mandatory. You can use local providers, private registries, or manual plugin installations (filesystem mirrors). Therefore, availability specifically in the public Registry is not a hard requirement for every provider usage.
+
+Provider Plugins must be approved by HashiCorp Team
+Explanation
+
+Terraform is an open ecosystem. While HashiCorp maintains "Official" providers and verifies "Partner" providers, anyone can write and publish a "Community" provider. You can even write a custom provider for internal use that HashiCorp never sees or approves. Approval is not a technical requirement for usage.
+Correct selection
+
+Provider must first be initialized.
+Explanation
+
+Terraform can perform operations (like plan or apply) using a provider, the terraform init command must be run. This command downloads the plugin binaries (based on the configuration) and installs them into the .terraform directory. Without this initialization step, Terraform cannot execute the provider code.
+Correct selection
+
+Provider details must be declared within the terraform configuration
+Explanation
+
+You technically must declare the provider (e.g., provider "aws" {...}) or at least have resources that imply the provider. Terraform will download the provider plugins accordingly during init stage.
+Question 16Skipped
+
+Which of the following approach can be used to call a child module?
+
+    module "vms" {
+      sources = "./vm-config"
+    }
+
+Explanation
+
+This option is incorrect because the argument sources (plural) does not exist in the Terraform module block configuration. Terraform strictly looks for the singular argument source to define where the module code is located. Using the plural form will result in a validation error during terraform init or terraform plan.
+Correct answer
+
+    module "vms" {
+      source = "./vm-config"
+    }
+
+Explanation
+
+This is the valid syntax for calling a child module in Terraform. The source argument is mandatory for every module block and tells Terraform where to find the configuration files (in this case, a local path ./vm-config). This block correctly instantiates a module named "vms" using the code found in that directory.
+
+None of the Above
+Explanation
+
+Since option B represents the standard and correct syntax for declaring a module in Terraform, "None of the Above" is false. Terraform configuration requires a module block with a unique name and a source argument, which is exactly what option B provides.
+Overall explanation
+
+In Terraform, modules are the primary way to package and reuse resource configurations. Every time you define a module block, you are essentially "calling" a child module from your root configuration.
+
+The most critical argument within a module block is source.
+
+    Mandatory: It is the only argument that is strictly required.
+
+    Location: It tells Terraform where the module's source code resides. This can be a local file path (starting with ./ or ../), a Terraform Registry URL, a Git repository, or an S3 bucket.
+
+    Singular: The keyword is always singular (source), never plural (sources).
+
+Example of a complete module call:
+
+    module "web_server" {
+      source = "./modules/aws-webserver" # Mandatory location
+      
+      # Optional input variables defined in the child module
+      instance_size = "t2.micro"
+      region        = "us-east-1"
+    }
+
+https://www.terraform.io/docs/configuration/blocks/modules/syntax.html
+Question 17Skipped
+
+Enterprise Corp requires encryption at rest to meet compliance standards.
+
+At present, all state files are stored using S3 backends.
+
+Is this use case achievable?
+Correct answer
+
+True
+Explanation
+
+This is the correct answer because the Amazon S3 backend for Terraform natively supports Server-Side Encryption (SSE). You can configure the backend to use SSE-S3 (using Amazon S3-managed keys) or SSE-KMS (using AWS KMS-managed keys) by setting the encrypt attribute to true in the Terraform configuration. This ensures that the state file is automatically encrypted when written to the disk in AWS and decrypted when read.
+
+False
+Explanation
+
+This answer is incorrect because achieving encryption at rest for Terraform state files in S3 is a standard and widely supported feature. Claiming it is not achievable ignores the built-in encryption capabilities of AWS S3 buckets and the specific configuration options provided by the Terraform S3 backend provider to leverage those capabilities.
+Overall explanation
+
+In the context of Infrastructure as Code (IaC) security, protecting the state file is critical because it often contains sensitive data (like database passwords or API keys) in plain text.
+
+For Enterprise Corp, meeting the compliance standard of "encryption at rest" is fully achievable using their current S3 backend strategy. There are two primary layers where this can be enforced:
+
+    Bucket Policy: The S3 bucket itself can be configured to enforce default encryption for all objects stored within it.
+
+    Terraform Configuration: The backend configuration block in Terraform can explicitly request encryption.
+
+Example configuration:
+
+    terraform {
+      backend "s3" {
+        bucket  = "my-terraform-state"
+        key     = "prod/app.tfstate"
+        region  = "us-east-1"
+        encrypt = true  # Enables encryption at rest
+      }
+    }
+
+https://www.terraform.io/docs/backends/types/s3.html
+Question 18Skipped
+
+Can the Terraform Version be different from the Provider version?
+Correct answer
+
+Yes
+Explanation
+
+This is the correct answer because Terraform Core (the CLI tool) and Terraform Providers (plugins like AWS, Azure, or Google) are decoupled software components. They are developed, versioned, and released independently of one another. You can upgrade your Terraform CLI version without changing your provider versions, and vice versa, as long as they remain within compatible constraints defined in the Terraform Registry.
+
+No
+Explanation
+
+This is incorrect because it assumes a tight coupling that does not exist in the Terraform ecosystem. While Terraform 0.10 split providers out of the core binary to allow for independent versioning, older versions (pre-0.10) did bundle them. However, in modern Terraform usage, the versions are distinct entities (e.g., you can run Terraform v1.5.0 with the AWS Provider v5.12.0).
+Question 19Skipped
+
+If HashiCorp Vault is integrated with Terraform, can it hide the secrets from the State files?
+
+True
+Explanation
+
+While integrating Vault allows you to retrieve secrets dynamically during the terraform apply phase, Terraform's core design requires it to track the state of every resource it manages. If Terraform reads a secret from Vault to pass it to a resource (like a database password for an RDS instance), that value must be recorded in the state file so Terraform can detect future changes (drift).
+Correct answer
+
+False
+Explanation
+
+Even when using the Vault provider, if Terraform accesses a secret to configure a resource, that secret is stored in plain text within the .tfstate file. The integration secures the retrieval and storage of the secret at the source (Vault), but once Terraform consumes it, it becomes part of the state data. This is a known architectural characteristic of Terraform.
+Overall explanation
+
+The Terraform State file (terraform.tfstate) is the ultimate source of truth for your infrastructure.
+
+    The Mechanism: When you use the Vault provider, Terraform authenticates with Vault and retrieves the secret.
+
+    The Storage: Terraform passes that secret to the target resource (e.g., an AWS EC2 instance or SQL Database). To manage that resource later, Terraform writes the current configuration—including the secret values—into the state file in plain text.
+
+    The Solution: Because Vault does not hide secrets from the state file, you must treat the state file itself as a sensitive artifact. You should always use Remote State (like S3 with encryption enabled or Terraform Cloud) to encrypt the state file at rest and strictly control who has access to read it.
+
+Question 20Skipped
+
+Your DevOps team is working across several Terraform workspaces and needs to securely handle sensitive data like API tokens and passwords used for infrastructure provisioning.
+
+According to HashiCorp’s best practices, in which three locations should your team store these secrets? (Select three correct locations.)
+Correct selection
+
+In a terraform.tfvars file that is securely managed and only shared with authorized team members, but not committed to version control
+Explanation
+
+This is a standard practice for local development or specific deployment scenarios. By adding terraform.tfvars to your .gitignore file, you prevent secrets from leaking into version control while still allowing Terraform to load variable definitions automatically. It requires strict discipline to ensure the file is shared securely (e.g., via a password manager) and never accidentally committed.
+Correct selection
+
+Within HashiCorp Vault, a dedicated secrets management tool
+Explanation
+
+This is the "gold standard" for secrets management in the HashiCorp ecosystem. Terraform can dynamically read secrets from Vault at runtime using the Vault provider. This approach avoids storing long-lived static credentials in files or environment variables entirely, allowing for advanced features like dynamic secrets and automatic rotation.
+
+In a terraform.tfvars file that is uploaded to your source code repository
+Explanation
+
+Committing a file containing secrets to a source code repository (like Git) is a critical security vulnerability. Once committed, the secret is part of the permanent history of the repository and can be accessed by anyone with read access to the repo, making it extremely difficult to completely erase.
+
+As plain text in a document located on a publicly accessible shared drive
+Explanation
+
+This violates the principle of least privilege and basic security hygiene. Storing secrets in plain text on a publicly accessible drive exposes them to unauthorized users, malware, and accidental leakage. Secrets should always be encrypted at rest and access should be strictly controlled via authentication and authorization mechanisms.
+Correct selection
+
+Using HCP Terraform/Terraform Cloud workspace variables, with the “sensitive” flag enabled
+Explanation
+
+When using Terraform Cloud or Enterprise (HCP Terraform), you can store variables directly in the workspace configuration. By marking a variable as "sensitive," the platform encrypts the value and ensures it is "write-only" in the UI (it cannot be viewed after saving) and is redacted from the Terraform run logs, preventing accidental exposure.
+Overall explanation
+
+Managing secrets in Infrastructure as Code (IaC) requires a "defense in depth" approach. The core rule is never commit secrets to version control (like Git).
+
+    Local/Manual: If you must use files (like .tfvars), ensure they are ignored by Git (.gitignore) and shared only via secure channels.
+
+    Platform-Native: If you are using a managed platform like HCP Terraform (Terraform Cloud), utilize their built-in variable storage with the "sensitive" attribute to encrypt data and redact it from logs.
+
+    Enterprise/Dynamic: For the highest security, use a dedicated secrets engine like HashiCorp Vault. This separates the secret data from the Terraform code entirely and allows for dynamic, short-lived credentials that expire automatically.
+
+Question 21Skipped
+
+How do you reference to the below resource block code from a different Terraform resource block?
+
+    resource "kubernetes_pod" "with_node_affinity" {
+      metadata {
+        name = "with-node-affinity"
+      }
+
+    with_node_affinity
+
+Explanation
+
+This is only the "local name" (or resource name) of the specific resource instance. In Terraform, using just the name is ambiguous because you could have different resource types (e.g., a pod, a service, or a variable) sharing the same local name. You must always qualify the name with the resource type to reference it correctly.
+
+data.kubernetes_pod.with_node_affinity
+Explanation
+
+The prefix data. is exclusively used for Data Sources, which are used to fetch information about resources that already exist outside of Terraform or were created by a different configuration. Since the code provided is a resource block (creating a new resource), referencing it as a data source is syntactically invalid and will result in an error.
+
+resource.kubernetes_pod.with_node_affinity
+Explanation
+
+While logical in English, Terraform syntax does not use the prefix resource. when referencing resources within the configuration. The keyword resource is only used when defining the block. When referencing it elsewhere, you omit the word "resource" entirely and start directly with the resource type.
+Correct answer
+
+kubernetes_pod.with_node_affinity
+Explanation
+
+This follows the standard Terraform reference syntax: <RESOURCE_TYPE>.<LOCAL_NAME>. The resource type is kubernetes_pod, and the local name defined in the block is with_node_affinity. This unique combination allows Terraform to locate the specific item in the state file and access its exported attributes (like .id or .metadata).
+Overall explanation
+
+In Terraform, every object you define has a specific "address" used to reference it in other parts of your code.
+
+    Resources: Defined with resource "type" "name", referenced as type.name (e.g., aws_instance.web).
+
+    Data Sources: Defined with data "type" "name", referenced as data.type.name.
+
+    Variables: Defined with variable "name", referenced as var.name.
+
+Question 22Skipped
+
+You are a DevOps engineer at a fast-growing startup. To enhance collaboration and streamline infrastructure management, your team is transitioning from local Terraform workflows to Terraform Cloud. As part of this migration, your manager has asked you to highlight the main features of Terraform Cloud that will benefit your team.
+
+Which two of the following features does Terraform Cloud offer to support your team’s infrastructure operations? (Select two.)
+Correct selection
+
+Centralized storage for Terraform state files
+Explanation
+
+Terraform Cloud offers remote, centralized storage for state files, ensuring that your team can access the latest state information, collaborate safely, and avoid state file conflicts. This feature is crucial for team workflows.
+Correct selection
+
+A browser-based platform for managing Terraform workspaces and runs
+Explanation
+
+Terraform Cloud provides a rich User Interface (UI) accessible via a web browser. This dashboard allows teams to view the history of runs, approve apply plans manually, manage variables, configure access controls, and organize infrastructure into logical units called "workspaces," making management much more accessible than CLI-only workflows.
+
+Built-in automated daily backups of all managed infrastructure
+Explanation
+
+While Terraform Cloud backs up the state file (which tracks your resources), it does not perform backups of the actual infrastructure resources (e.g., it does not snapshot your AWS RDS databases or EC2 instances). Infrastructure backups must be configured via the cloud provider's tools or within the Terraform code itself using backup-specific resources.
+
+Real-time graphical visualizations of infrastructure as it is created
+Explanation
+
+Terraform Cloud provides a textual log of the plan and apply phases, and while it has a "Graph" command in the CLI, TFC does not offer a native, real-time animated graphical visualization of resources popping into existence as they are created. Third-party tools exist for visualization, but this is not a native, primary feature of the TFC execution platform.
+Overall explanation
+
+Moving to Terraform Cloud solves the "it works on my machine" problem inherent in local workflows. The two most immediate benefits you will feel are Remote State Management and the Collaborative UI.
+
+    Remote State: Instead of worrying about who has the latest terraform.tfstate file or setting up complex S3/DynamoDB backends manually, TFC handles state storage, versioning, and locking automatically.
+
+    Structured Workflow: The browser-based platform introduces a structured pipeline (Plan, Policy Check, Apply). It allows the team to review changes visually before they happen and keeps a historical audit log of exactly who changed what and when.
+
+Question 23Skipped
+
+At Example Corp, infrastructure provisioning relies on a traditional ticket-based process. Employees submit requests for new virtual machines, storage, or network modifications through a service desk ticketing system. The infrastructure team then manually reviews, approves, and fulfills these requests. As more teams shift to cloud-native development, Example Corp is finding it increasingly difficult to meet the growing demand for cloud resources.
+
+In this context, which two factors most contribute to how this ticket-based workflow can hinder rapid infrastructure scaling? (Select two.)
+Correct selection
+
+Every infrastructure request requires manual approval and intervention by the operations team, increasing wait times for end-users.
+Explanation
+
+This is a primary bottleneck in ticket-based systems. Because a human must physically read, evaluate, and act upon every single request, the speed of provisioning is strictly limited by human bandwidth. This creates a "blocking" mechanism where developers sit idle waiting for resources, directly hindering the ability to scale rapidly.
+
+The system automatically logs all actions and approvals, making compliance and auditing easier.
+Explanation
+
+While this statement might be true regarding the benefits of a ticketing system (audit trails are good), it does not explain how the workflow hinders scaling. In fact, good logging is a feature of both slow ticketing systems and fast automated systems. This option describes a positive attribute, not a scaling constraint.
+
+End-users select pre-approved infrastructure options from a self-service portal, reducing the need for team intervention.
+Explanation
+
+This describes a "Self-Service" or "Service Catalog" model, which is actually the solution to the problem, not the problem itself. If Example Corp were doing this, they would not be facing the scaling difficulties described in the scenario. This option contradicts the premise that they are using a manual, ticket-based process.
+Correct selection
+
+As the number of resource requests grows, the operations team must handle a larger volume of tickets, slowing down overall provisioning speed.
+Explanation
+
+When infrastructure requests are tied to a ticketing process, the workload on the operations team grows linearly (or worse) with demand. This can quickly overwhelm the team, creating delays and making it challenging to scale infrastructure efficiently.
+Question 24Skipped
+
+You are part of a team responsible for managing infrastructure as code with Terraform. To connect to a remote backend such as AWS S3 or Azure Blob Storage, the team must provide access credentials (like API keys, tokens, or passwords). It’s crucial to prevent these sensitive secrets from being exposed or unintentionally checked into version control.
+
+Given this context, which TWO methods are considered secure for storing the sensitive credentials Terraform needs to authenticate with a remote backend? (Select two.)
+
+Directly specifying secrets within the backend block in your Terraform configuration files
+Explanation
+
+This is a security anti-pattern because the backend configuration block is part of the main Terraform code, which is almost always committed to version control (like Git). If you hardcode secrets here, they become permanently visible in the commit history to anyone with repository access, leading to immediate credential leakage.
+Correct selection
+
+Setting secrets as environment variables on the system or CI/CD pipeline running Terraform
+Explanation
+
+Terraform is designed to automatically look for specific environment variables (e.g., AWS_ACCESS_KEY_ID) to handle authentication without needing them written in code. This keeps secrets ephemeral and restricted to the runtime environment of the local machine or the CI/CD runner, ensuring they are never saved to disk or version control systems.
+Correct selection
+
+Storing secrets in a secure external secrets manager or configuration outside of Terraform, then referencing them as needed
+Explanation
+
+This approach delegates authentication to a dedicated security tool (like AWS CLI profiles, HashiCorp Vault, or Azure Key Vault) rather than Terraform itself. By configuring the backend to use credentials stored in a standard, secure location on the host machine (like ~/.aws/credentials), Terraform can authenticate securely without the code ever knowing the actual secret values.
+
+Defining secrets in a separate variable file (e.g., secrets.tfvars) and including it with your Terraform commands
+Explanation
+
+While better than hardcoding, the Terraform backend block specifically does not support interpolation or variables; it requires static values or external configuration. Therefore, you technically cannot pass a .tfvars variable into the backend configuration block to authenticate the backend itself; this method only works for provider or resource configuration, not backend initialization.
+Overall explanation
+
+When working with Terraform, the "Backend" configuration is unique because it initializes before Terraform can even load your variables. This creates a "chicken-and-egg" problem: you cannot use standard Terraform variables (like var.my_password) inside the backend { ... } block.
+
+Therefore, to secure backend credentials, you must rely on methods that exist outside of the Terraform code itself. The two industry-standard ways to do this are:
+
+    Environment Variables: Injecting secrets into the shell or CI/CD pipeline at runtime.
+
+    External Configuration Files: Relying on the cloud provider's default credential files on the host machine (partial configuration), so the Terraform code remains generic and secret-free.
+
+Never commit secrets to Git. Once a secret is pushed to a repository, it is considered compromised and must be revoked immediately.
+HashiCorp Certified: Terraform Associate (004)
+Set a certification due date
+HashiCorp Certified: Terraform Associate (004)
+
+    Not completed
+
+Start
+182. Our Community
+1min
+Not completed
+Play
+183. Exam Appointment Rules and Requirements
+15min
+Not completed
+Play
+184. Booking the Terraform Associate Exam
+8min
+Not completed
+Play
+185. Important Pointers for Exams - Part 01 - NEW
+22min
+Not completed
+Play
+186. Important Pointers for Exams - Part 02 - NEW
+17min
+Not completed
+Play
+187. Important Pointers for Exams - Part 03 - NEW
+24min
+Not completed
+Start
+188. Additional Important Pointers for Exams
+1min
+Not completed
+Start
+Quiz 3: Practice Test - 1
+Not completed
+Start
+Quiz 4: Practice Test - 2
+Not completed
+Start
+Quiz 5: Practice Test - 3
+Completed
+Start
+Practice Test 1: Practice Test - 4
+Completed
+Start
+Practice Test 2: Practice Test - 5
+Not completed
+Start
+Quiz 6: Practice Test - 6
+Not completed
+Start
+Quiz 7: Practice Test - 7 (NEW)
+Not completed
+Play
+189. What's Next - Terraform Professional
+6min
+Not completed
+Start
+190. Additional Resources - Bonus
+
+    1min
+
+information alert
+Schedule learning time
+Learning a little each day adds up. Research shows that students who make learning a habit are more likely to reach their goals. Set time aside to learn and get reminders using your learning scheduler.
+Prepare for your certification with this course.
+HashiCorp Certified: Terraform Associate (004)
+HashiCorp Certified: Terraform Associate (004)
+All in One course for learning Terraform and gaining the official Terraform Associate Certification (004).
+Rating: 4.8 out of 54.8
+32,083 ratings
+158,708
+Students
+25.5 hours
+Total
+Last updated January 2026
+English
+English [Auto], Bulgarian [Auto], 
+What you'll learn
+
+    PASS the HashiCorp Certified Terraform Associate (004) exam.
+    ALL 770+ SLIDES available to download.
+    Gain REAL-WORLD insights in practical implementation of Terraform.
+    Little Theory. ALL Practicals.
+
+Description
+
+With tremendous popularity and adoption of Terraform by the Industry, the HashiCorp Certified: Terraform Associate has become one of the most  popular certification in today's market.
+
+This course is specifically designed for individuals who are new to Terraform and are planning to implement Terraform in their organization and want to get an in-depth view of various topics and best practices, along with gaining the official Terraform certification.
+
+One of the pre-requisites for the course is the candidate's should have basic understanding about the Infrastructure Side (Servers)
+
+The journey of this course begins with Understanding the basics of Infrastructure as Code technologies, and then we begin a deep dive journey into Terraform.
+
+This course also has an exam preparation section with a series of practice tests to verify the candidate's understanding of the topics discussed in the course and verify if the candidate is ready to give the official certification exams.
+
+Keeping the standards high similar to other best-seller courses of Zeal, this course has a perfect balance, and every topic is explained in a simplified way with practical scenarios.
+
+With this exciting set of learnings and practicals, I look forward to seeing you in this course and be part of your journey into getting Terraform certified.
+Who this course is for:
+
+    Individuals who are interested in mastering Terraform from scratch.
+    Individuals interested in gaining the HashiCorp Certified: Terraform Associate certification.
+
+Instructor
+Zeal Vora
+Premium Instructor
+
+Zeal is one of the top instructors at Udemy.
+
+Zeal works primarily as a Cloud Security Consultant and helps organizations rebuild their infrastructure with security in mind. With 19 courses and 446,800+ students, he is one of the leading instructors in the field of Cloud & Security.
+
+Feel free to reach out to Zeal over any of his social media profiles for any further queries.
+
+Happy Learning! 
+Requirements
+
+    Basic Understanding of AWS
+    AWS Account
+
+    Get the app
+    About us
+
+    Help and Support
+    Terms
+
+    Privacy policy
+
+    Sitemap
+    Accessibility statement
+
+© 2026 Udemy, Inc.
