@@ -2,7 +2,7 @@
 
 A fully static, client-side exam-preparation web app. Pick a certification exam, then study
 it through Review, Quiz, and Flashcard modes with local progress tracking and analytics.
-Deployed as static files (AWS Amplify / S3) at [exampreplab.ashershores.com](exampreplab.ashershores.com).
+Deployed as static files (AWS Amplify / S3) at [exampreplab.ashershores.com](https://exampreplab.ashershores.com).
 
 There is **no backend and no accounts.** Exam content is served from static JSON committed to
 this repo; all user progress lives in the browser's `localStorage`.
