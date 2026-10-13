@@ -1,0 +1,565 @@
+[
+  {
+    "id": 1,
+    "question": "How many Work Evidence Review (WER) items must you submit for the Tooling & Automation SME?",
+    "options": [
+      "Two",
+      "Three",
+      "Five",
+      "One Major Contribution only"
+    ],
+    "correctAnswers": [
+      1
+    ],
+    "explanation": "Three WER items, each showing major and minor competencies.\n\nAfter all three are approved, you file the SME assessment request, and that leads to the board.",
+    "domain": "Phase 1: Python Async, Error Handling & K2/Dante Foundations"
+  },
+  {
+    "id": 2,
+    "question": "Which TWO items are required somewhere in the WER set? (Select TWO)",
+    "options": [
+      "At least one Major Contribution (a tool build, a major bug fix, or significant feature work)",
+      "At least one SIM Intake submission",
+      "At least one Significant Community Code Review",
+      "At least one Greasemonkey script"
+    ],
+    "correctAnswers": [
+      0,
+      2
+    ],
+    "explanation": "You need at least 1 Major Contribution and at least 1 Significant Community Code Review. The third item can be an Other Contribution (intake reviews, usability improvements, or reusable Dante/KAS/SAW/React modules).",
+    "domain": "Phase 1: Python Async, Error Handling & K2/Dante Foundations"
+  },
+  {
+    "id": 3,
+    "question": "Which description matches the Tooling & Automation SME board?",
+    "options": [
+      "A 30-minute closed-book multiple-choice test",
+      "A single interview with your mentor",
+      "A 3-person panel (2 SMEs + 1 service team member), about 75 minutes, open book, scenario-based",
+      "A written take-home project reviewed asynchronously"
+    ],
+    "correctAnswers": [
+      2
+    ],
+    "explanation": "Memorize: 3 people (2 SMEs + 1 service team), ~75 minutes, open book, scenario-based. Results come from the STPM within 3 days.",
+    "domain": "Phase 1: Python Async, Error Handling & K2/Dante Foundations"
+  },
+  {
+    "id": 4,
+    "question": "What three dimensions is the SME board scored on?",
+    "options": [
+      "Core Knowledge, Live Coding, Critical Thinking & Judgment",
+      "Core Knowledge, Presentation Skills, Leadership Principles",
+      "Live Coding, System Design, Customer Obsession",
+      "Tool Adoption, Code Volume, Peer Feedback"
+    ],
+    "correctAnswers": [
+      0
+    ],
+    "explanation": "Core Knowledge, Live Coding, and Critical Thinking & Judgment.\n\nLive Coding means pseudo-code LeetCode-style problems in JS or Python, plus async/promise questions. This is why the Python practice matters.",
+    "domain": "Phase 1: Python Async, Error Handling & K2/Dante Foundations"
+  },
+  {
+    "id": 5,
+    "question": "Which of these make a WER submission UNQUALIFIED? (Select THREE)",
+    "options": [
+      "Silently catching errors",
+      "Including unit tests",
+      "Not supporting all regions (for example, GovCloud)",
+      "Using Promise.allSettled for fan-out calls",
+      "A simple config/definition update, like a Ticket Router JSON edit"
+    ],
+    "correctAnswers": [
+      0,
+      2,
+      4
+    ],
+    "explanation": "The unqualified list: poor coding practices (global variables, silent error catching, not supporting all regions, ignoring security requirements), simple config/definition updates, and owned CRs that lack detail.\n\nUnit tests and allSettled fan-out are good practice.",
+    "domain": "Phase 1: Python Async, Error Handling & K2/Dante Foundations"
+  },
+  {
+    "id": 6,
+    "question": "Per Brian Thomas, which areas does the board push hardest, so they deserve deep study?",
+    "options": [
+      "KAS and SAW",
+      "Greasemonkey and Ticket Router",
+      "React and Cloudscape",
+      "K2 and Dante"
+    ],
+    "correctAnswers": [
+      3
+    ],
+    "explanation": "Go deep on K2 and Dante. Async API questions are Dante-focused.\n\nPer Brian, KAS and SAW are high-level only. The official plan still lists building a KAS workflow and a SAW workflow, and that conflict is still open with him.",
+    "domain": "Phase 1: Python Async, Error Handling & K2/Dante Foundations"
+  },
+  {
+    "id": 7,
+    "question": "Most of my existing tooling is Greasemonkey userscripts. Why isn't that enough to carry the WER bar by itself?",
+    "options": [
+      "Greasemonkey scripts can't be code reviewed",
+      "Greasemonkey is a MINOR competency; the bar sits on MAJOR competencies like K2 and Dante",
+      "Greasemonkey is deprecated in all partitions",
+      "Greasemonkey work only counts for the EKS SME"
+    ],
+    "correctAnswers": [
+      1
+    ],
+    "explanation": "Greasemonkey, SIM Intake, Command Center Workflows and Ticket Router are minor competencies.\n\nThe majors are Programming basics, Dante, the Automation Intake RACI, KAS, SAW and the K2 API.",
+    "domain": "Phase 1: Python Async, Error Handling & K2/Dante Foundations"
+  },
+  {
+    "id": 8,
+    "question": "If I build a new tool for my WER Major Contribution, how much time should I budget for security review?",
+    "options": [
+      "None, since internal tools are exempt",
+      "One business day for an AppSec checklist",
+      "2-3 weeks for a Talos security review, including a threat model",
+      "Six months for a full pen test"
+    ],
+    "correctAnswers": [
+      2
+    ],
+    "explanation": "Budget 2-3 weeks for Talos, with a threat model required. Plan this into the board timeline, because ignoring security requirements makes a submission unqualified.",
+    "domain": "Phase 1: Python Async, Error Handling & K2/Dante Foundations"
+  },
+  {
+    "id": 9,
+    "question": "What makes a community code review count as 'Significant' for WER?",
+    "options": [
+      "Substantive comments that raise the bar, including calling out good code. Merges are not required.",
+      "Clicking Approve on at least 10 CRs",
+      "The CR must be merged within a week",
+      "Only reviews of your own team's packages count"
+    ],
+    "correctAnswers": [
+      0
+    ],
+    "explanation": "Quality over quantity. Write real comments on problems, praise good patterns, and don't just click Approve. The CR doesn't have to merge.\n\nThe first 3 reviews in aws-stp-operations are reverse-shadowed, and after that you can review solo.",
+    "domain": "Phase 1: Python Async, Error Handling & K2/Dante Foundations"
+  },
+  {
+    "id": 10,
+    "question": "What is the order of steps once my WER work is done?",
+    "options": [
+      "Board, then WER submission, then mentor sign-off",
+      "Mentor mock board, then River request, then WER",
+      "SME nomination tracker, then board, then WER",
+      "3 approved WER items, then the SME assessment request in River, then the board"
+    ],
+    "correctAnswers": [
+      3
+    ],
+    "explanation": "WER items get approved (Brian reviews them before I submit), then I file the SME assessment request in River, then the board.\n\nAsk Brian for a mock board before the real one.",
+    "domain": "Phase 1: Python Async, Error Handling & K2/Dante Foundations"
+  },
+  {
+    "id": 11,
+    "question": "Where are onboarded K2 API definitions stored?",
+    "options": [
+      "In each Dante script's definition.json",
+      "K2OnboardedServiceData: src/main/resources/services/<service>/<apiName>.json",
+      "In the AWS SDK model files",
+      "In a DynamoDB table owned by the Command Center team"
+    ],
+    "correctAnswers": [
+      1
+    ],
+    "explanation": "One folder per service and one JSON file per API, for example services/bedrock/getFoundationModel.json. About 435 services are onboarded.",
+    "domain": "Phase 1: Python Async, Error Handling & K2/Dante Foundations"
+  },
+  {
+    "id": 12,
+    "question": "What does the allowlistedFields block in a K2 API definition control?",
+    "options": [
+      "Which response fields K2 is allowed to return, listed per SDK model class. Everything else is stripped.",
+      "Which IAM principals may call the API",
+      "Which regions the API can run in",
+      "The request rate limit for the API"
+    ],
+    "correctAnswers": [
+      0
+    ],
+    "explanation": "Allowlisting is K2's data-minimization control. It keeps customer data exposure tight, because only listed fields come back to Dante.",
+    "domain": "Phase 1: Python Async, Error Handling & K2/Dante Foundations"
+  },
+  {
+    "id": 13,
+    "question": "A Dante script needs modelLifecycle.endOfLifeTime from bedrock.getFoundationModel. What must the K2 definition allow?",
+    "options": [
+      "Only endOfLifeTime on FoundationModelLifecycle",
+      "Nothing, since nested fields are always returned",
+      "Every class on the path: modelDetails on GetFoundationModelResponse, modelLifecycle on FoundationModelDetails, and endOfLifeTime on FoundationModelLifecycle",
+      "A wildcard '*' on GetFoundationModelResponse"
+    ],
+    "correctAnswers": [
+      2
+    ],
+    "explanation": "The allowlist is per nested class. To expose a nested field, every class on the path has to allowlist the field that leads down to it.",
+    "domain": "Phase 1: Python Async, Error Handling & K2/Dante Foundations"
+  },
+  {
+    "id": 14,
+    "question": "A script lists foundation models with bedrock.listFoundationModels, and every model's lifecycle dates come back empty. getFoundationModel shows them fine. What's the most likely cause?",
+    "options": [
+      "The customer's account has no models",
+      "listFoundationModels needs SDK v1",
+      "The dates are only returned in us-east-1",
+      "The listFoundationModels allowlist only exposes status on FoundationModelLifecycle"
+    ],
+    "correctAnswers": [
+      3
+    ],
+    "explanation": "The allowlist is per API. listFoundationModels allowlists only status on the lifecycle class, while getFoundationModel also allows startOfLifeTime, endOfLifeTime, legacyTime and publicExtendedAccessTime.\n\nSame data shape, different exposure.",
+    "domain": "Phase 1: Python Async, Error Handling & K2/Dante Foundations"
+  },
+  {
+    "id": 15,
+    "question": "In a K2 definition, what is \"name\": \"bedrock.getFoundationModel\"?",
+    "options": [
+      "A display label only, never used in code",
+      "The <service>.<apiName> identifier that Dante passes when calling K2",
+      "The Brazil package name",
+      "The CloudTrail event name"
+    ],
+    "correctAnswers": [
+      1
+    ],
+    "explanation": "Dante calls K2 with this exact string, for example fetchData(accountId, region, fn, 'bedrock.getFoundationModel', args, {}, K2_SDK_VERSIONS.v2).",
+    "domain": "Phase 1: Python Async, Error Handling & K2/Dante Foundations"
+  },
+  {
+    "id": 16,
+    "question": "The definition has \"serviceType\": \"public_sdk_v2\". What does that line up with in the Dante script?",
+    "options": [
+      "Passing K2_SDK_VERSIONS.v2 as the SDK version in fetchData",
+      "Using Python instead of JavaScript",
+      "Calling the API through a VPC endpoint",
+      "Running in the GAMMA stage"
+    ],
+    "correctAnswers": [
+      0
+    ],
+    "explanation": "serviceType tells K2 which SDK makes the call. Dante-Bedrock defines K2_SDK_VERSIONS = { v1: 1, v2: 2 } and passes v2 for these Bedrock APIs.",
+    "domain": "Phase 1: Python Async, Error Handling & K2/Dante Foundations"
+  },
+  {
+    "id": 17,
+    "question": "AWS adds a new field to the Bedrock GetFoundationModel SDK response. When does it show up in Dante scripts?",
+    "options": [
+      "Immediately, because K2 passes the full SDK response through",
+      "After the next Dante pipeline deploy",
+      "Only after someone adds it to the allowlist in K2OnboardedServiceData through a CR",
+      "Never, because K2 definitions are frozen after onboarding"
+    ],
+    "correctAnswers": [
+      2
+    ],
+    "explanation": "Fields not on the allowlist are stripped. A new SDK field stays invisible to Dante until the K2 definition is updated.",
+    "domain": "Phase 1: Python Async, Error Handling & K2/Dante Foundations"
+  },
+  {
+    "id": 18,
+    "question": "Which files make up a script folder in Dante-Bedrock (src/scripts/<ScriptName>/)? (Select THREE)",
+    "options": [
+      "definition.json",
+      "handler.py",
+      "main.js",
+      "renders.js",
+      "Config.yaml"
+    ],
+    "correctAnswers": [
+      0,
+      2,
+      3
+    ],
+    "explanation": "definition.json holds metadata, UI layout and the input schema. main.js holds the main(input) entry point. renders.js shapes raw K2 data for display. There's also tests.json, plus Jest tests under test/<ScriptName>/.\n\nsrc/entryPoints.json maps script names to their main files.",
+    "domain": "Phase 1: Python Async, Error Handling & K2/Dante Foundations"
+  },
+  {
+    "id": 19,
+    "question": "Where does a Dante script declare which K2 APIs it calls?",
+    "options": [
+      "In main.js comments",
+      "In custom.k2ApisUsed inside definition.json",
+      "In the Brazil Config file",
+      "In the K2OnboardedServiceData definition"
+    ],
+    "correctAnswers": [
+      1
+    ],
+    "explanation": "For example, FoundationModelDetails lists \"k2ApisUsed\": [\"bedrock.getFoundationModel\", \"cloudwatch.getMetricData\"]. Declare every API you call.",
+    "domain": "Phase 1: Python Async, Error Handling & K2/Dante Foundations"
+  },
+  {
+    "id": 20,
+    "question": "What order does a well-built Dante main(input) follow?",
+    "options": [
+      "Call K2, render, then validate inputs",
+      "Render the UI, call K2, then catch any exceptions",
+      "Call saveOutput first, then fetch data",
+      "Validate inputs, call K2, split successes from failures, render, then saveOutput with executionOutput and executionErrors"
+    ],
+    "correctAnswers": [
+      3
+    ],
+    "explanation": "Validate first. If validation fails, saveOutput with empty outputs plus executionErrors, then return.\n\nOtherwise fetch, then getFailureResults / getSuccessResults, render, and saveOutput({ __isScriptRunnerOutput: true, executionOutput, executionErrors }).",
+    "domain": "Phase 1: Python Async, Error Handling & K2/Dante Foundations"
+  },
+  {
+    "id": 21,
+    "question": "How do K2 call failures usually reach a Dante script?",
+    "options": [
+      "As data on the result (danteCallStatus / errorMessage), which you sort with getFailureResults and getSuccessResults",
+      "As uncaught exceptions that crash the script",
+      "As a browser alert",
+      "They don't, because K2 retries forever"
+    ],
+    "correctAnswers": [
+      0
+    ],
+    "explanation": "Errors come back as data, not exceptions. If you only handle the happy path you get an empty table that hides the real error, which is the 'silently catching errors' anti-pattern.",
+    "domain": "Phase 1: Python Async, Error Handling & K2/Dante Foundations"
+  },
+  {
+    "id": 22,
+    "question": "A script fans out across 5 resources and 2 calls fail. What's the right output?",
+    "options": [
+      "Throw an error so the user knows something broke",
+      "Return an empty result to avoid confusion",
+      "Render the 3 successes and report the 2 failures in executionErrors",
+      "Retry the failed calls until they succeed"
+    ],
+    "correctAnswers": [
+      2
+    ],
+    "explanation": "Partial success is normal. Show what worked and surface what didn't.\n\nThis is the Dante equivalent of Promise.allSettled, or asyncio.gather(return_exceptions=True) in Python.",
+    "domain": "Phase 1: Python Async, Error Handling & K2/Dante Foundations"
+  },
+  {
+    "id": 23,
+    "question": "FoundationModelDetails awaits bedrock.getFoundationModel BEFORE fetching latency charts instead of running both in parallel. Why?",
+    "options": [
+      "Dante doesn't support parallel calls",
+      "The CloudWatch metrics model id depends on inferenceTypesSupported from the first call",
+      "To stay under the K2 throttle limit",
+      "CloudWatch must be called last by convention"
+    ],
+    "correctAnswers": [
+      1
+    ],
+    "explanation": "Inference-profile-only models publish metrics under a prefixed id (like us.<modelId>), so the script needs the first result before it can query metrics.\n\nRule: a data dependency means sequential. No dependency means fan out.",
+    "domain": "Phase 1: Python Async, Error Handling & K2/Dante Foundations"
+  },
+  {
+    "id": 24,
+    "question": "In Dante's fetchDepaginatedData({ api, depaginate: true, tokenName, maxPages: 100, args }), what are tokenName and maxPages for?",
+    "options": [
+      "tokenName is the pagination field (it varies by service: nextToken, NextToken, Marker), and maxPages is a safety cap",
+      "tokenName is the auth token and maxPages is the UI page count",
+      "Both are only used in GAMMA",
+      "tokenName picks the SDK version and maxPages sets the retry count"
+    ],
+    "correctAnswers": [
+      0
+    ],
+    "explanation": "Pagination field names aren't consistent across AWS services, so you pass the right one. maxPages stops a runaway loop on huge accounts.",
+    "domain": "Phase 1: Python Async, Error Handling & K2/Dante Foundations"
+  },
+  {
+    "id": 25,
+    "question": "How should a Dante script build links to Command Center, the console or other tools so they work in every partition?",
+    "options": [
+      "Hardcode the commercial URL and swap it in ADC",
+      "Ask the user to paste the hostname",
+      "Read the URL from the K2 response",
+      "Use @amzn/regions-util helpers like getCommandCenterBase, getConsoleBase and getPartition"
+    ],
+    "correctAnswers": [
+      3
+    ],
+    "explanation": "regions-util resolves hosts per partition. Hardcoded hosts break in GovCloud/ISO and fail the 'support all regions' bar.",
+    "domain": "Phase 1: Python Async, Error Handling & K2/Dante Foundations"
+  },
+  {
+    "id": 26,
+    "question": "You published a fix to an SE-Dante pipeline script through the contribution model but never CR'd it to the repo. What happens on the next pipeline deploy?",
+    "options": [
+      "The fix is merged into mainline automatically",
+      "The pipeline blocks until you CR it",
+      "Your change is overwritten by what's in the repo",
+      "Nothing, since contribution-model publishes are permanent"
+    ],
+    "correctAnswers": [
+      2
+    ],
+    "explanation": "Flow: change locally, test with the contribution model, CR, merge, then the pipeline deploys BETA, GAMMA and PROD. Test with the _BETA / _GAMMA script-id suffixes.\n\nIf it isn't in the repo, it gets overwritten.",
+    "domain": "Phase 1: Python Async, Error Handling & K2/Dante Foundations"
+  },
+  {
+    "id": 27,
+    "question": "What does asyncio.gather(*coros, return_exceptions=True) do when some coroutines raise?",
+    "options": [
+      "Cancels all remaining coroutines and raises the first exception",
+      "Returns a list in input order where failed slots hold the exception objects, and the rest complete normally",
+      "Silently drops the failed results from the list",
+      "Retries the failed coroutines once"
+    ],
+    "correctAnswers": [
+      1
+    ],
+    "explanation": "This is Python's Promise.allSettled. Zip the results with your inputs, then split them with isinstance(result, Exception).",
+    "domain": "Phase 1: Python Async, Error Handling & K2/Dante Foundations"
+  },
+  {
+    "id": 28,
+    "question": "With asyncio.gather(*coros) and the default return_exceptions=False, one coroutine raises. What happens?",
+    "options": [
+      "The first exception propagates to the awaiting caller, and the other coroutines are NOT cancelled. They keep running.",
+      "All other coroutines are cancelled immediately",
+      "gather waits for all of them, then raises an ExceptionGroup",
+      "The exception is logged and None is returned in its slot"
+    ],
+    "correctAnswers": [
+      0
+    ],
+    "explanation": "The default gather behaves like Promise.all: it fails fast for the caller. Other tasks keep running in the background, which is easy to forget.\n\n(ExceptionGroup and TaskGroup are 3.11+, not 3.9.)",
+    "domain": "Phase 1: Python Async, Error Handling & K2/Dante Foundations"
+  },
+  {
+    "id": 29,
+    "question": "A K2-style call can raise ThrottlingException or AccessDeniedException. Which TWO behaviors are correct for a retry wrapper? (Select TWO)",
+    "options": [
+      "Retry every exception up to 5 times",
+      "Retry ThrottlingException with exponential backoff and jitter, then re-raise after max attempts",
+      "Catch Exception and return None so the script keeps going",
+      "Re-raise AccessDeniedException immediately without retrying"
+    ],
+    "correctAnswers": [
+      1,
+      3
+    ],
+    "explanation": "Retry only retryable errors. Throttling is transient. Access denied will never fix itself, so retrying it just wastes time and quota.\n\nReturning None on errors is a silent catch.",
+    "domain": "Phase 1: Python Async, Error Handling & K2/Dante Foundations"
+  },
+  {
+    "id": 30,
+    "question": "Why add random jitter to exponential backoff?",
+    "options": [
+      "It makes each retry faster",
+      "It's required by asyncio",
+      "So many clients that were throttled at the same moment don't all retry at the same moment (thundering herd)",
+      "To make the logs easier to read"
+    ],
+    "correctAnswers": [
+      2
+    ],
+    "explanation": "The delay is base * 2**attempt plus a random amount. Without jitter, synchronized retries cause the next throttle storm.",
+    "domain": "Phase 1: Python Async, Error Handling & K2/Dante Foundations"
+  },
+  {
+    "id": 31,
+    "question": "What is asyncio.Semaphore(limit) used for in a fan-out?",
+    "options": [
+      "Retrying failed calls",
+      "Sharing data between threads",
+      "Timing out slow calls",
+      "Capping how many calls are in flight at once, so you don't trigger throttling in the first place"
+    ],
+    "correctAnswers": [
+      3
+    ],
+    "explanation": "Wrap each call in `async with sem:`. Only `limit` calls run at a time and the rest wait their turn. Bounded concurrency prevents throttles, and backoff recovers from them.",
+    "domain": "Phase 1: Python Async, Error Handling & K2/Dante Foundations"
+  },
+  {
+    "id": 32,
+    "question": "You need to make 200 blocking HTTP calls to an API. Threads or processes?",
+    "options": [
+      "Threads (or asyncio). The work is I/O-bound, and the GIL is released while waiting on I/O.",
+      "Processes, because threads can't run in parallel in Python at all",
+      "Processes, because they share memory more cheaply",
+      "Neither. Run them one by one."
+    ],
+    "correctAnswers": [
+      0
+    ],
+    "explanation": "I/O-bound work means ThreadPoolExecutor or asyncio. CPU-bound work (heavy parsing, math) means ProcessPoolExecutor or multiprocessing, because the GIL blocks CPU-parallel threads.",
+    "domain": "Phase 1: Python Async, Error Handling & K2/Dante Foundations"
+  },
+  {
+    "id": 33,
+    "question": "In try / except / else / finally, when does the else block run?",
+    "options": [
+      "Always, after finally",
+      "Only if the try block raised no exception",
+      "Only if an exception was caught",
+      "Only when the function returns early"
+    ],
+    "correctAnswers": [
+      1
+    ],
+    "explanation": "else runs only when try succeeded, so it's the place for code that shouldn't be guarded by the except. finally always runs, whether it succeeded, failed or returned, so it's for cleanup.",
+    "domain": "Phase 1: Python Async, Error Handling & K2/Dante Foundations"
+  },
+  {
+    "id": 34,
+    "question": "What's wrong with `except Exception: pass` around a K2 call?",
+    "options": [
+      "Nothing, because it keeps the script resilient",
+      "It is a syntax error in Python 3",
+      "It silently swallows the error, so the user sees missing data with no reason (the unqualified 'silent catch' pattern)",
+      "It only catches KeyboardInterrupt"
+    ],
+    "correctAnswers": [
+      2
+    ],
+    "explanation": "Catch the specific exception you expect, then report or log it. A bare `except:` is even worse, because it also catches KeyboardInterrupt and SystemExit.",
+    "domain": "Phase 1: Python Async, Error Handling & K2/Dante Foundations"
+  },
+  {
+    "id": 35,
+    "question": "You catch a low-level error and want to raise your own K2CallError while keeping the original cause in the traceback. What do you write?",
+    "options": [
+      "raise K2CallError(str(e))",
+      "return K2CallError(e)",
+      "print(e); raise",
+      "raise K2CallError(\"getFoundationModel failed\") from e"
+    ],
+    "correctAnswers": [
+      3
+    ],
+    "explanation": "`raise ... from e` chains the exceptions and sets __cause__, so the traceback shows both. A bare `raise` inside except re-raises the original unchanged.",
+    "domain": "Phase 1: Python Async, Error Handling & K2/Dante Foundations"
+  },
+  {
+    "id": 36,
+    "question": "A worker in ThreadPoolExecutor raises an exception. How does it reach your code?",
+    "options": [
+      "future.result() re-raises it in the calling thread",
+      "The worker thread crashes the whole process",
+      "It's printed to stderr and lost",
+      "executor.shutdown() raises an ExceptionGroup"
+    ],
+    "correctAnswers": [
+      0
+    ],
+    "explanation": "Exceptions are stored on the Future. Wrap each future.result() in try/except to split successes from failures, which is the threaded version of allSettled.",
+    "domain": "Phase 1: Python Async, Error Handling & K2/Dante Foundations"
+  },
+  {
+    "id": 37,
+    "question": "Inside an async def, someone calls time.sleep(2) between retries. What's the problem, and what's the fix?",
+    "options": [
+      "No problem, because time.sleep is async-aware",
+      "It blocks the whole event loop, so every other coroutine stalls. Use await asyncio.sleep(2) instead (or asyncio.to_thread for blocking calls).",
+      "It raises a RuntimeError",
+      "It only sleeps the current thread, which is fine"
+    ],
+    "correctAnswers": [
+      1
+    ],
+    "explanation": "Blocking calls inside coroutines freeze everything. Use await asyncio.sleep for delays, and asyncio.to_thread (3.9+) or run_in_executor to offload blocking I/O.",
+    "domain": "Phase 1: Python Async, Error Handling & K2/Dante Foundations"
+  }
+]
