@@ -66,5 +66,12 @@
     "path": "/exams/Terraform-Associate-004.json",
     "code": "TA-004",
     "sim": { "questionCount": 57, "timeLimitMinutes": 60, "passThresholdPercent": 70 }
+  },
+  {
+    "id": "Tooling-SME-Prep",
+    "name": "Tooling SME Prep",
+    "path": "/exams/Tooling-SME-Prep.json",
+    "code": "TA-SME",
+    "sim": { "questionCount": 30, "timeLimitMinutes": 45, "passThresholdPercent": 80 }
   }
 ]
