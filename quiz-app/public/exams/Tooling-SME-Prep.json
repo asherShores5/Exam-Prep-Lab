@@ -1,159 +1,5 @@
 [
   {
-    "id": 1,
-    "question": "How many Work Evidence Review (WER) items must you submit for the Tooling & Automation SME?",
-    "options": [
-      "Two",
-      "Three",
-      "Five",
-      "One Major Contribution only"
-    ],
-    "correctAnswers": [
-      1
-    ],
-    "explanation": "Three WER items, each showing major and minor competencies.\n\nAfter all three are approved, you file the SME assessment request, and that leads to the board.",
-    "domain": "Phase 1: Python Async, Error Handling & K2/Dante Foundations"
-  },
-  {
-    "id": 2,
-    "question": "Which TWO items are required somewhere in the WER set? (Select TWO)",
-    "options": [
-      "At least one Major Contribution (a tool build, a major bug fix, or significant feature work)",
-      "At least one SIM Intake submission",
-      "At least one Significant Community Code Review",
-      "At least one Greasemonkey script"
-    ],
-    "correctAnswers": [
-      0,
-      2
-    ],
-    "explanation": "You need at least 1 Major Contribution and at least 1 Significant Community Code Review. The third item can be an Other Contribution (intake reviews, usability improvements, or reusable Dante/KAS/SAW/React modules).",
-    "domain": "Phase 1: Python Async, Error Handling & K2/Dante Foundations"
-  },
-  {
-    "id": 3,
-    "question": "Which description matches the Tooling & Automation SME board?",
-    "options": [
-      "A 30-minute closed-book multiple-choice test",
-      "A single interview with your mentor",
-      "A 3-person panel (2 SMEs + 1 service team member), about 75 minutes, open book, scenario-based",
-      "A written take-home project reviewed asynchronously"
-    ],
-    "correctAnswers": [
-      2
-    ],
-    "explanation": "Memorize: 3 people (2 SMEs + 1 service team), ~75 minutes, open book, scenario-based. Results come from the STPM within 3 days.",
-    "domain": "Phase 1: Python Async, Error Handling & K2/Dante Foundations"
-  },
-  {
-    "id": 4,
-    "question": "What three dimensions is the SME board scored on?",
-    "options": [
-      "Core Knowledge, Live Coding, Critical Thinking & Judgment",
-      "Core Knowledge, Presentation Skills, Leadership Principles",
-      "Live Coding, System Design, Customer Obsession",
-      "Tool Adoption, Code Volume, Peer Feedback"
-    ],
-    "correctAnswers": [
-      0
-    ],
-    "explanation": "Core Knowledge, Live Coding, and Critical Thinking & Judgment.\n\nLive Coding means pseudo-code LeetCode-style problems in JS or Python, plus async/promise questions. This is why the Python practice matters.",
-    "domain": "Phase 1: Python Async, Error Handling & K2/Dante Foundations"
-  },
-  {
-    "id": 5,
-    "question": "Which of these make a WER submission UNQUALIFIED? (Select THREE)",
-    "options": [
-      "Silently catching errors",
-      "Including unit tests",
-      "Not supporting all regions (for example, GovCloud)",
-      "Using Promise.allSettled for fan-out calls",
-      "A simple config/definition update, like a Ticket Router JSON edit"
-    ],
-    "correctAnswers": [
-      0,
-      2,
-      4
-    ],
-    "explanation": "The unqualified list: poor coding practices (global variables, silent error catching, not supporting all regions, ignoring security requirements), simple config/definition updates, and owned CRs that lack detail.\n\nUnit tests and allSettled fan-out are good practice.",
-    "domain": "Phase 1: Python Async, Error Handling & K2/Dante Foundations"
-  },
-  {
-    "id": 6,
-    "question": "Per Brian Thomas, which areas does the board push hardest, so they deserve deep study?",
-    "options": [
-      "KAS and SAW",
-      "Greasemonkey and Ticket Router",
-      "React and Cloudscape",
-      "K2 and Dante"
-    ],
-    "correctAnswers": [
-      3
-    ],
-    "explanation": "Go deep on K2 and Dante. Async API questions are Dante-focused.\n\nPer Brian, KAS and SAW are high-level only. The official plan still lists building a KAS workflow and a SAW workflow, and that conflict is still open with him.",
-    "domain": "Phase 1: Python Async, Error Handling & K2/Dante Foundations"
-  },
-  {
-    "id": 7,
-    "question": "Most of my existing tooling is Greasemonkey userscripts. Why isn't that enough to carry the WER bar by itself?",
-    "options": [
-      "Greasemonkey scripts can't be code reviewed",
-      "Greasemonkey is a MINOR competency; the bar sits on MAJOR competencies like K2 and Dante",
-      "Greasemonkey is deprecated in all partitions",
-      "Greasemonkey work only counts for the EKS SME"
-    ],
-    "correctAnswers": [
-      1
-    ],
-    "explanation": "Greasemonkey, SIM Intake, Command Center Workflows and Ticket Router are minor competencies.\n\nThe majors are Programming basics, Dante, the Automation Intake RACI, KAS, SAW and the K2 API.",
-    "domain": "Phase 1: Python Async, Error Handling & K2/Dante Foundations"
-  },
-  {
-    "id": 8,
-    "question": "If I build a new tool for my WER Major Contribution, how much time should I budget for security review?",
-    "options": [
-      "None, since internal tools are exempt",
-      "One business day for an AppSec checklist",
-      "2-3 weeks for a Talos security review, including a threat model",
-      "Six months for a full pen test"
-    ],
-    "correctAnswers": [
-      2
-    ],
-    "explanation": "Budget 2-3 weeks for Talos, with a threat model required. Plan this into the board timeline, because ignoring security requirements makes a submission unqualified.",
-    "domain": "Phase 1: Python Async, Error Handling & K2/Dante Foundations"
-  },
-  {
-    "id": 9,
-    "question": "What makes a community code review count as 'Significant' for WER?",
-    "options": [
-      "Substantive comments that raise the bar, including calling out good code. Merges are not required.",
-      "Clicking Approve on at least 10 CRs",
-      "The CR must be merged within a week",
-      "Only reviews of your own team's packages count"
-    ],
-    "correctAnswers": [
-      0
-    ],
-    "explanation": "Quality over quantity. Write real comments on problems, praise good patterns, and don't just click Approve. The CR doesn't have to merge.\n\nThe first 3 reviews in aws-stp-operations are reverse-shadowed, and after that you can review solo.",
-    "domain": "Phase 1: Python Async, Error Handling & K2/Dante Foundations"
-  },
-  {
-    "id": 10,
-    "question": "What is the order of steps once my WER work is done?",
-    "options": [
-      "Board, then WER submission, then mentor sign-off",
-      "Mentor mock board, then River request, then WER",
-      "SME nomination tracker, then board, then WER",
-      "3 approved WER items, then the SME assessment request in River, then the board"
-    ],
-    "correctAnswers": [
-      3
-    ],
-    "explanation": "WER items get approved (Brian reviews them before I submit), then I file the SME assessment request in River, then the board.\n\nAsk Brian for a mock board before the real one.",
-    "domain": "Phase 1: Python Async, Error Handling & K2/Dante Foundations"
-  },
-  {
     "id": 11,
     "question": "Where are onboarded K2 API definitions stored?",
     "options": [
@@ -165,8 +11,8 @@
     "correctAnswers": [
       1
     ],
-    "explanation": "One folder per service and one JSON file per API, for example services/bedrock/getFoundationModel.json. About 435 services are onboarded.",
-    "domain": "Phase 1: Python Async, Error Handling & K2/Dante Foundations"
+    "explanation": "One folder per service and one JSON file per API, for example services/bedrock/getFoundationModel.json.\n\nAn API that isn't defined here can't be called through K2 at all.",
+    "domain": "K2 API & Security"
   },
   {
     "id": 12,
@@ -180,8 +26,8 @@
     "correctAnswers": [
       0
     ],
-    "explanation": "Allowlisting is K2's data-minimization control. It keeps customer data exposure tight, because only listed fields come back to Dante.",
-    "domain": "Phase 1: Python Async, Error Handling & K2/Dante Foundations"
+    "explanation": "Allowlisting is K2's data-minimization control. Only the listed fields come back to the caller.",
+    "domain": "K2 API & Security"
   },
   {
     "id": 13,
@@ -196,7 +42,7 @@
       2
     ],
     "explanation": "The allowlist is per nested class. To expose a nested field, every class on the path has to allowlist the field that leads down to it.",
-    "domain": "Phase 1: Python Async, Error Handling & K2/Dante Foundations"
+    "domain": "K2 API & Security"
   },
   {
     "id": 14,
@@ -210,42 +56,42 @@
     "correctAnswers": [
       3
     ],
-    "explanation": "The allowlist is per API. listFoundationModels allowlists only status on the lifecycle class, while getFoundationModel also allows startOfLifeTime, endOfLifeTime, legacyTime and publicExtendedAccessTime.\n\nSame data shape, different exposure.",
-    "domain": "Phase 1: Python Async, Error Handling & K2/Dante Foundations"
+    "explanation": "Allowlists are per API, not per data shape. listFoundationModels allowlists only status on the lifecycle class, while getFoundationModel also allows the lifecycle dates.\n\nSame data shape, different exposure.",
+    "domain": "K2 API & Security"
   },
   {
     "id": 15,
     "question": "In a K2 definition, what is \"name\": \"bedrock.getFoundationModel\"?",
     "options": [
       "A display label only, never used in code",
-      "The <service>.<apiName> identifier that Dante passes when calling K2",
+      "The <service>.<apiName> identifier a Dante script passes as the API name when calling K2",
       "The Brazil package name",
       "The CloudTrail event name"
     ],
     "correctAnswers": [
       1
     ],
-    "explanation": "Dante calls K2 with this exact string, for example fetchData(accountId, region, fn, 'bedrock.getFoundationModel', args, {}, K2_SDK_VERSIONS.v2).",
-    "domain": "Phase 1: Python Async, Error Handling & K2/Dante Foundations"
+    "explanation": "Scripts call K2 with this exact string, for example K2Apis.call({ accountId, region, apiName: 'ec2.describeInstances', inputArgsAsJson }).\n\nThe same <service>.<apiName> strings go into the script's declared list of K2 APIs used.",
+    "domain": "K2 API & Security"
   },
   {
     "id": 16,
-    "question": "The definition has \"serviceType\": \"public_sdk_v2\". What does that line up with in the Dante script?",
+    "question": "A K2 definition has \"serviceType\": \"public_sdk_v2\". What does that tell you?",
     "options": [
-      "Passing K2_SDK_VERSIONS.v2 as the SDK version in fetchData",
-      "Using Python instead of JavaScript",
-      "Calling the API through a VPC endpoint",
-      "Running in the GAMMA stage"
+      "K2 makes the call with the public AWS SDK v2 model, so the script must request the v2 SDK version for that API",
+      "The script must be written in Python",
+      "The API is called through a VPC endpoint",
+      "The API only runs in the GAMMA stage"
     ],
     "correctAnswers": [
       0
     ],
-    "explanation": "serviceType tells K2 which SDK makes the call. Dante-Bedrock defines K2_SDK_VERSIONS = { v1: 1, v2: 2 } and passes v2 for these Bedrock APIs.",
-    "domain": "Phase 1: Python Async, Error Handling & K2/Dante Foundations"
+    "explanation": "serviceType tells K2 which SDK model makes the call. The script's SDK-version argument has to match, or the request and response shapes won't line up.",
+    "domain": "K2 API & Security"
   },
   {
     "id": 17,
-    "question": "AWS adds a new field to the Bedrock GetFoundationModel SDK response. When does it show up in Dante scripts?",
+    "question": "AWS adds a new field to an SDK response. When does it show up in Dante scripts?",
     "options": [
       "Immediately, because K2 passes the full SDK response through",
       "After the next Dante pipeline deploy",
@@ -255,17 +101,216 @@
     "correctAnswers": [
       2
     ],
-    "explanation": "Fields not on the allowlist are stripped. A new SDK field stays invisible to Dante until the K2 definition is updated.",
-    "domain": "Phase 1: Python Async, Error Handling & K2/Dante Foundations"
+    "explanation": "Anything not on the allowlist is stripped, so a new SDK field stays invisible until the K2 definition is updated.",
+    "domain": "K2 API & Security"
+  },
+  {
+    "id": 38,
+    "question": "In what order does a K2 API call from a Dante script pass through K2's security layers?",
+    "options": [
+      "TBS/LDAP, then field redaction, then BCA, then onboarding",
+      "Onboarding, then BCA, then field redaction, then TBS/LDAP",
+      "Field redaction, then onboarding, then TBS/LDAP, then BCA",
+      "Business Case Authorization (BCA), then Tool-Based Security (TBS/LDAP), then API onboarding, then field-level redaction"
+    ],
+    "correctAnswers": [
+      3
+    ],
+    "explanation": "1. BCA (KumoCredsService): is there a business reason to touch this customer account?\n2. TBS/LDAP: is this tool or user allowed to call this API?\n3. Onboarding: is the API registered in K2OnboardedServiceData, and which fields can come back?\n4. Field-level redaction (ApiRedaction.cfg): strip sensitive fields from the response.\n\nAll of this sits on top of Midway authentication.",
+    "domain": "K2 API & Security"
+  },
+  {
+    "id": 39,
+    "question": "A call passes BCA, TBS and onboarding checks, but a sensitive field is still blanked in the response. Which mechanism did that?",
+    "options": [
+      "The AWSServiceRoleForSupport policy",
+      "Field-level redaction configured in ApiRedaction.cfg (KumoKonsoleService)",
+      "The Dante child-process sandbox",
+      "Script Runner's renderer"
+    ],
+    "correctAnswers": [
+      1
+    ],
+    "explanation": "Redaction is the last layer. It runs after the call executes and strips configured fields no matter how well the caller is authorized.",
+    "domain": "K2 API & Security"
+  },
+  {
+    "id": 40,
+    "question": "An engineer makes a K2 call against an account where BCA can't systematically justify access (for example, no active case they own). What happens?",
+    "options": [
+      "The call fails permanently with no recourse",
+      "The call goes through and is flagged for audit later",
+      "The request goes into 2-Person Review (2PR), where a second person must approve the access",
+      "K2 retries with a broader IAM role"
+    ],
+    "correctAnswers": [
+      2
+    ],
+    "explanation": "BCA checks source systems like the case console. If it can justify access automatically, the call proceeds right away. If not, it falls back to 2PR.\n\nMutating APIs get stricter BCA controls, including manual-override restrictions in KumoKonsoleBcaPolicies.",
+    "domain": "K2 API & Security"
+  },
+  {
+    "id": 41,
+    "question": "How does K2 execute a PUBLIC AWS API call inside a customer's account?",
+    "options": [
+      "It assumes the AWSServiceRoleForSupport service-linked role, whose managed policy scopes what Support can do",
+      "It uses long-lived IAM user keys stored per customer",
+      "It asks the customer for temporary credentials",
+      "It calls the service's internal Coral endpoint with K2's own principal"
+    ],
+    "correctAnswers": [
+      0
+    ],
+    "explanation": "Calls run through AWSServiceRoleForSupport (policy: AWSSupportServiceRolePolicy) and show up in the customer's CloudTrail.\n\nIf the customer removes that role, Support loses the ability to make these calls.",
+    "domain": "K2 API & Security"
+  },
+  {
+    "id": 42,
+    "question": "Which statement about CloudTrail visibility of K2 calls is correct?",
+    "options": [
+      "Neither public nor internal K2 calls appear in the customer's CloudTrail",
+      "Both public and internal calls appear in the customer's CloudTrail",
+      "Only mutating calls are ever logged",
+      "Public API calls appear in the customer's CloudTrail (they run via the service-linked role); internal API calls do not"
+    ],
+    "correctAnswers": [
+      3
+    ],
+    "explanation": "Internal APIs are called service-to-service with K2's own principal, not through a role in the customer's account, so the customer doesn't see them.\n\nThat's one reason mutating public actions must be clearly justifiable: the customer can see them.",
+    "domain": "K2 API & Security"
+  },
+  {
+    "id": 43,
+    "question": "A service team wants its INTERNAL (Coral) API onboarded to K2. Which of these are the team's responsibility? (Select THREE)",
+    "options": [
+      "Allowlist K2's service principals in every region/partition the service runs in",
+      "Have its JavaClient and ClientConfig packages in live, vending endpoints for every region it's GA/IA in",
+      "Wait for the K2 team to file the AppSec review on its behalf",
+      "Be registered in RIPStaticConfig and GA in at least one region",
+      "Allowlist an IAM user for K2"
+    ],
+    "correctAnswers": [
+      0,
+      1,
+      3
+    ],
+    "explanation": "Internal APIs have no ready-made path like the service-linked role, so the team has to open the door: Envoy allowlisting of K2's service principals, client packages in live, RIPStaticConfig, and a resource-authorization mapping (where accountId lives in the request).\n\nFor internal APIs the SERVICE team files AppSec. K2 doesn't support IAM-user allowlisting.",
+    "domain": "K2 API & Security"
+  },
+  {
+    "id": 44,
+    "question": "A service with an onboarded internal API launches in a new region but never allowlists K2 there, and K2 calls fail. What's the consequence?",
+    "options": [
+      "K2 silently routes the call to another region",
+      "Nothing, because K2 falls back to the public SDK",
+      "K2 cuts a Sev 2.5 against the service team",
+      "The API is automatically de-onboarded"
+    ],
+    "correctAnswers": [
+      2
+    ],
+    "explanation": "Allowlisting K2 in every region and partition is a standing obligation for internal APIs. If K2 calls fail in a new region because of a missing allowlist, it's treated as the service team's operational issue.",
+    "domain": "K2 API & Security"
+  },
+  {
+    "id": 45,
+    "question": "What throttle limit does K2 enforce per caller?",
+    "options": [
+      "10 RPS with no burst",
+      "60 requests per second with 120 RPS burst",
+      "1,000 RPS shared across all callers",
+      "No throttle; only the downstream service throttles"
+    ],
+    "correctAnswers": [
+      1
+    ],
+    "explanation": "60 RPS sustained, 120 burst per caller.\n\nDownstream services can still throttle on their own (the customer account's limits), so scripts need bounded concurrency AND backoff.",
+    "domain": "K2 API & Security"
+  },
+  {
+    "id": 46,
+    "question": "A request to onboard the public API ec2.stopInstances goes through the K2 Flywheel Agent. What happens?",
+    "options": [
+      "It's auto-approved because EC2 is already onboarded",
+      "It's rejected by default: public mutating APIs (Create/Delete/Update/Put/Modify/Stop/Start/Reboot...) are blocked from self-service onboarding",
+      "It's soft-onboarded in IA mode immediately",
+      "It's approved as long as an LDAP group is attached"
+    ],
+    "correctAnswers": [
+      1
+    ],
+    "explanation": "Mutating public APIs are blocked by default. Getting one through needs a business justification, no cost to the customer, a dedicated AppSec review, stricter BCA, a narrow LDAP group, and maxRetries: 1 in scripts.\n\nAlso ask whether SAW is the better fit, since it runs with the customer's own role and can include an approval step.",
+    "domain": "K2 API & Security"
+  },
+  {
+    "id": 47,
+    "question": "Why must a script set maxRetries: 1 on a mutating K2 call?",
+    "options": [
+      "Mutating calls are free, so retries waste nothing",
+      "K2 rejects retries on all calls",
+      "Retrying a write that may have already partly succeeded can apply the change twice or leave resources in an unexpected state",
+      "It makes the call faster"
+    ],
+    "correctAnswers": [
+      2
+    ],
+    "explanation": "Reads are safe to retry. Writes aren't necessarily idempotent: a timeout doesn't tell you whether the change happened.",
+    "domain": "K2 API & Security"
+  },
+  {
+    "id": 48,
+    "question": "How does a Dante tool builder control which users may run their script against which K2 APIs (Tool-Based Security)?",
+    "options": [
+      "By editing ApiRedaction.cfg",
+      "By listing user aliases in main.js",
+      "By adding a Midway check in definition.json",
+      "By attaching LDAP permission groups to the script via the VS Code Contribution Model plugin; K2 checks those groups on every call"
+    ],
+    "correctAnswers": [
+      3
+    ],
+    "explanation": "TBS adds access control at the tool level, on top of K2's service-side LDAP starter-pack policies (KumoKonsolePoliciesCommon) and any service-specific LDAP policies (KumoKonsolePolicies).\n\nYou can inspect a script's permissionMap in the Contribution Model getAsset response.",
+    "domain": "K2 API & Security"
+  },
+  {
+    "id": 49,
+    "question": "A Dante script works when tested from VS Code but gets access denied when invoked by an automation (for example, KAS). Which TWO checks are most relevant? (Select TWO)",
+    "options": [
+      "Whether the API is in the automation allowlist (KumoKonsolePolicies), not just onboarded to K2",
+      "Whether the script was formatted with Prettier",
+      "Whether the automation's execution context has the LDAP groups the script and API require",
+      "Whether the script has a tests.json file"
+    ],
+    "correctAnswers": [
+      0,
+      2
+    ],
+    "explanation": "Being onboarded to K2 isn't the same as being allowed for automation. Automated callers run with different identities and groups than you do in VS Code.\n\nAlso confirm BCA can be systematically justified for the target account, since there's no human there to go through 2PR.",
+    "domain": "K2 API & Security"
+  },
+  {
+    "id": 50,
+    "question": "To test K2 calls from Dante against your own internal test account, what has to exist in that account?",
+    "options": [
+      "An IAM user named dante-test with access keys",
+      "A role named DanteInternalAccountTestingRole that Dante can assume (optionally scoped to a list of user aliases)",
+      "An active Business Support plan",
+      "A VPC endpoint for K2"
+    ],
+    "correctAnswers": [
+      1
+    ],
+    "explanation": "Without the role, deploy and test from the Contribution Model plugin can't reach the account.\n\nIf the role has no alias list, every user is allowed by default.",
+    "domain": "K2 API & Security"
   },
   {
     "id": 18,
-    "question": "Which files make up a script folder in Dante-Bedrock (src/scripts/<ScriptName>/)? (Select THREE)",
+    "question": "Which files does 'AWS Contribution Model: Create server side script' scaffold under src/scripts/<ScriptName>/ for a JavaScript script? (Select THREE)",
     "options": [
       "definition.json",
       "handler.py",
       "main.js",
-      "renders.js",
+      "tests.json",
       "Config.yaml"
     ],
     "correctAnswers": [
@@ -273,8 +318,8 @@
       2,
       3
     ],
-    "explanation": "definition.json holds metadata, UI layout and the input schema. main.js holds the main(input) entry point. renders.js shapes raw K2 data for display. There's also tests.json, plus Jest tests under test/<ScriptName>/.\n\nsrc/entryPoints.json maps script names to their main files.",
-    "domain": "Phase 1: Python Async, Error Handling & K2/Dante Foundations"
+    "explanation": "definition.json holds metadata, the input schema and the Script Runner layout. main.js holds the main(input) entry point. tests.json holds sample inputs for testing.\n\nAt package level there's also Config (Brazil), package.json (npm) and entryPoints.json (maps script names to source files). Many teams add a renders.js to keep display shaping out of main.js.",
+    "domain": "Dante Scripts & Script Runner"
   },
   {
     "id": 19,
@@ -288,8 +333,8 @@
     "correctAnswers": [
       1
     ],
-    "explanation": "For example, FoundationModelDetails lists \"k2ApisUsed\": [\"bedrock.getFoundationModel\", \"cloudwatch.getMetricData\"]. Declare every API you call.",
-    "domain": "Phase 1: Python Async, Error Handling & K2/Dante Foundations"
+    "explanation": "For example: \"k2ApisUsed\": [\"bedrock.getFoundationModel\", \"cloudwatch.getMetricData\"]. Declare every API the script calls, because reviewers and permission tooling rely on it.",
+    "domain": "Dante Scripts & Script Runner"
   },
   {
     "id": 20,
@@ -298,28 +343,28 @@
       "Call K2, render, then validate inputs",
       "Render the UI, call K2, then catch any exceptions",
       "Call saveOutput first, then fetch data",
-      "Validate inputs, call K2, split successes from failures, render, then saveOutput with executionOutput and executionErrors"
+      "Validate inputs, call K2, split successes from failures, shape the output, then saveOutput"
     ],
     "correctAnswers": [
       3
     ],
-    "explanation": "Validate first. If validation fails, saveOutput with empty outputs plus executionErrors, then return.\n\nOtherwise fetch, then getFailureResults / getSuccessResults, render, and saveOutput({ __isScriptRunnerOutput: true, executionOutput, executionErrors }).",
-    "domain": "Phase 1: Python Async, Error Handling & K2/Dante Foundations"
+    "explanation": "Validate first. If validation fails, save validationErrors and return.\n\nOtherwise fetch, separate failures from successes, shape the data, and save { __isScriptRunnerOutput: true, executionOutput, executionErrors }. Wrap the whole thing in an outer try/catch that still saves an error, so the user always sees something.",
+    "domain": "Dante Scripts & Script Runner"
   },
   {
     "id": 21,
-    "question": "How do K2 call failures usually reach a Dante script?",
+    "question": "How do K2 API-level failures (permissions, throttling) usually reach a Dante script that uses K2Apis.call?",
     "options": [
-      "As data on the result (danteCallStatus / errorMessage), which you sort with getFailureResults and getSuccessResults",
+      "As a response with danteCallStatus === 'FAILED' plus errorMessage/errorType, which the script must check",
       "As uncaught exceptions that crash the script",
-      "As a browser alert",
+      "As a browser alert in TSC",
       "They don't, because K2 retries forever"
     ],
     "correctAnswers": [
       0
     ],
-    "explanation": "Errors come back as data, not exceptions. If you only handle the happy path you get an empty table that hides the real error, which is the 'silently catching errors' anti-pattern.",
-    "domain": "Phase 1: Python Async, Error Handling & K2/Dante Foundations"
+    "explanation": "The client doesn't throw on API errors. It returns a status. If you only handle the happy path, a failed call turns into an empty table that hides the real error.\n\nCheck danteCallStatus on every response, and keep an outer try/catch for unexpected exceptions.",
+    "domain": "Dante Scripts & Script Runner"
   },
   {
     "id": 22,
@@ -333,15 +378,15 @@
     "correctAnswers": [
       2
     ],
-    "explanation": "Partial success is normal. Show what worked and surface what didn't.\n\nThis is the Dante equivalent of Promise.allSettled, or asyncio.gather(return_exceptions=True) in Python.",
-    "domain": "Phase 1: Python Async, Error Handling & K2/Dante Foundations"
+    "explanation": "Partial success is normal. Show what worked and surface what didn't.\n\nThis is the Dante version of Promise.allSettled, or asyncio.gather(return_exceptions=True) in Python.",
+    "domain": "Dante Scripts & Script Runner"
   },
   {
     "id": 23,
-    "question": "FoundationModelDetails awaits bedrock.getFoundationModel BEFORE fetching latency charts instead of running both in parallel. Why?",
+    "question": "A Bedrock model-details script awaits bedrock.getFoundationModel BEFORE fetching CloudWatch latency metrics, instead of running both in parallel. Why?",
     "options": [
       "Dante doesn't support parallel calls",
-      "The CloudWatch metrics model id depends on inferenceTypesSupported from the first call",
+      "The metrics query needs a model id that depends on inferenceTypesSupported from the first call",
       "To stay under the K2 throttle limit",
       "CloudWatch must be called last by convention"
     ],
@@ -349,22 +394,22 @@
       1
     ],
     "explanation": "Inference-profile-only models publish metrics under a prefixed id (like us.<modelId>), so the script needs the first result before it can query metrics.\n\nRule: a data dependency means sequential. No dependency means fan out.",
-    "domain": "Phase 1: Python Async, Error Handling & K2/Dante Foundations"
+    "domain": "Dante Scripts & Script Runner"
   },
   {
     "id": 24,
-    "question": "In Dante's fetchDepaginatedData({ api, depaginate: true, tokenName, maxPages: 100, args }), what are tokenName and maxPages for?",
+    "question": "Pagination helpers like fetchDataAndSavePartialPaginatedOutput take tokenName and responseTokenName. Why are these parameters needed?",
     "options": [
-      "tokenName is the pagination field (it varies by service: nextToken, NextToken, Marker), and maxPages is a safety cap",
-      "tokenName is the auth token and maxPages is the UI page count",
-      "Both are only used in GAMMA",
-      "tokenName picks the SDK version and maxPages sets the retry count"
+      "They set the Midway token and session token",
+      "They pick the SDK version",
+      "Pagination field names aren't consistent across AWS APIs (nextToken, NextToken, Marker, marker...), and the request and response field names can differ",
+      "They control how many pages the UI shows"
     ],
     "correctAnswers": [
-      0
+      2
     ],
-    "explanation": "Pagination field names aren't consistent across AWS services, so you pass the right one. maxPages stops a runaway loop on huge accounts.",
-    "domain": "Phase 1: Python Async, Error Handling & K2/Dante Foundations"
+    "explanation": "For example, iam.listPolicies sends and receives 'marker', while EC2 uses 'nextToken'. The helper needs to know which field to read from the response and which to send on the next call.\n\nAlways set a page size (maxResults) on paginated APIs too.",
+    "domain": "Dante Scripts & Script Runner"
   },
   {
     "id": 25,
@@ -373,28 +418,593 @@
       "Hardcode the commercial URL and swap it in ADC",
       "Ask the user to paste the hostname",
       "Read the URL from the K2 response",
-      "Use @amzn/regions-util helpers like getCommandCenterBase, getConsoleBase and getPartition"
+      "Use partition-aware helpers (for example @amzn/regions-util getCommandCenterBase, getConsoleBase, getPartition)"
     ],
     "correctAnswers": [
       3
     ],
-    "explanation": "regions-util resolves hosts per partition. Hardcoded hosts break in GovCloud/ISO and fail the 'support all regions' bar.",
-    "domain": "Phase 1: Python Async, Error Handling & K2/Dante Foundations"
+    "explanation": "Hosts differ per partition. Hardcoded commercial hosts break in GovCloud and the isolated partitions, and not supporting all regions is a code-quality defect.",
+    "domain": "Dante Scripts & Script Runner"
   },
   {
     "id": 26,
-    "question": "You published a fix to an SE-Dante pipeline script through the contribution model but never CR'd it to the repo. What happens on the next pipeline deploy?",
+    "question": "A fix to a pipeline-managed Dante script was published through the Contribution Model plugin but never merged to the package repo. What happens on the next pipeline deploy?",
     "options": [
       "The fix is merged into mainline automatically",
-      "The pipeline blocks until you CR it",
-      "Your change is overwritten by what's in the repo",
-      "Nothing, since contribution-model publishes are permanent"
+      "The pipeline blocks until the change is CR'd",
+      "The change is overwritten by what's in the repo",
+      "Nothing, since plugin publishes are permanent"
     ],
     "correctAnswers": [
       2
     ],
-    "explanation": "Flow: change locally, test with the contribution model, CR, merge, then the pipeline deploys BETA, GAMMA and PROD. Test with the _BETA / _GAMMA script-id suffixes.\n\nIf it isn't in the repo, it gets overwritten.",
-    "domain": "Phase 1: Python Async, Error Handling & K2/Dante Foundations"
+    "explanation": "For pipeline-managed scripts the repo is the source of truth: change locally, test with the plugin (against _BETA / _GAMMA script ids), CR, merge, then let the pipeline deploy.\n\nIf it isn't in the repo, it gets overwritten.",
+    "domain": "Dante Scripts & Script Runner"
+  },
+  {
+    "id": 51,
+    "question": "A Dante script runs as a child process in an isolated environment. Which are the ONLY ways it can move data in or out? (Select THREE)",
+    "options": [
+      "Calling K2 through the Proxy Handler",
+      "Making direct HTTPS calls to the internet",
+      "Writing logs (through the parent process)",
+      "Reading secrets from the execution handler's credentials",
+      "Saving output (through the parent process)"
+    ],
+    "correctAnswers": [
+      0,
+      2,
+      4
+    ],
+    "explanation": "The script runs on Fargate in an isolated VPC without access to the execution handler's credentials. Its only channels are K2 calls, logs and saved output.\n\nThis is the core security property that replaced the browser-evaluated K2 Web.",
+    "domain": "Dante Scripts & Script Runner"
+  },
+  {
+    "id": 52,
+    "question": "What are the maximum runtimes for synchronous vs asynchronous Dante executions (commercial)?",
+    "options": [
+      "25 seconds sync, 48 hours async",
+      "15 minutes sync, 24 hours async",
+      "60 seconds sync, 6 hours async",
+      "No limit for either"
+    ],
+    "correctAnswers": [
+      0
+    ],
+    "explanation": "Sync: the entry handler calls the execution handler and waits, for up to 25 seconds.\n\nAsync: the request goes onto an SQS queue, returns SUBMITTED, and can run for up to 48 hours. The caller polls the Get Output handler.",
+    "domain": "Dante Scripts & Script Runner"
+  },
+  {
+    "id": 53,
+    "question": "Which statement about Dante in the ADC (isolated) partitions is correct?",
+    "options": [
+      "It's identical to commercial",
+      "Scripts run on ECS like commercial, but without K2",
+      "Scripts run on Lambda instead of ECS, so the max runtime is 15 minutes and logs are stored in S3 rather than CloudWatch",
+      "Only Python scripts are supported"
+    ],
+    "correctAnswers": [
+      2
+    ],
+    "explanation": "ADC also has no global endpoint and doesn't support long K2 calls. Design ADC-bound scripts to finish well inside 15 minutes, and expect logs to be harder to get to.",
+    "domain": "Dante Scripts & Script Runner"
+  },
+  {
+    "id": 54,
+    "question": "A script returns large K2 responses fine in commercial but fails in DCA regions. What partition difference is the likely cause?",
+    "options": [
+      "DCA doesn't support JavaScript",
+      "DCA uses an ALB instead of API Gateway and has a 1 MB K2 payload limit (vs 6 MB), so large calls need pagination",
+      "DCA has no K2 at all",
+      "DCA requires SDK v1"
+    ],
+    "correctAnswers": [
+      1
+    ],
+    "explanation": "Know the partition parity table: Classic has the full feature set; DCA has ALB and a 1 MB payload; ADC has Lambda, 15 minutes and S3 logs; China and GovCloud have regional endpoints only and no long K2 calls.",
+    "domain": "Dante Scripts & Script Runner"
+  },
+  {
+    "id": 55,
+    "question": "What is the Tesseract (Contribution Model) script lifecycle, in order?",
+    "options": [
+      "Publish, Deploy, Approve, Promote, Deprecate",
+      "Deploy, Approve, Publish, Promote, Deprecate",
+      "Approve, Deploy, Promote, Publish, Deprecate",
+      "Deploy, Promote, Approve, Publish, Deprecate"
+    ],
+    "correctAnswers": [
+      1
+    ],
+    "explanation": "Deploy (upload) → Approve (package approval) → Publish (discoverable and executable, requires an approved CR) → Promote (label a version as the current supported one) → Deprecate (remove from UIs, non-executable).",
+    "domain": "Dante Scripts & Script Runner"
+  },
+  {
+    "id": 56,
+    "question": "A script is deployed, approved and published, but users can't find it in Script Runner. What step is most likely missing?",
+    "options": [
+      "Deprecate",
+      "Re-deploy",
+      "Promote",
+      "Approve again"
+    ],
+    "correctAnswers": [
+      2
+    ],
+    "explanation": "Promote labels a version as current. Script Runner shows only promoted versions.",
+    "domain": "Dante Scripts & Script Runner"
+  },
+  {
+    "id": 57,
+    "question": "A user enters an 11-digit account id. Where should the script report this?",
+    "options": [
+      "In executionErrors after attempting the K2 call",
+      "In validationErrors (for example via RenderHelpers.createValidationError), without calling K2 at all",
+      "As a thrown exception",
+      "In a console.log only"
+    ],
+    "correctAnswers": [
+      1
+    ],
+    "explanation": "Validate inputs before spending any K2 calls. validationErrors are tied to specific input fields so the UI can point at the bad field. executionErrors are for failures that happen while running.",
+    "domain": "Dante Scripts & Script Runner"
+  },
+  {
+    "id": 58,
+    "question": "The script must combine all pages of acm.listCertificates, filter them, and join them with another API before showing anything. Which Dante-Helpers function fits?",
+    "options": [
+      "fetchDataAndSaveOutput",
+      "fetchDataAndSavePartialPaginatedOutput",
+      "fetchDepaginatedData",
+      "K2Helpers.saveOutput alone"
+    ],
+    "correctAnswers": [
+      2
+    ],
+    "explanation": "fetchDepaginatedData gets every page and RETURNS the combined data without saving, so you can post-process it.\n\nfetchDataAndSaveOutput is a single call that saves for you. fetchDataAndSavePartialPaginatedOutput saves page by page as it goes.",
+    "domain": "Dante Scripts & Script Runner"
+  },
+  {
+    "id": 59,
+    "question": "An account has thousands of IAM policies and users shouldn't stare at a spinner until every page loads. Which helper fits best?",
+    "options": [
+      "fetchDataAndSavePartialPaginatedOutput, which saves each page as it arrives so Script Runner renders results progressively",
+      "fetchDepaginatedData",
+      "fetchDataAndSaveOutput",
+      "A single K2Apis.call with maxResults set very high"
+    ],
+    "correctAnswers": [
+      0
+    ],
+    "explanation": "It streams: call, save the page, follow the token, repeat. Pass a formatter to reshape each page before it's saved.\n\nWrap it in try/catch, because if it throws you have to save the execution error yourself.",
+    "domain": "Dante Scripts & Script Runner"
+  },
+  {
+    "id": 60,
+    "question": "definition.json has a component { \"UIType\": \"key-value-pairs\", \"path\": \"root.services\" }, but the script saved services as an ARRAY of objects. What happens, and what's the fix?",
+    "options": [
+      "It renders fine, since all UITypes accept any data",
+      "The renderer errors or shows nothing, because key-value-pairs expects an OBJECT. Use UIType table for an array, or save an object for key-value-pairs",
+      "Script Runner converts the array automatically",
+      "The script fails to deploy"
+    ],
+    "correctAnswers": [
+      1
+    ],
+    "explanation": "Data shapes must match the component: table expects an array of objects, key-value-pairs expects an object, chartv2 expects { labels, datasets }, and text accepts anything (rendered as JSON or YAML).",
+    "domain": "Dante Scripts & Script Runner"
+  },
+  {
+    "id": 61,
+    "question": "In a Script Runner component, what does \"path\": \"root.cpuMetrics\" refer to?",
+    "options": [
+      "A file path in the package",
+      "The S3 key of the output",
+      "A CloudWatch namespace",
+      "The cpuMetrics key of the top-level object the script saved with K2Helpers.saveOutput"
+    ],
+    "correctAnswers": [
+      3
+    ],
+    "explanation": "root is the saved output object. The script decides the data and definition.json decides the presentation: the script never knows how it will be drawn.",
+    "domain": "Dante Scripts & Script Runner"
+  },
+  {
+    "id": 62,
+    "question": "You want clicking a row in a services table to open a different Dante script pre-filled with that row's ARN. How is this configured?",
+    "options": [
+      "A rowClick event with invokeScript (target script id) and a dataToInputMap from the row's field to the target's input field",
+      "A hyperlink string in each row only",
+      "A Redux action in main.js",
+      "It isn't possible in Script Runner"
+    ],
+    "correctAnswers": [
+      0
+    ],
+    "explanation": "events.rowClick.invokeScript { id, dataToInputMap: [{ dataField: 'serviceArn', inputField: 'resourceArn' }] }.\n\nFor links inside cells, RenderHelpers.createScriptLink does something similar.",
+    "domain": "Dante Scripts & Script Runner"
+  },
+  {
+    "id": 63,
+    "question": "You need the logs of a Dante execution that ran last week. What's the problem?",
+    "options": [
+      "Logs are kept forever in the customer account",
+      "Logs are only visible to the K2 team",
+      "Logs must be requested through a SIM",
+      "Dante execution logs expire after 3 days"
+    ],
+    "correctAnswers": [
+      3
+    ],
+    "explanation": "Logs are fetched per execution id from the Dante log endpoint, paginated with nextToken, and kept for 3 days.\n\nCapture what you need while you're debugging.",
+    "domain": "Dante Scripts & Script Runner"
+  },
+  {
+    "id": 64,
+    "question": "How are callers authenticated to the Dante public API?",
+    "options": [
+      "IAM users only",
+      "Midway JWT for human users (via TSC), SigV4 for system callers (like KAS), with delegation tokens letting a system act on behalf of a Midway user",
+      "API keys embedded in definition.json",
+      "Anonymous access inside the corp network"
+    ],
+    "correctAnswers": [
+      1
+    ],
+    "explanation": "Two auth paths, plus delegation. The entry handler validates any delegation token before it creates the execution.",
+    "domain": "Dante Scripts & Script Runner"
+  },
+  {
+    "id": 111,
+    "question": "In a Python Dante script package, what is the script's entry point?",
+    "options": [
+      "A main.js file exporting main(input)",
+      "Whatever file is listed first in package.json",
+      "A main.py file with a function named handler, located by the handlerPath field in definition.json",
+      "The __init__.py of the src folder"
+    ],
+    "correctAnswers": [
+      2
+    ],
+    "explanation": "Each Python script lives in its own folder under src/ and needs main.py with a handler function.\n\nhandlerPath is a module path, not a file path. For src/hello_world_python_script/main.py the value is \"hello_world_python_script.main\". Python scripts also carry scriptType and clientVersion in definition.json.",
+    "domain": "Dante Scripts & Script Runner"
+  },
+  {
+    "id": 112,
+    "question": "What does src/entryPoints.json do in a Dante script package?",
+    "options": [
+      "It lists the K2 APIs each script calls",
+      "It maps each script name to its source file. Webpack bundling and most Contribution Model plugin commands (the Deploy and Test script pickers, for example) read it",
+      "It defines the Script Runner layout",
+      "It holds the sample inputs for testing"
+    ],
+    "correctAnswers": [
+      1
+    ],
+    "explanation": "Every script in the package needs an entry here, plus its own definition.json and tests.json.\n\nThe plugin looks for src/entryPoints.json relative to the folder open in VS Code's Explorer. An ENOENT error on entryPoints.json usually means the package root isn't the folder you opened.",
+    "domain": "Dante Scripts & Script Runner"
+  },
+  {
+    "id": 113,
+    "question": "A Script Runner URL ends in Dante-AmazonConnect_contributionmodelasset_Connect-UpdateInstanceQuota. You want to read its code. What do you do?",
+    "options": [
+      "Search Slack for the script name",
+      "Open a SIM to the Script Runner team asking for the source",
+      "Download the bundled script from the browser's network tab",
+      "Treat the part before _contributionmodelasset_ (Dante-AmazonConnect) as the Brazil package, then open it on code.amazon.com and check its Permissions tab for the owning Bindle"
+    ],
+    "correctAnswers": [
+      3
+    ],
+    "explanation": "A script id is the package name and the script name joined by _contributionmodelasset_. That's why the substring is banned in package and script names, which would fail to deploy.\n\nFrom the package page you can read the code, see the commit history, and find the owners.",
+    "domain": "Dante Scripts & Script Runner"
+  },
+  {
+    "id": 114,
+    "question": "Where can you see the LDAP permission groups (permissionMap) attached to a live script without access to its repo?",
+    "options": [
+      "In the getAsset response from the Contribution Model read endpoint, visible in the browser dev tools when the script loads in Script Runner",
+      "In the customer's CloudTrail",
+      "In K2OnboardedServiceData",
+      "Only by asking the script owner"
+    ],
+    "correctAnswers": [
+      0
+    ],
+    "explanation": "The getAsset response carries the permissionMap and other script properties. It's a quick way to debug a TBS denial: compare the groups on the script with the groups the caller is actually in.",
+    "domain": "Dante Scripts & Script Runner"
+  },
+  {
+    "id": 115,
+    "question": "A user reports that your published script failed for them. Can you pull the logs for their execution?",
+    "options": [
+      "Yes, the log endpoint returns logs for any execution id",
+      "Yes, but only through the K2 team",
+      "No. You can only read logs for executions you ran yourself, so reproduce the issue with the same inputs in your own run",
+      "No, production executions don't write logs"
+    ],
+    "correctAnswers": [
+      2
+    ],
+    "explanation": "The log API is per execution id and only returns your own executions. Logs also expire after 3 days, so capture what you need when you reproduce.",
+    "domain": "Dante Scripts & Script Runner"
+  },
+  {
+    "id": 116,
+    "question": "You need to test a script that calls an API requiring BCA, from the VS Code plugin, without borrowing a colleague's case. What's the documented approach?",
+    "options": [
+      "Skip BCA in test mode with a plugin setting",
+      "Create an access justification session for your own test account and pass its accessOverrideSession id in the Dante execution request",
+      "Ask the K2 team to temporarily allowlist your alias",
+      "Run the test against a customer account from an open case"
+    ],
+    "correctAnswers": [
+      1
+    ],
+    "explanation": "accessOverrideSession is the same field Script Runner sends when a user justifies access manually. Tests should still only target an account you own, with test data.",
+    "domain": "Dante Scripts & Script Runner"
+  },
+  {
+    "id": 117,
+    "question": "A script's output must show an instance summary at the top and detailed check results in expandable sections. How should definition.json be set up?",
+    "options": [
+      "One text component holding all the JSON",
+      "A tabs layout with a chartv2 component per check",
+      "A grid layout with a single table for everything",
+      "A collapsible layout: a key-value-pairs component for the summary (path to an object) and table components for the checks (paths to arrays)"
+    ],
+    "correctAnswers": [
+      3
+    ],
+    "explanation": "The renderer's layout types are flow, grid, collapsible and tabs. Pick the UIType from the data shape: object to key-value-pairs, array of objects to table.",
+    "domain": "Dante Scripts & Script Runner"
+  },
+  {
+    "id": 118,
+    "question": "A component in the Script Runner metadata has a title and a path but no UIType. How is it rendered?",
+    "options": [
+      "As a table, the default",
+      "As raw JSON text",
+      "It's rejected at deploy time",
+      "As key-value pairs"
+    ],
+    "correctAnswers": [
+      0
+    ],
+    "explanation": "table is the default UIType, so data saved at that path should be an array of objects. If it's an object, set UIType to key-value-pairs explicitly.",
+    "domain": "Dante Scripts & Script Runner"
+  },
+  {
+    "id": 119,
+    "question": "A script needs the user to choose one or more AWS regions from a dropdown. How is the parameter defined?",
+    "options": [
+      "type: \"input\" with a comma-separated default",
+      "type: \"aws-region\" with multipleEntries: true",
+      "type: \"select\" with an options list of regions",
+      "type: \"region-list\""
+    ],
+    "correctAnswers": [
+      1
+    ],
+    "explanation": "Script Runner parameter types are \"input\" (free text) and \"aws-region\" (a dropdown of supported regions). multipleEntries lets one parameter take several values, and forward lets a parameter be passed on to another script.",
+    "domain": "Dante Scripts & Script Runner"
+  },
+  {
+    "id": 120,
+    "question": "Which are required before you can PUBLISH a Script Runner script? (Select THREE)",
+    "options": [
+      "The script package approved by STP (AWS STP - Stewards), which follows a successful STP intake",
+      "An AppSec review, for every script",
+      "An approved CR, with its id added to the crId field of definition.json",
+      "A deployed version of the script",
+      "A promoted version of the script"
+    ],
+    "correctAnswers": [
+      0,
+      2,
+      3
+    ],
+    "explanation": "Publish makes the latest deployed version discoverable and executable in Command Center. Package approval is done once per package, so publishing more scripts from the same package doesn't need a new approval.\n\nPromote comes AFTER publish, not before.",
+    "domain": "Contribution Model & Script Publishing"
+  },
+  {
+    "id": 121,
+    "question": "Who approves a script package before it can be published or promoted?",
+    "options": [
+      "The K2 team, for every package",
+      "The script author's manager",
+      "Any member of the package's Bindle",
+      "An STP TPM (AWS STP - Stewards) for a Script Runner script; the Kumo Automation team for an automated workflow (KAS) script"
+    ],
+    "correctAnswers": [
+      3
+    ],
+    "explanation": "The approval exists so every script contributed to Command Center meets a quality and usefulness bar. A script built only for a service team's own use is approved by that service team.",
+    "domain": "Contribution Model & Script Publishing"
+  },
+  {
+    "id": 122,
+    "question": "A bug shipped in the current promoted version and you want last month's version back. How do you do it?",
+    "options": [
+      "Run the plugin's Rollback command",
+      "Check out the commit that matches the old version, redeploy it (it becomes a NEW version), then publish and promote it",
+      "Deprecate the current version and Tesseract restores the old one exactly as it was",
+      "Edit the promoted version in place through the admin API"
+    ],
+    "correctAnswers": [
+      1
+    ],
+    "explanation": "Script rollback isn't supported. Versions only move forward, so an old script comes back as a new version built from old source.\n\nDeprecating the current version is still useful as an immediate kill switch if the bug is serious, because it makes that version non-executable.",
+    "domain": "Contribution Model & Script Publishing"
+  },
+  {
+    "id": 123,
+    "question": "You accidentally deprecate the latest promoted version of a script. What happens, and what's the fix?",
+    "options": [
+      "The script disappears for good",
+      "Nothing, since deprecation only hides it from search",
+      "Users fall back to the most recent remaining promoted version, if any. To restore it, deploy the same source and metadata as a new version and promote it",
+      "Run Undo Deprecate in the plugin"
+    ],
+    "correctAnswers": [
+      2
+    ],
+    "explanation": "Any version, whatever its status, can be deprecated, and a deprecated version is removed from every UI and the read APIs and can't be executed.\n\nThere's no true undo yet, so redeploy and promote.",
+    "domain": "Contribution Model & Script Publishing"
+  },
+  {
+    "id": 124,
+    "question": "You promote a fix in the classic partition. Roughly how long until it reaches the ADC partitions?",
+    "options": [
+      "About 5 hours (China is about 30 minutes)",
+      "Instantly",
+      "About 15 minutes",
+      "Never, ADC needs a separate deploy from the highside"
+    ],
+    "correctAnswers": [
+      0
+    ],
+    "explanation": "Deploy, approve, publish, promote and deprecate actions all replicate from classic to China and ADC, with those SLAs.\n\nIf an ADC user reports the old behavior right after you promote, replication lag is the first thing to rule out.",
+    "domain": "Contribution Model & Script Publishing"
+  },
+  {
+    "id": 125,
+    "question": "Which statements about tags, cti and simFolder in definition.json are correct? (Select THREE)",
+    "options": [
+      "At least one tag is required, chosen from a fixed, case-sensitive list (TROUBLESHOOTING, SCRIPT_RUNNER and so on)",
+      "Tags are free-form, so any label works",
+      "cti and simFolder are both required, so users know where to send bugs and feedback",
+      "Changing any of them means redeploying, which creates a new script version",
+      "They can be edited in place on the promoted version without a redeploy"
+    ],
+    "correctAnswers": [
+      0,
+      2,
+      3
+    ],
+    "explanation": "New tags need a SIM to the Contribution Model team.\n\nAn older plugin that doesn't send cti and simFolder fails deploy with 'Invalid request body', so update the plugin and add the fields.",
+    "domain": "Contribution Model & Script Publishing"
+  },
+  {
+    "id": 126,
+    "question": "Per the Tool-builder Guide, what does a script's toolmetadata.json control?",
+    "options": [
+      "Which K2 APIs the script may call",
+      "Which output fields Dante returns, through per-API includeFields and excludeFields paths. Fields not listed aren't returned",
+      "The Script Runner layout",
+      "Which LDAP groups may run the script"
+    ],
+    "correctAnswers": [
+      1
+    ],
+    "explanation": "It's another tool-based security filter on top of the K2 allowlist. If a field is allowlisted in K2OnboardedServiceData but still missing from Dante output, check this file too.",
+    "domain": "Contribution Model & Script Publishing"
+  },
+  {
+    "id": 127,
+    "question": "Which statements about updating a script's tool permissions (LDAP groups) are correct? (Select TWO)",
+    "options": [
+      "The change takes effect immediately, so it must follow the 2-Person Rule",
+      "Changes queue until the next pipeline deploy",
+      "For pipeline-deployed scripts, permissions shouldn't be managed with the VS Code plugin",
+      "Only the K2 team can change them"
+    ],
+    "correctAnswers": [
+      0,
+      2
+    ],
+    "explanation": "Only users in the listed groups can run the tool (shadow mode excepted). Get the group wrong and you either lock out real users or open the tool too wide, which is why a second person checks.",
+    "domain": "Contribution Model & Script Publishing"
+  },
+  {
+    "id": 128,
+    "question": "Which account can you put in tests.json to test a deployed, unpromoted script?",
+    "options": [
+      "The account from any open case you own",
+      "Any account, as long as the API is read-only",
+      "A production account, as long as BCA approves",
+      "Only an internal account you own that has DanteInternalAccountTestingRole (trusting Dante), with test data only"
+    ],
+    "correctAnswers": [
+      3
+    ],
+    "explanation": "Every test needs at least region and accountId, plus a value for each script input. The test role can optionally limit which aliases may use it.\n\nNever point tests at customer accounts.",
+    "domain": "Contribution Model & Script Publishing"
+  },
+  {
+    "id": 129,
+    "question": "Right after you deploy, Test fails with ScriptNotFoundException. What's the most likely explanation?",
+    "options": [
+      "The script was never approved",
+      "The new version isn't available yet. Wait a couple of minutes and test again",
+      "entryPoints.json is missing",
+      "Your LDAP group membership expired"
+    ],
+    "correctAnswers": [
+      1
+    ],
+    "explanation": "A new deployment typically takes about 2 minutes to become available. If it keeps failing, the guide also suggests a VPN location near us-east-2.",
+    "domain": "Contribution Model & Script Publishing"
+  },
+  {
+    "id": 130,
+    "question": "The plugin says you aren't authorized to write to the package, even though package.json has the right name. What should you check?",
+    "options": [
+      "Your Midway session only",
+      "The script's tags",
+      "That the package FOLDER name on disk, and the first line of the Config file, match the Brazil package name, and that you're an owner with edit permissions",
+      "That the script is promoted"
+    ],
+    "correctAnswers": [
+      2
+    ],
+    "explanation": "The plugin reads the package name from the folder, not from package.json. After scaffolding, also update line 1 of Config to the real package name.",
+    "domain": "Contribution Model & Script Publishing"
+  },
+  {
+    "id": 131,
+    "question": "A pipeline uses DanteScriptPackagePublisherConstruct with a gamma stage (isProd: false). How does that stage avoid touching the live scripts?",
+    "options": [
+      "It deploys to a separate Dante endpoint",
+      "It only builds and never deploys",
+      "It requires a manual approval on every script",
+      "It creates separate copies with scriptSuffix appended to the names and tags them TEST so they don't show in the Troubleshooting Console"
+    ],
+    "correctAnswers": [
+      3
+    ],
+    "explanation": "scriptSuffix is required when isProd is false. With isProd: true the construct deploys, publishes and promotes like the VS Code plugin, and rolls back automatically if a deployment fails.",
+    "domain": "Contribution Model & Script Publishing"
+  },
+  {
+    "id": 132,
+    "question": "A pipeline deploy fails with \"Unable to read `Package Name` from scriptBundle scripts.zip\". What's the usual cause?",
+    "options": [
+      "The script names in definition.json don't match the names in entryPoints.json",
+      "The pipeline name doesn't start with SupportTool",
+      "The Bindle is missing Gitfarm read permission",
+      "The CloudFormation stack is in ROLLBACK_FAILED"
+    ],
+    "correctAnswers": [
+      0
+    ],
+    "explanation": "Names have to line up between definition.json and entryPoints.json. A stack stuck in ROLLBACK_FAILED is a separate problem that needs the stack deleted and redeployed.",
+    "domain": "Contribution Model & Script Publishing"
+  },
+  {
+    "id": 133,
+    "question": "Can a published but unpromoted script version be executed?",
+    "options": [
+      "No, nothing can run it until it's promoted",
+      "Yes, by a widget that asks for that specific version. Script Runner and versionless calls only get the latest promoted version",
+      "Yes, from Script Runner's version picker",
+      "Only in the gamma stage"
+    ],
+    "correctAnswers": [
+      1
+    ],
+    "explanation": "Promote labels the current supported version, which is what versionless calls resolve to. For most scripts you promote right after you publish.",
+    "domain": "Contribution Model & Script Publishing"
   },
   {
     "id": 27,
@@ -409,7 +1019,7 @@
       1
     ],
     "explanation": "This is Python's Promise.allSettled. Zip the results with your inputs, then split them with isinstance(result, Exception).",
-    "domain": "Phase 1: Python Async, Error Handling & K2/Dante Foundations"
+    "domain": "Async, Concurrency & Error Handling"
   },
   {
     "id": 28,
@@ -423,8 +1033,8 @@
     "correctAnswers": [
       0
     ],
-    "explanation": "The default gather behaves like Promise.all: it fails fast for the caller. Other tasks keep running in the background, which is easy to forget.\n\n(ExceptionGroup and TaskGroup are 3.11+, not 3.9.)",
-    "domain": "Phase 1: Python Async, Error Handling & K2/Dante Foundations"
+    "explanation": "The default gather behaves like Promise.all: it fails fast for the caller. Other tasks keep running in the background, which is easy to forget.\n\n(ExceptionGroup and TaskGroup are 3.11+.)",
+    "domain": "Async, Concurrency & Error Handling"
   },
   {
     "id": 29,
@@ -440,7 +1050,7 @@
       3
     ],
     "explanation": "Retry only retryable errors. Throttling is transient. Access denied will never fix itself, so retrying it just wastes time and quota.\n\nReturning None on errors is a silent catch.",
-    "domain": "Phase 1: Python Async, Error Handling & K2/Dante Foundations"
+    "domain": "Async, Concurrency & Error Handling"
   },
   {
     "id": 30,
@@ -455,7 +1065,7 @@
       2
     ],
     "explanation": "The delay is base * 2**attempt plus a random amount. Without jitter, synchronized retries cause the next throttle storm.",
-    "domain": "Phase 1: Python Async, Error Handling & K2/Dante Foundations"
+    "domain": "Async, Concurrency & Error Handling"
   },
   {
     "id": 31,
@@ -469,8 +1079,8 @@
     "correctAnswers": [
       3
     ],
-    "explanation": "Wrap each call in `async with sem:`. Only `limit` calls run at a time and the rest wait their turn. Bounded concurrency prevents throttles, and backoff recovers from them.",
-    "domain": "Phase 1: Python Async, Error Handling & K2/Dante Foundations"
+    "explanation": "Wrap each call in `async with sem:`. Only `limit` calls run at a time and the rest wait their turn.\n\nBounded concurrency prevents throttles, and backoff recovers from them.",
+    "domain": "Async, Concurrency & Error Handling"
   },
   {
     "id": 32,
@@ -485,7 +1095,7 @@
       0
     ],
     "explanation": "I/O-bound work means ThreadPoolExecutor or asyncio. CPU-bound work (heavy parsing, math) means ProcessPoolExecutor or multiprocessing, because the GIL blocks CPU-parallel threads.",
-    "domain": "Phase 1: Python Async, Error Handling & K2/Dante Foundations"
+    "domain": "Async, Concurrency & Error Handling"
   },
   {
     "id": 33,
@@ -499,8 +1109,8 @@
     "correctAnswers": [
       1
     ],
-    "explanation": "else runs only when try succeeded, so it's the place for code that shouldn't be guarded by the except. finally always runs, whether it succeeded, failed or returned, so it's for cleanup.",
-    "domain": "Phase 1: Python Async, Error Handling & K2/Dante Foundations"
+    "explanation": "else runs only when try succeeded, so it's the place for code that shouldn't be guarded by the except.\n\nfinally always runs, whether it succeeded, failed or returned, so it's for cleanup.",
+    "domain": "Async, Concurrency & Error Handling"
   },
   {
     "id": 34,
@@ -508,14 +1118,14 @@
     "options": [
       "Nothing, because it keeps the script resilient",
       "It is a syntax error in Python 3",
-      "It silently swallows the error, so the user sees missing data with no reason (the unqualified 'silent catch' pattern)",
+      "It silently swallows the error, so the user sees missing data with no reason",
       "It only catches KeyboardInterrupt"
     ],
     "correctAnswers": [
       2
     ],
-    "explanation": "Catch the specific exception you expect, then report or log it. A bare `except:` is even worse, because it also catches KeyboardInterrupt and SystemExit.",
-    "domain": "Phase 1: Python Async, Error Handling & K2/Dante Foundations"
+    "explanation": "Catch the specific exception you expect, then report or log it.\n\nA bare `except:` is even worse, because it also catches KeyboardInterrupt and SystemExit.",
+    "domain": "Async, Concurrency & Error Handling"
   },
   {
     "id": 35,
@@ -529,8 +1139,8 @@
     "correctAnswers": [
       3
     ],
-    "explanation": "`raise ... from e` chains the exceptions and sets __cause__, so the traceback shows both. A bare `raise` inside except re-raises the original unchanged.",
-    "domain": "Phase 1: Python Async, Error Handling & K2/Dante Foundations"
+    "explanation": "`raise ... from e` chains the exceptions and sets __cause__, so the traceback shows both.\n\nA bare `raise` inside except re-raises the original unchanged.",
+    "domain": "Async, Concurrency & Error Handling"
   },
   {
     "id": 36,
@@ -545,7 +1155,7 @@
       0
     ],
     "explanation": "Exceptions are stored on the Future. Wrap each future.result() in try/except to split successes from failures, which is the threaded version of allSettled.",
-    "domain": "Phase 1: Python Async, Error Handling & K2/Dante Foundations"
+    "domain": "Async, Concurrency & Error Handling"
   },
   {
     "id": 37,
@@ -560,6 +1170,820 @@
       1
     ],
     "explanation": "Blocking calls inside coroutines freeze everything. Use await asyncio.sleep for delays, and asyncio.to_thread (3.9+) or run_in_executor to offload blocking I/O.",
-    "domain": "Phase 1: Python Async, Error Handling & K2/Dante Foundations"
+    "domain": "Async, Concurrency & Error Handling"
+  },
+  {
+    "id": 65,
+    "question": "In `const r = await K2Apis.call({...})`, where exactly is the Promise?",
+    "options": [
+      "The await keyword creates it",
+      "The .then() callback is the Promise",
+      "The async keyword on main creates it",
+      "It's the value returned by K2Apis.call(); await and .then() are just two ways of consuming it"
+    ],
+    "correctAnswers": [
+      3
+    ],
+    "explanation": "In Dante scripts you almost never construct a Promise. The client returns one, and you consume it.\n\nRelated: an async function always returns a Promise, and await is only valid inside an async function.",
+    "domain": "Async, Concurrency & Error Handling"
+  },
+  {
+    "id": 66,
+    "question": "What's the bug?\n\nasync function fetchEC2Data(id) { try { const r = await client.send(cmd(id)); return r.ec2Data; } catch (e) { console.error(e); } }\nconst ec2Data = fetchEC2Data('i-0abc123');",
+    "options": [
+      "client.send must not be awaited",
+      "ec2Data holds a pending Promise, not the data. The call must be awaited inside an async function (or chained with .then)",
+      "try/catch can't be used inside async functions",
+      "Nothing is wrong"
+    ],
+    "correctAnswers": [
+      1
+    ],
+    "explanation": "Calling an async function returns a Promise immediately.\n\nThere's also a second smell: the catch logs and returns undefined, so the caller can't tell a failure from 'no data'.",
+    "domain": "Async, Concurrency & Error Handling"
+  },
+  {
+    "id": 67,
+    "question": "In Python, what happens if you call an async def function without awaiting it, for example `result = fetch_region('us-east-1')`?",
+    "options": [
+      "It runs synchronously and returns the data",
+      "It raises SyntaxError",
+      "It returns a coroutine object that never runs, and Python warns 'coroutine ... was never awaited'",
+      "It runs in a background thread"
+    ],
+    "correctAnswers": [
+      2
+    ],
+    "explanation": "This is the Python version of the un-awaited Promise bug, except worse: a JS Promise starts running immediately, while a Python coroutine does nothing until it's awaited or scheduled as a task.",
+    "domain": "Async, Concurrency & Error Handling"
+  },
+  {
+    "id": 68,
+    "question": "A multi-region script does `await Promise.all(regions.map(r => getCertsForRegion(r)))` with no try/catch, yet one failed region never crashes it. Why?",
+    "options": [
+      "Promise.all ignores rejections",
+      "getCertsForRegion catches its own errors and RESOLVES with an error object, so no Promise ever rejects; the caller then filters successes from errors",
+      "Dante wraps every Promise.all in a try/catch",
+      "Rejected Promises are retried automatically"
+    ],
+    "correctAnswers": [
+      1
+    ],
+    "explanation": "Catching per call and returning structured errors turns Promise.all into an allSettled-style fan-out.\n\nThe tradeoff is that you must remember to separate the error objects from the real results afterwards.",
+    "domain": "Async, Concurrency & Error Handling"
+  },
+  {
+    "id": 69,
+    "question": "Why would a script process 1,000 describeCertificate calls in chunks of 200, awaiting Promise.all per chunk, instead of firing all 1,000 at once?",
+    "options": [
+      "Promise.all accepts at most 200 items",
+      "Chunks run faster than one big batch",
+      "Dante limits arrays to 200 elements",
+      "It caps concurrency so the script doesn't hit K2 or downstream service throttles, while still parallelizing within each chunk"
+    ],
+    "correctAnswers": [
+      3
+    ],
+    "explanation": "Batching is coarse concurrency control: each chunk waits for its slowest call.\n\nA semaphore or worker pool (always N in flight) is smoother. Either way, pair it with backoff.",
+    "domain": "Async, Concurrency & Error Handling"
+  },
+  {
+    "id": 70,
+    "question": "A script loops `for (const id of ids) { results.push(await describe(id)); }` over 50 independent instances. What's the issue?",
+    "options": [
+      "The calls run strictly one after another, so total time is the sum of all latencies. Independent calls should fan out (Promise.all / asyncio.gather), with a concurrency cap",
+      "It causes a race condition on results",
+      "await isn't allowed in for loops",
+      "It's the fastest possible pattern"
+    ],
+    "correctAnswers": [
+      0
+    ],
+    "explanation": "await in a loop serializes the work. That's correct when each call depends on the previous one, and slow when they're independent.",
+    "domain": "Async, Concurrency & Error Handling"
+  },
+  {
+    "id": 134,
+    "question": "A script must list every EC2 instance in a region, find each instance's CloudWatch alarms, and report each alarm's state. Which design uses the fewest K2 calls?",
+    "options": [
+      "Paginate describeInstances, then call describeAlarmsForMetric for each instance and metric, then call describeAlarmHistory for each alarm's state",
+      "Call describeInstances once with no pagination, then describeAlarms once per instance",
+      "Paginate describeInstances and describeAlarms once each, then join alarms to instances on the InstanceId dimension. StateValue already comes back on each alarm, so no third call is needed",
+      "Call describeAlarms for each instance in parallel with no limit"
+    ],
+    "correctAnswers": [
+      2
+    ],
+    "explanation": "Per-item calls multiply fast. 500 instances with 3 metrics each is 1,500 calls, against a K2 limit of 60 RPS with 120 burst.\n\nList once, join in memory, and read the fields you already have before you add another API. Fan out across regions with a concurrency cap and backoff on throttles.",
+    "domain": "Async, Concurrency & Error Handling"
+  },
+  {
+    "id": 135,
+    "question": "You want to report the peak number of K2 calls in flight during an asyncio fan-out capped by a semaphore. What's the right way to track it?",
+    "options": [
+      "Read len(asyncio.all_tasks()) at the end",
+      "Increment a counter inside the semaphore before the await, decrement it in a finally block, and record max(peak, counter) after each increment",
+      "Use semaphore._value",
+      "Wrap the counter in a threading.Lock, because coroutines run in parallel"
+    ],
+    "correctAnswers": [
+      1
+    ],
+    "explanation": "asyncio runs on one thread and only switches tasks at an await, so a plain counter is safe with no lock.\n\nThe finally block matters: without it, a call that raises never decrements, and the count drifts up. The peak should never go above the semaphore limit, which makes it a good check on the cap.",
+    "domain": "Async, Concurrency & Error Handling"
+  },
+  {
+    "id": 71,
+    "question": "Why is `git pull --rebase` generally preferred over a plain `git pull` before raising a CR?",
+    "options": [
+      "It deletes stale branches",
+      "It replays your unpushed commits on top of the fetched remote commits, giving a linear history with no merge commit cluttering the CR diff",
+      "It force-pushes your branch",
+      "It skips conflict resolution"
+    ],
+    "correctAnswers": [
+      1
+    ],
+    "explanation": "Plain pull merges and creates a merge commit when histories diverge.\n\nNever rebase commits that are already pushed and shared.",
+    "domain": "Builder Tooling & Code Reviews"
+  },
+  {
+    "id": 72,
+    "question": "What's the difference between `git pull --rebase` and `git rebase mainline`?",
+    "options": [
+      "They are identical",
+      "rebase mainline also pushes",
+      "pull --rebase fetches from the remote first; rebase mainline only replays onto your LOCAL mainline, with no fetch",
+      "pull --rebase only works on mainline"
+    ],
+    "correctAnswers": [
+      2
+    ],
+    "explanation": "If local mainline is stale, `git rebase mainline` rebases onto stale code. Fetch first, or use pull --rebase.",
+    "domain": "Builder Tooling & Code Reviews"
+  },
+  {
+    "id": 73,
+    "question": "Which statement best describes `brazil-build release` for a Dante (NpmPrettyMuch) package?",
+    "options": [
+      "It only bundles JavaScript",
+      "It publishes the package to the version set",
+      "It deploys the script to Tesseract",
+      "It runs the full validation build (formatting checks, lint, tests, bundle) that Package Builder will run, so a local pass predicts a build pass"
+    ],
+    "correctAnswers": [
+      3
+    ],
+    "explanation": "Run it before every CR. `brazil-build format` fixes formatting; release is the gate.",
+    "domain": "Builder Tooling & Code Reviews"
+  },
+  {
+    "id": 74,
+    "question": "Which tools enforce static analysis and formatting by language? (Select TWO)",
+    "options": [
+      "JavaScript: ESLint (static analysis) + Prettier (formatting)",
+      "JavaScript: Flake8 + Black",
+      "Python: Flake8 (static analysis) + Black (formatting), with isort for imports",
+      "Python: ESLint + Prettier"
+    ],
+    "correctAnswers": [
+      0,
+      2
+    ],
+    "explanation": "Lint failures fail the build, so linting is not optional. For Dante packages, Dante-PackageUpdater sets up the lint and format config.",
+    "domain": "Builder Tooling & Code Reviews"
+  },
+  {
+    "id": 75,
+    "question": "A build fails with 'black failed' or 'prettier failed'. What's the fix?",
+    "options": [
+      "Disable the formatter in package.json",
+      "Run `brazil-build format`, then re-run `brazil-build release`",
+      "Add the files to .gitignore",
+      "Request a version set merge"
+    ],
+    "correctAnswers": [
+      1
+    ],
+    "explanation": "The code doesn't match the enforced style. Format, then rebuild.\n\nOther common ones: 'missing dist folder' (src_path / dist_name not set in package.json), version set conflicts, and permission denied on merge (Bindle / permissions group).",
+    "domain": "Builder Tooling & Code Reviews"
+  },
+  {
+    "id": 76,
+    "question": "What is a Brazil version set?",
+    "options": [
+      "A Git branch",
+      "A named, versioned collection of package versions that are built and resolved together, so every consumer gets a consistent dependency graph",
+      "A list of Apollo hosts",
+      "A Pipelines approval workflow"
+    ],
+    "correctAnswers": [
+      1
+    ],
+    "explanation": "Packages build against a version set. Every successful build creates a new version set revision. Conflicts happen when two packages in the set need incompatible versions of a dependency.",
+    "domain": "Builder Tooling & Code Reviews"
+  },
+  {
+    "id": 77,
+    "question": "Which Pipelines automation agent keeps your version set current by pulling in upstream dependency changes on a schedule?",
+    "options": [
+      "AutoBuild",
+      "AutoPromote",
+      "AutoMerge",
+      "AutoDeploy"
+    ],
+    "correctAnswers": [
+      2
+    ],
+    "explanation": "AutoMerge pulls tracking/upstream version set changes in. AutoBuild builds on merge. AutoPromote moves a version set revision to the next stage. AutoDeploy deploys to Apollo environments.",
+    "domain": "Builder Tooling & Code Reviews"
+  },
+  {
+    "id": 78,
+    "question": "Which CR practices keep reviews effective? (Select THREE)",
+    "options": [
+      "Keep CRs small: roughly 150 lines added and 150 removed per CR",
+      "Bundle unrelated fixes so reviewers see everything at once",
+      "Aim for at least 85% coverage on new lines (Coverlay)",
+      "Include testing instructions, screenshots or script links, and the linked intake/SIM",
+      "Leave debug console.log statements in for reviewers"
+    ],
+    "correctAnswers": [
+      0,
+      2,
+      3
+    ],
+    "explanation": "One logical change per CR, squashed into one commit, synced with mainline, and passing format/lint/test/release first.\n\nIn the Reviewers tab, check that Dry Run Build, Coverlay and the CR Commit Analyzer all pass.",
+    "domain": "Builder Tooling & Code Reviews"
+  },
+  {
+    "id": 79,
+    "question": "Reviewing a Dante CR, which findings are substantive review comments rather than nitpicks? (Select THREE)",
+    "options": [
+      "A K2 call result is used without checking danteCallStatus",
+      "A hardcoded commercial console URL in a script that runs in every partition",
+      "A preference for single quotes over double quotes that Prettier already enforces",
+      "A catch block that logs and returns an empty array, hiding failures from the user",
+      "A variable you'd personally have named differently"
+    ],
+    "correctAnswers": [
+      0,
+      1,
+      3
+    ],
+    "explanation": "Good reviews focus on correctness, security, error handling, partition support and test coverage, and explain WHY a change is needed (ideally with an example).\n\nStyle that tooling already enforces doesn't need a human comment.",
+    "domain": "Builder Tooling & Code Reviews"
+  },
+  {
+    "id": 136,
+    "question": "Before you comment on someone else's Dante script CR, what makes the review hands-on rather than diff-reading?",
+    "options": [
+      "Approve once the Dry Run Build passes",
+      "Read the diff twice and check the commit message",
+      "Run a spell-check on the changed files",
+      "Pull the CR into a local workspace, run brazil-build release, deploy it to your own test account and run its tests.json, then comment on what you actually saw"
+    ],
+    "correctAnswers": [
+      3
+    ],
+    "explanation": "Building and running the change finds what reading misses: unchecked danteCallStatus, a renderer path that doesn't match the saved output, a partition that breaks.\n\nThen call out good code specifically, and explain the WHY behind every change you ask for.",
+    "domain": "Builder Tooling & Code Reviews"
+  },
+  {
+    "id": 137,
+    "question": "How do you find who owns a Brazil package and who can approve or merge its CRs?",
+    "options": [
+      "Open the package on code.amazon.com and check the Permissions tab for its Bindle and permission groups",
+      "Read the Config file",
+      "Look at the most recent committer",
+      "Search the package name in Slack"
+    ],
+    "correctAnswers": [
+      0
+    ],
+    "explanation": "Every package has a Bindle. Its permission groups decide who can push code, approve CRs and release versions, and pipeline promotion approvals also check Bindle membership.\n\n'Permission denied' on merge usually means you aren't in that group.",
+    "domain": "Builder Tooling & Code Reviews"
+  },
+  {
+    "id": 138,
+    "question": "After a CR merges, what does Package Builder do?",
+    "options": [
+      "Deploys straight to production",
+      "Builds only the changed package, without tests",
+      "Runs brazil-build release for your package AND every package in the version set that depends on it. If all succeed, it creates a new version set revision",
+      "Publishes the scripts to Tesseract"
+    ],
+    "correctAnswers": [
+      2
+    ],
+    "explanation": "A version set revision is a snapshot, a bit like a commit is to a branch. Package Builder also does dry-run builds, which is how a CR gets checked before merge.",
+    "domain": "Builder Tooling & Code Reviews"
+  },
+  {
+    "id": 139,
+    "question": "You add a new dependency to your package's Config and the build complains it isn't in the version set. What do you run, in order?",
+    "options": [
+      "brazil workspace sync --metadata, then brazil workspace merge --local if that isn't enough",
+      "brazil-build clean, then brazil-build release",
+      "git pull --rebase",
+      "Request a new version set"
+    ],
+    "correctAnswers": [
+      0
+    ],
+    "explanation": "sync --metadata refreshes the workspace's view of the version set. merge --local pulls missing dependencies into the local workspace so the build can resolve them.",
+    "domain": "Builder Tooling & Code Reviews"
+  },
+  {
+    "id": 140,
+    "question": "Your workspace holds a script package and a helper package it depends on, and you changed both. How do you build them in the right order?",
+    "options": [
+      "Build the script package first, then the helper",
+      "From the workspace src/ folder, run brazil-recursive-cmd with brazil-build release, which builds packages in dependency (topological) order",
+      "Merge the helper to mainline first",
+      "Copy the helper's build folder into the script package"
+    ],
+    "correctAnswers": [
+      1
+    ],
+    "explanation": "Use -allPackages for everything or -p for specific packages. To read a dependency's source, brazil-path '[Package]pkg.src' works from a package that depends on it directly.",
+    "domain": "Builder Tooling & Code Reviews"
+  },
+  {
+    "id": 80,
+    "question": "An engineer wants an on-demand diagnostic that inspects a customer's resources and shows the findings to the engineer, with no customer correspondence and no changes. Which framework fits?",
+    "options": [
+      "Dante (Script Runner in TSC)",
+      "KAS",
+      "SAW",
+      "A standalone service"
+    ],
+    "correctAnswers": [
+      0
+    ],
+    "explanation": "Dante runs in the Kumo account, read-only through K2, triggered by an engineer. That's the default for informational diagnostics.",
+    "domain": "Intake & Framework Selection"
+  },
+  {
+    "id": 81,
+    "question": "An automation should run when a case is created, gather diagnostics, annotate the case, and eventually reply to the customer. Which framework fits?",
+    "options": [
+      "Dante alone",
+      "SAW",
+      "KAS (Kumo Automation Service)",
+      "Greasemonkey"
+    ],
+    "correctAnswers": [
+      2
+    ],
+    "explanation": "KAS triggers on case creation and supports multi-step workflows with branching, annotations and correspondence. It runs in the Kumo account and calls Dante scripts for the K2 work.",
+    "domain": "Intake & Framework Selection"
+  },
+  {
+    "id": 82,
+    "question": "A remediation must change resources IN the customer's account, with the customer's explicit approval, using AWS Systems Manager. Which framework fits?",
+    "options": [
+      "Dante",
+      "KAS",
+      "A K2 mutating API from a Dante script",
+      "SAW (Support Automation Workflows)"
+    ],
+    "correctAnswers": [
+      3
+    ],
+    "explanation": "SAW runbooks run in the customer's account with the customer's own role. Mutating actions are their main use case, and they include an approval step for consent. AppSec review is mandatory.",
+    "domain": "Intake & Framework Selection"
+  },
+  {
+    "id": 83,
+    "question": "What did SPARK replace in the automation intake process?",
+    "options": [
+      "The K2 onboarding Sherpa form",
+      "Separate intake systems (FPM intake and OI Central), unified into one platform with routing, impact analysis and risk-based fast-tracking",
+      "CRUX code reviews",
+      "The Tesseract publishing lifecycle"
+    ],
+    "correctAnswers": [
+      1
+    ],
+    "explanation": "One front door for all tooling ideas. Low-risk changes and experiments can be fast-tracked; complex ones get full review.\n\nDon't edit the phase labels on intake SIMs by hand, because automation tracks progress through them.",
+    "domain": "Intake & Framework Selection"
+  },
+  {
+    "id": 84,
+    "question": "During the Feasibility Review phase of a KAS/SAW intake, the reviewers find a required API isn't onboarded to K2. What happens?",
+    "options": [
+      "The idea is rejected outright",
+      "The builder onboards the API themselves during development",
+      "Nothing; onboarding happens after release",
+      "The 'Pending APIs Onboarding' label is applied, which triggers a subtask to get the API onboarded"
+    ],
+    "correctAnswers": [
+      3
+    ],
+    "explanation": "Feasibility (by the SysDev team) checks whether the idea fits existing frameworks and whether the APIs it needs exist in K2. Outcomes: Feasibility Confirmed, Feasibility Rejected, or Blocked.",
+    "domain": "Intake & Framework Selection"
+  },
+  {
+    "id": 85,
+    "question": "Which intake phases apply to SAW but NOT to KAS? (Select TWO)",
+    "options": [
+      "Bug Bash (with time-and-motion analysis)",
+      "Triggers Creation",
+      "Guardian & AppSec Review",
+      "Business Review"
+    ],
+    "correctAnswers": [
+      0,
+      2
+    ],
+    "explanation": "SAW-only: Bug Bash, Guardian & AppSec Review, and the public documentation update. Triggers Creation is KAS-only.\n\nBoth go through technical review, business review, feasibility, prioritization, design review, development and release.",
+    "domain": "Intake & Framework Selection"
+  },
+  {
+    "id": 86,
+    "question": "What must a technical (FLS) review of an automation idea have to work with?",
+    "options": [
+      "Only a one-line idea title",
+      "A finished CR",
+      "A well-defined flow diagram with no ambiguity, plus ROI data (email-case vs live-contact ROI)",
+      "An AppSec ticket number"
+    ],
+    "correctAnswers": [
+      2
+    ],
+    "explanation": "The technical reviewer (an SME or L6) checks that the SOP and flow are sound, the APIs exist, and the approach is feasible.\n\nAmbiguous flows get sent back. 'Technically Rejected' is a valid outcome.",
+    "domain": "Intake & Framework Selection"
+  },
+  {
+    "id": 87,
+    "question": "What are the three components of a KAS automation?",
+    "options": [
+      "A Lambda, an SQS queue and a DynamoDB table",
+      "Dante scripts (K2 calls + decision logic), an automation workflow (SSM-format document for steps and branching), and an automation trigger (rules on keywords, CTI, queue, ML intent)",
+      "A Greasemonkey script, a Ticket Router rule and a blurb",
+      "A CloudFormation stack, a runbook and an approval step"
+    ],
+    "correctAnswers": [
+      1
+    ],
+    "explanation": "Flow: case created → trigger matches → workflow runs → Dante scripts call K2 → results drive branching → LiquidJS blurbs render → annotation and/or correspondence.\n\nThe Dante script and the workflow live in separate packages (SSS-... and KAS-...).",
+    "domain": "KAS (Kumo Automation Service)"
+  },
+  {
+    "id": 88,
+    "question": "What's the difference between KAS shadow mode and production mode?",
+    "options": [
+      "Shadow mode runs only in pre-prod accounts",
+      "Shadow mode skips the Dante scripts",
+      "Shadow mode posts annotations only (no customer correspondence); production mode can send correspondence. The mode is controlled by a switch configuration",
+      "There is no difference"
+    ],
+    "correctAnswers": [
+      2
+    ],
+    "explanation": "Launch path: shadow mode → monitor for 2-4 weeks → ramp up → production. Shadow lets you check the workflow's decisions against real cases without touching customers.",
+    "domain": "KAS (Kumo Automation Service)"
+  },
+  {
+    "id": 89,
+    "question": "A workflow's annotations look correct in shadow mode, but after moving to production no replies go out. Which TWO checks come first? (Select TWO)",
+    "options": [
+      "Whether the workflow is actually enabled in the production switch configuration",
+      "Whether the Dante script uses Prettier",
+      "Whether the reply blurbs were uploaded to the blurb S3 bucket under <full workflow id>/LATEST/",
+      "Whether the customer has Business Support"
+    ],
+    "correctAnswers": [
+      0,
+      2
+    ],
+    "explanation": "Production replies depend on the switch AND the blurbs being in the right S3 path. Uploading blurbs is a manual step that's easy to miss. Also confirm the reason codes map to the right blurbs.",
+    "domain": "KAS (Kumo Automation Service)"
+  },
+  {
+    "id": 90,
+    "question": "What is a KAS control group for?",
+    "options": [
+      "It restricts which engineers can edit the workflow",
+      "It randomly bypasses a percentage of eligible cases (default 10%) so the workflow's effect can be measured against normal handling",
+      "It holds failed executions for retry",
+      "It's the LDAP group allowed to run the workflow"
+    ],
+    "correctAnswers": [
+      1
+    ],
+    "explanation": "It's configured per workflow (AppConfig). For a cautious launch, start with a high bypass percentage and lower it as confidence grows. Without a control group you can't prove the automation helps.",
+    "domain": "KAS (Kumo Automation Service)"
+  },
+  {
+    "id": 91,
+    "question": "Why should a workflow release cases in WIP status rather than PAA (Pending Amazon Action)?",
+    "options": [
+      "PAA closes the case",
+      "WIP sends a customer notification",
+      "PAA is deprecated",
+      "PAA bypasses media concurrency limits in routing, so a bulk release (for example, a failing workflow) can flood engineers; WIP respects concurrency"
+    ],
+    "correctAnswers": [
+      3
+    ],
+    "explanation": "This is a blast-radius question: one bad workflow releasing hundreds of cases in PAA can overwhelm routing all at once.",
+    "domain": "KAS (Kumo Automation Service)"
+  },
+  {
+    "id": 92,
+    "question": "Which case would KAS NOT trigger on?",
+    "options": [
+      "An unlocked Sev 3 web case",
+      "An unlocked Sev 2 email case",
+      "A live-contact (chat/phone) case, or one already assigned to an engineer",
+      "An unlocked Sev 4 web case"
+    ],
+    "correctAnswers": [
+      2
+    ],
+    "explanation": "Eligible cases are email/web, Sev 1-4, unlocked (no agent assigned), and not JP or GovCloud. Live contact and Sev 5 are excluded.\n\nWhen testing, create a case in your own account and keep it unlocked.",
+    "domain": "KAS (Kumo Automation Service)"
+  },
+  {
+    "id": 93,
+    "question": "You can't recreate a workflow's target scenario in your test account (common for account/billing workflows). How do you unit test the branches?",
+    "options": [
+      "Test only in production shadow mode",
+      "Mock the API responses so each branch can be exercised",
+      "Skip the tests and rely on CR review",
+      "Ask a customer for access to their account"
+    ],
+    "correctAnswers": [
+      1
+    ],
+    "explanation": "Mocking API responses is the standard pattern. tests.json supplies the inputs, and newer plugin versions can also check permissions with testAccessForUsers.\n\nThe workflow README must document every internal API's inputs and outputs.",
+    "domain": "KAS (Kumo Automation Service)"
+  },
+  {
+    "id": 94,
+    "question": "Why does SAW require an AppSec review when a read-only Dante/KAS diagnostic usually doesn't?",
+    "options": [
+      "SAW is written in Python",
+      "SAW runbooks are public",
+      "SAW runs in the CUSTOMER's account with an assumed IAM role (AutomationAssumeRole), so it can do whatever that role allows; Dante/KAS go through K2's layered controls from the Kumo account",
+      "SAW can't be code reviewed"
+    ],
+    "correctAnswers": [
+      2
+    ],
+    "explanation": "Direct execution in the customer account calls for strict guardrails: least-privilege role, approvals, timeouts, cleanup.\n\nEverything a runbook does is visible in the customer's CloudTrail and SSM execution history, so only output what's necessary.",
+    "domain": "SAW (Support Automation Workflows)"
+  },
+  {
+    "id": 95,
+    "question": "Which step settings are correct for a SAW runbook? (Select THREE)",
+    "options": [
+      "Every step sets timeoutSeconds",
+      "Mutating steps set maxRetries: 1 explicitly",
+      "Mutating steps set maxRetries: 3 for reliability",
+      "Non-mutating steps can use maxRetries greater than 1",
+      "timeoutSeconds is only needed on aws:runCommand steps"
+    ],
+    "correctAnswers": [
+      0,
+      1,
+      3
+    ],
+    "explanation": "Timeouts on every step are an AppSec requirement. Retry reads, don't retry writes. Also set onCancel: Abort, and give every step onFailure plus either nextStep or isEnd.",
+    "domain": "SAW (Support Automation Workflows)"
+  },
+  {
+    "id": 96,
+    "question": "By default, how should a SAW runbook treat mutating actions?",
+    "options": [
+      "Execute them, since the customer started the runbook",
+      "Execute them only in us-east-1",
+      "Ask Support to approve them internally",
+      "Don't execute them unless the customer explicitly allows it (for example an aws:approve step or an explicit opt-in parameter); check permissions first and save state for rollback"
+    ],
+    "correctAnswers": [
+      3
+    ],
+    "explanation": "Safe by default. Also handle onFailure and onCancel so any resources the runbook created get cleaned up.",
+    "domain": "SAW (Support Automation Workflows)"
+  },
+  {
+    "id": 97,
+    "question": "A runbook needs to launch a temporary EC2 instance in the customer's account for diagnostics. Which safeguards apply? (Select THREE)",
+    "options": [
+      "Create it through a CloudFormation stack with onFailure: DELETE, and offer a way to destroy the stack",
+      "Require IMDSv2 on the instance",
+      "Write diagnostic files to /tmp on the instance",
+      "Get customer acknowledgment with an aws:approve step and disclose the costs in the document description",
+      "Use maxRetries: 3 on the create step"
+    ],
+    "correctAnswers": [
+      0,
+      1,
+      3
+    ],
+    "explanation": "Also: a least-privilege security group, onCancel cleanup, and a disclaimer not to modify the created resources.\n\nOn instances, use the SSM agent's working directories (for example /var/lib/amazon/ssm/ on Linux), not system temp directories.",
+    "domain": "SAW (Support Automation Workflows)"
+  },
+  {
+    "id": 98,
+    "question": "A SAW automation document is getting too big because of embedded Python. What's the limit and the fix?",
+    "options": [
+      "1 MB; split it into two runbooks",
+      "64 KB; move the code into document attachments (a zip extracted at runtime), which also allows modules like lib/helpers.py",
+      "No limit",
+      "16 KB; minify the Python"
+    ],
+    "correctAnswers": [
+      1
+    ],
+    "explanation": "Attachments keep the document under 64 KB and let you structure the code properly.",
+    "domain": "SAW (Support Automation Workflows)"
+  },
+  {
+    "id": 99,
+    "question": "A SAW package build fails with a ROBOT framework schema error. What's the most common cause?",
+    "options": [
+      "A step is missing nextStep or isEnd (or another required field like timeoutSeconds or onFailure)",
+      "Black reformatted the Python",
+      "The runbook name is too short",
+      "The CDK version is wrong"
+    ],
+    "correctAnswers": [
+      0
+    ],
+    "explanation": "ROBOT validates the SSM document schema. Open the generated report (schema/data/report.html) to see which constraint failed, often a oneOf over nextStep / isEnd.",
+    "domain": "SAW (Support Automation Workflows)"
+  },
+  {
+    "id": 100,
+    "question": "Which naming and input rules apply to SAW runbooks? (Select TWO)",
+    "options": [
+      "The document name is prefixed AWSSupport- (or AWSPremiumSupport- for Business/Enterprise-only runbooks)",
+      "Input parameters use snake_case",
+      "Every input parameter needs an allowedPattern, allowedValues or a self-populating input, and regex patterns must be checked for ReDoS",
+      "Optional parameters must not have default values"
+    ],
+    "correctAnswers": [
+      0,
+      2
+    ],
+    "explanation": "Parameters and step names use PascalCase (steps up to 40 characters, branch steps start with BranchOn). Required parameters have no default; optional ones must have one.",
+    "domain": "SAW (Support Automation Workflows)"
+  },
+  {
+    "id": 101,
+    "question": "A runbook needs log-collection logic that an existing runbook already implements. What's the recommended approach?",
+    "options": [
+      "Copy the logic into an aws:executeScript step",
+      "Call the other runbook's SSM API from inside an aws:executeScript Python step",
+      "Rewrite it as a Dante script",
+      "Reuse it with an aws:executeAutomation step"
+    ],
+    "correctAnswers": [
+      3
+    ],
+    "explanation": "DRY: reuse existing runbooks. Don't call other SSM documents or RunCommand from inside executeScript; use the aws:executeAutomation and aws:runCommand actions directly so the engine tracks them.",
+    "domain": "SAW (Support Automation Workflows)"
+  },
+  {
+    "id": 102,
+    "question": "A runbook writes collected data to an S3 bucket. Which requirements apply?",
+    "options": [
+      "Any bucket name is fine as long as it's private",
+      "Make the bucket public-read so engineers can fetch the files",
+      "Enforce SSE and versioning, block world-readable access, require TLS 1.2+, use an unpredictable name (for example including the execution id), and verify the account id for cross-account buckets",
+      "Use the customer's default bucket"
+    ],
+    "correctAnswers": [
+      2
+    ],
+    "explanation": "Predictable bucket names invite bucket squatting and data leaks. The rest is standard data protection for customer data.",
+    "domain": "SAW (Support Automation Workflows)"
+  },
+  {
+    "id": 103,
+    "question": "describeRouteTables with filter association.subnet-id = the instance's subnet returns nothing. What route table is the subnet using?",
+    "options": [
+      "None, so the subnet has no routing",
+      "The VPC's main route table (implicit association): query with vpc-id plus association.main = true",
+      "The route table of the instance's ENI",
+      "The default VPC's route table"
+    ],
+    "correctAnswers": [
+      1
+    ],
+    "explanation": "Subnets without an explicit association fall back to the main route table, a classic trap in automated diagnostics.",
+    "domain": "AWS Diagnostic Reasoning"
+  },
+  {
+    "id": 104,
+    "question": "Instance A can't reach Instance B in another subnet. Which statement about NACLs vs security groups is correct?",
+    "options": [
+      "Both are stateful",
+      "Both are stateless",
+      "Security groups are stateless and NACLs are stateful",
+      "NACLs are stateless (inbound and outbound, including ephemeral return ports, must be allowed on BOTH subnets); security groups are stateful (return traffic is allowed automatically)"
+    ],
+    "correctAnswers": [
+      3
+    ],
+    "explanation": "For A to B you need: routes both ways, NACL rules in both directions on both subnets, B's SG inbound from A (by IP or SG), and A's SG outbound to B.",
+    "domain": "AWS Diagnostic Reasoning"
+  },
+  {
+    "id": 105,
+    "question": "A VPC-attached Lambda times out calling AWS APIs. Which causes are plausible? (Select THREE)",
+    "options": [
+      "Its subnet has no route to a NAT gateway (Lambda ENIs never get public IPs)",
+      "The NAT gateway sits in a subnet without a route to an internet gateway",
+      "Lambda functions can never call AWS APIs from a VPC",
+      "There's no VPC endpoint for the service and no NAT path",
+      "The function uses Python instead of Node.js"
+    ],
+    "correctAnswers": [
+      0,
+      1,
+      3
+    ],
+    "explanation": "Also check the security group allows outbound 443, the timeout covers cold start, and the subnet has free IPs for ENIs.",
+    "domain": "AWS Diagnostic Reasoning"
+  },
+  {
+    "id": 106,
+    "question": "How do you tell whether a subnet is public?",
+    "options": [
+      "mapPublicIpOnLaunch is true",
+      "Its name contains 'public'",
+      "Its route table (explicit or main) has a 0.0.0.0/0 route to an internet gateway (igw-)",
+      "It has a NAT gateway in it"
+    ],
+    "correctAnswers": [
+      2
+    ],
+    "explanation": "Public means routed to an IGW. mapPublicIpOnLaunch only controls auto-assigning public IPs. A 0.0.0.0/0 route to a NAT gateway means private with outbound-only access.",
+    "domain": "AWS Diagnostic Reasoning"
+  },
+  {
+    "id": 107,
+    "question": "How does `aws ec2 describe-instances --instance-ids i-1 --filters \"Name=instance-state-name,Values=running\" --query 'Reservations[].Instances[].InstanceId'` translate to a Dante K2 call?",
+    "options": [
+      "apiName 'ec2.describeInstances', inputArgsAsJson { instanceIds: ['i-1'], filters: [{ name: 'instance-state-name', values: ['running'] }] }, with the --query projection done in code afterward",
+      "apiName 'describe-instances', inputArgsAsJson { '--instance-ids': 'i-1' }",
+      "apiName 'ec2.describeInstances' with the JMESPath string passed as a query argument",
+      "K2 doesn't support filters"
+    ],
+    "correctAnswers": [
+      0
+    ],
+    "explanation": "<service>.<camelCaseAction>, kebab-case parameters become camelCase, filter strings become arrays of { name, values }, region becomes a top-level argument, and --query/--output have no equivalent (map and filter the response in code).",
+    "domain": "AWS Diagnostic Reasoning"
+  },
+  {
+    "id": 108,
+    "question": "Which API chain answers 'what IAM permissions does this EC2 instance have'?",
+    "options": [
+      "iam.getUser on the instance id",
+      "ec2.describeInstances → iamInstanceProfile ARN → iam.getInstanceProfile → role name → list attached and inline role policies",
+      "sts.getCallerIdentity from the script",
+      "ec2.describeSecurityGroups"
+    ],
+    "correctAnswers": [
+      1
+    ],
+    "explanation": "An instance has an instance profile, which contains a role, which has policies.\n\nDiagnostic scripts are mostly about knowing which ID connects one API's output to the next API's input.",
+    "domain": "AWS Diagnostic Reasoning"
+  },
+  {
+    "id": 109,
+    "question": "How does the Troubleshooting Console (TSC) manage state?",
+    "options": [
+      "Everything lives in React Context",
+      "Only component-level useState",
+      "Redux Toolkit for global application state (for example Script Runner's activeScript and listScripts slices, with thunks for async Dante API calls), React Context for rarely-changing values from Command Center (current account, case), and useState for local UI state",
+      "Browser localStorage"
+    ],
+    "correctAnswers": [
+      2
+    ],
+    "explanation": "Three levels: global (Redux), parent-app values (Context), local (component state).",
+    "domain": "TSC / React State"
+  },
+  {
+    "id": 110,
+    "question": "Why use Redux rather than React Context for TSC's frequently-changing execution state?",
+    "options": [
+      "Context can't hold objects",
+      "Redux is required by Cloudscape",
+      "Context is deprecated",
+      "Context re-renders every consumer on any change, while Redux selectors re-render only components whose slice changed; Redux also gives predictable async state transitions (pending/fulfilled/rejected) and time-travel debugging"
+    ],
+    "correctAnswers": [
+      3
+    ],
+    "explanation": "Context fits values that rarely change. Redux fits state that changes often and is shared widely, especially async execution state.",
+    "domain": "TSC / React State"
   }
 ]
