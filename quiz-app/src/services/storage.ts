@@ -27,6 +27,7 @@ export const STORAGE_KEYS = {
   QUESTION_TAGS: 'epl_question_tags',
   STUDY_STATE: 'epl_study_state',
   THEME: 'epl_theme',
+  LEARNER: 'epl_learner',
   // Legacy keys kept for backward-compat migration
   QUIZ_ANALYTICS: 'quizAnalytics',
   SELECTED_EXAM: 'selectedExam',
@@ -198,9 +199,23 @@ export const StorageService = {
     return { bytes, percentage: (bytes / quota) * 100 };
   },
 
-  /** Remove all Exam Prep Lab keys from localStorage. */
+  // ── Learner (epl_learner) ─────────────────────────────────────────────────
+  // Raw read/write only; shape checks and name rules live in services/learner.ts.
+
+  getLearnerRaw(): unknown {
+    return readJson<unknown>(STORAGE_KEYS.LEARNER, null);
+  },
+
+  saveLearnerRaw(learner: unknown): void {
+    writeJson(STORAGE_KEYS.LEARNER, learner);
+  },
+
+  /**
+   * Remove all Exam Prep Lab study data from localStorage. The Learner record
+   * is kept: its id never changes (SPEC §9.1).
+   */
   clearAllData(): void {
-    const eplKeys = Object.values(STORAGE_KEYS);
+    const eplKeys = Object.values(STORAGE_KEYS).filter((k) => k !== STORAGE_KEYS.LEARNER);
     for (const key of eplKeys) {
       localStorage.removeItem(key);
     }

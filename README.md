@@ -64,8 +64,7 @@ for the question/index JSON schemas.
 ## Deployment
 
 Pushing to `main` triggers the AWS Amplify build (`npm ci` → `npm run build`, publishing
-`dist/`). A manual S3 sync alternative is in `quiz-app/sync_to_s3.ps1` (reads bucket/credentials
-from a `.env` file in `quiz-app/`).
+`dist/`).
 
 ## License
 

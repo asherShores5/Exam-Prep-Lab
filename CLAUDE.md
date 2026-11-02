@@ -90,8 +90,6 @@ npx vitest run -t "SAP-C02 entry should have id"
 npx vitest         # watch mode
 ```
 
-Deploy outside Amplify (manual S3 sync): `pwsh ./sync_to_s3.ps1` (reads `BUCKET_NAME` / AWS creds from a `.env` file in `quiz-app/`).
-
 ## Architecture
 
 ### One question model — `LegacyQuestion`
