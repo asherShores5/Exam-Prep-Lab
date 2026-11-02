@@ -22,6 +22,33 @@ describe('B9: StorageService shape-checks stored JSON', () => {
     expect(StorageService.getReviewSessions()).toEqual([]);
     expect(StorageService.getStudyState()).toEqual([]);
   });
+
+  it('array readers drop entries of the wrong shape (e.g. epl_decks=[1,2])', () => {
+    const deck = { id: 'd1', name: 'Mine', examIds: ['EX'], createdAt: '2026-11-01T00:00:00.000Z' };
+    const card = {
+      id: 'c1', deckId: 'd1', front: 'Q', back: 'A', masteryLevel: 0,
+      createdAt: '2026-11-01T00:00:00.000Z', updatedAt: '2026-11-01T00:00:00.000Z',
+    };
+    const session = {
+      id: 's1', deckId: 'd1', totalCards: 3, knownCount: 2, stillLearningCount: 1, shuffled: false,
+      completedAt: '2026-11-01T00:00:00.000Z',
+    };
+    const state = {
+      examId: 'EX', questionId: 7, status: 'known', starred: true, masteryLevel: 1,
+      updatedAt: '2026-11-01T00:00:00.000Z',
+    };
+    localStorage.setItem(STORAGE_KEYS.DECKS, JSON.stringify([1, 2, null, { ...deck, examIds: 'EX' }, deck]));
+    localStorage.setItem(STORAGE_KEYS.FLASHCARDS, JSON.stringify(['x', { ...card, front: 5 }, card]));
+    localStorage.setItem(STORAGE_KEYS.REVIEW_SESSIONS, JSON.stringify([[], { ...session, totalCards: '3' }, session]));
+    localStorage.setItem(
+      STORAGE_KEYS.STUDY_STATE,
+      JSON.stringify([true, { ...state, status: 'mastered' }, { ...state, questionId: '7' }, state]),
+    );
+    expect(StorageService.getDecks()).toEqual([deck]);
+    expect(StorageService.getFlashcards()).toEqual([card]);
+    expect(StorageService.getReviewSessions()).toEqual([session]);
+    expect(StorageService.getStudyState()).toEqual([state]);
+  });
 });
 
 describe('B9: tagService tolerates a wrong-shaped store', () => {
@@ -49,6 +76,21 @@ describe('B9: object readers', () => {
       localStorage.setItem(STORAGE_KEYS.QUIZ_ANALYTICS, bad);
       expect(StorageService.getExamAnalytics()).toEqual({});
     }
+  });
+
+  it('getExamAnalytics drops exam entries and Results of the wrong shape', () => {
+    const result = { date: '2026-11-01T00:00:00.000Z', score: 8, totalQuestions: 10, timeSpent: 90, percentage: 80 };
+    const entry = { results: [result], averageScore: 80, bestScore: 80, totalAttempts: 1, averageTime: 90 };
+    localStorage.setItem(
+      STORAGE_KEYS.QUIZ_ANALYTICS,
+      JSON.stringify({
+        A: 1,
+        B: { ...entry, results: 'none' },
+        C: { ...entry, results: [null, { ...result, percentage: '80' }, result] },
+        D: entry,
+      }),
+    );
+    expect(StorageService.getExamAnalytics()).toEqual({ C: entry, D: entry });
   });
 });
 

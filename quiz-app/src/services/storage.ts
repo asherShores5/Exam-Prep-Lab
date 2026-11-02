@@ -10,6 +10,7 @@
 
 import type {
   ExamAnalytics,
+  QuizResult,
   Deck,
   Flashcard,
   ReviewSession,
@@ -82,6 +83,61 @@ function readJson<T>(key: string, fallback: T): T {
   }
 }
 
+// Per-entry guards: a wrong-shaped entry is dropped instead of crashing a reader later.
+// They check the fields the app relies on; optional fields are not checked.
+type Rec = Record<string, unknown>;
+const isRec = (v: unknown): v is Rec => typeof v === 'object' && v !== null && !Array.isArray(v);
+const isStr = (v: unknown): v is string => typeof v === 'string';
+const isNum = (v: unknown): v is number => typeof v === 'number' && Number.isFinite(v);
+
+function isDeck(v: unknown): v is Deck {
+  return isRec(v) && isStr(v.id) && isStr(v.name) && Array.isArray(v.examIds) && v.examIds.every(isStr) && isStr(v.createdAt);
+}
+
+function isFlashcard(v: unknown): v is Flashcard {
+  return (
+    isRec(v) && isStr(v.id) && isStr(v.deckId) && isStr(v.front) && isStr(v.back) &&
+    isNum(v.masteryLevel) && isStr(v.createdAt) && isStr(v.updatedAt)
+  );
+}
+
+function isReviewSession(v: unknown): v is ReviewSession {
+  return (
+    isRec(v) && isStr(v.id) && isStr(v.deckId) && isNum(v.totalCards) && isNum(v.knownCount) &&
+    isNum(v.stillLearningCount) && typeof v.shuffled === 'boolean' && isStr(v.completedAt)
+  );
+}
+
+function isStudyState(v: unknown): v is QuestionStudyState {
+  return (
+    isRec(v) && isStr(v.examId) && Number.isInteger(v.questionId) &&
+    (v.status === 'unrated' || v.status === 'still-learning' || v.status === 'known') &&
+    typeof v.starred === 'boolean' && isNum(v.masteryLevel) && isStr(v.updatedAt)
+  );
+}
+
+function isQuizResult(v: unknown): v is QuizResult {
+  return (
+    isRec(v) && isStr(v.date) && isNum(v.score) && isNum(v.totalQuestions) &&
+    isNum(v.timeSpent) && isNum(v.percentage)
+  );
+}
+
+/** Keep exam entries with the expected fields; drop the wrong-shaped Results inside them. */
+function cleanAnalytics(raw: Rec): ExamAnalytics {
+  const out: ExamAnalytics = {};
+  for (const [examId, e] of Object.entries(raw)) {
+    if (!isRec(e) || !Array.isArray(e.results)) continue;
+    if (![e.averageScore, e.bestScore, e.totalAttempts, e.averageTime].every(isNum)) continue;
+    out[examId] = { ...(e as ExamAnalytics[string]), results: e.results.filter(isQuizResult) };
+  }
+  return out;
+}
+
+function readArray<T>(key: string, isEntry: (v: unknown) => v is T): T[] {
+  return readJson<unknown[]>(key, []).filter(isEntry);
+}
+
 function writeJson<T>(key: string, value: T): void {
   writeRaw(key, JSON.stringify(value));
 }
@@ -112,7 +168,7 @@ export const StorageService = {
   // ── Legacy: quiz analytics (quizAnalytics key) ────────────────────────────
 
   getExamAnalytics(): ExamAnalytics {
-    return readJson<ExamAnalytics>(STORAGE_KEYS.QUIZ_ANALYTICS, {});
+    return cleanAnalytics(readJson<Rec>(STORAGE_KEYS.QUIZ_ANALYTICS, {}));
   },
 
   saveExamAnalytics(analytics: ExamAnalytics): void {
@@ -142,7 +198,7 @@ export const StorageService = {
   // ── Decks ─────────────────────────────────────────────────────────────────
 
   getDecks(): Deck[] {
-    return readJson<Deck[]>(STORAGE_KEYS.DECKS, []);
+    return readArray(STORAGE_KEYS.DECKS, isDeck);
   },
 
   saveDecks(decks: Deck[]): void {
@@ -152,7 +208,7 @@ export const StorageService = {
   // ── Flashcards ────────────────────────────────────────────────────────────
 
   getFlashcards(): Flashcard[] {
-    return readJson<Flashcard[]>(STORAGE_KEYS.FLASHCARDS, []);
+    return readArray(STORAGE_KEYS.FLASHCARDS, isFlashcard);
   },
 
   saveFlashcards(flashcards: Flashcard[]): void {
@@ -162,7 +218,7 @@ export const StorageService = {
   // ── Review sessions ───────────────────────────────────────────────────────
 
   getReviewSessions(): ReviewSession[] {
-    return readJson<ReviewSession[]>(STORAGE_KEYS.REVIEW_SESSIONS, []);
+    return readArray(STORAGE_KEYS.REVIEW_SESSIONS, isReviewSession);
   },
 
   saveReviewSessions(sessions: ReviewSession[]): void {
@@ -182,7 +238,7 @@ export const StorageService = {
   // ── Per-question study state (epl_study_state) ────────────────────────────
 
   getStudyState(): QuestionStudyState[] {
-    return readJson<QuestionStudyState[]>(STORAGE_KEYS.STUDY_STATE, []);
+    return readArray(STORAGE_KEYS.STUDY_STATE, isStudyState);
   },
 
   saveStudyState(state: QuestionStudyState[]): void {
