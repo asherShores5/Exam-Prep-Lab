@@ -258,3 +258,18 @@ describe("GET /admin/learners/{id}/activity", () => {
     expect(send).not.toHaveBeenCalled();
   });
 });
+
+describe("DynamoDB expressions", () => {
+  // DynamoDB rejects reserved words (e.g. `percent`) in expressions with a ValidationException,
+  // which a mocked client never raises. Aliasing every attribute avoids the whole class.
+  it("aliases every attribute in the Learners scan projection", async () => {
+    const { handler, send } = setup();
+    await handler(get(LEARNERS));
+    const input = send.mock.calls[0][0].input;
+    const names = (input.ProjectionExpression as string).split(",").map((s) => s.trim());
+    for (const n of names) {
+      expect(n, `bare attribute "${n}" in ProjectionExpression`).toMatch(/^#\w+$/);
+      expect(input.ExpressionAttributeNames[n]).toBeTruthy();
+    }
+  });
+});

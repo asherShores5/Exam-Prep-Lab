@@ -8,6 +8,8 @@
  */
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocumentClient, GetCommand, QueryCommand, ScanCommand } from "@aws-sdk/lib-dynamodb";
+
+const SCAN_ATTRIBUTES = ["PK", "SK", "name", "firstSeen", "lastSeen", "type", "examId", "mode", "at", "percent", "passed"] as const;
 import type { APIGatewayProxyEventV2WithJWTAuthorizer, APIGatewayProxyStructuredResultV2 } from "aws-lambda";
 
 export const LEARNERS_ROUTE = "GET /admin/learners";
@@ -118,8 +120,9 @@ async function listLearners(deps: AdminDeps): Promise<{ learners: LearnerSummary
       new ScanCommand({
         TableName: deps.tableName,
         // Only what the summary needs; Result details stay on the per-Learner timeline.
-        ProjectionExpression: "PK, SK, #name, firstSeen, lastSeen, #type, examId, #mode, #at, percent, passed",
-        ExpressionAttributeNames: { "#name": "name", "#type": "type", "#mode": "mode", "#at": "at" },
+        // Every attribute is aliased: DynamoDB rejects reserved words (`percent`, `name`, ...) bare.
+        ProjectionExpression: SCAN_ATTRIBUTES.map((a) => `#${a}`).join(", "),
+        ExpressionAttributeNames: Object.fromEntries(SCAN_ATTRIBUTES.map((a) => [`#${a}`, a])),
         ExclusiveStartKey: startKey,
       }),
     );
