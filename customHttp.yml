@@ -4,15 +4,15 @@
 # - style-src needs 'unsafe-inline': Radix Select injects <style> elements at runtime (its viewport
 #   scrollbar rule and react-remove-scroll's scroll lock, whose content is computed, so no hash).
 # - connect-src: the Activity/admin API (execute-api) and the Cognito token endpoint
-#   (infra/lib/api-stack.ts HOSTED_UI_PREFIX). The execute-api wildcard stays only until the first
-#   infra deploy; then pin it to the real API host (docs/DEPLOY-RUNBOOK.md step 6).
+#   (infra/lib/api-stack.ts HOSTED_UI_PREFIX). The API host was pinned after the first infra
+#   deploy (2026-11-02). If the API is ever recreated, update it here and in the test.
 # - This file is at the repo root because the Amplify app root is the repo root (the build spec
 #   does `cd quiz-app`).
 customHeaders:
   - pattern: '**/*'
     headers:
       - key: 'Content-Security-Policy'
-        value: "default-src 'self'; script-src 'self' 'sha256-XS4WPkNG+pgvCe8EFwc0/JYL7iAHITPuN0KmjBBRMC4='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://*.execute-api.us-west-1.amazonaws.com https://exampreplab-admin.auth.us-west-1.amazoncognito.com; manifest-src 'self'; worker-src 'self'; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self' https://exampreplab-admin.auth.us-west-1.amazoncognito.com"
+        value: "default-src 'self'; script-src 'self' 'sha256-XS4WPkNG+pgvCe8EFwc0/JYL7iAHITPuN0KmjBBRMC4='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://f2qdrtmrgh.execute-api.us-west-1.amazonaws.com https://exampreplab-admin.auth.us-west-1.amazoncognito.com; manifest-src 'self'; worker-src 'self'; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self' https://exampreplab-admin.auth.us-west-1.amazoncognito.com"
       - key: 'Strict-Transport-Security'
         value: 'max-age=31536000; includeSubDomains'
       - key: 'X-Content-Type-Options'
