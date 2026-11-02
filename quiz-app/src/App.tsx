@@ -15,6 +15,7 @@ import { validateExamQuestions } from './services/validateExam';
 import { shuffle } from './lib/shuffle';
 import { watchSystemTheme } from './services/theme';
 import { LearnerGate } from './components/learner/LearnerGate';
+import { startActivity, recordExamOpened } from './services/activity';
 
 // ---------------------------------------------------------------------------
 // QuizApp — root component
@@ -65,6 +66,14 @@ const QuizApp = () => {
   // Keep 'system' theme tracking live OS changes (initial theme is applied by
   // the no-FOUC script in index.html before React mounts).
   useEffect(() => watchSystemTheme(() => {}), []);
+
+  // Activity (SPEC §9.2): today's Visit + outbox flush on load and when back online.
+  useEffect(() => startActivity(), []);
+
+  // An Exam Opened each time the Learner switches to (or returns to) an Exam.
+  useEffect(() => {
+    if (selectedExam) recordExamOpened(selectedExam);
+  }, [selectedExam]);
 
   // Check storage usage on mount and warn if >80%
   useEffect(() => {

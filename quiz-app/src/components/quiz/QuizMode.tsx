@@ -11,6 +11,7 @@ import { getAllTagsForExam, filterByTag } from '../../services/tagService';
 import { shuffle } from '../../lib/shuffle';
 import { isAnswerCorrect, isSingleSelect } from '../../lib/answers';
 import { resolveSimPreset, isPass } from '../../lib/examSim';
+import { recordResult } from '../../services/activity';
 import { QuestionSkeleton } from '../ui/skeleton';
 import { useKeyboardNav } from '../../hooks/useKeyboardNav';
 import { useToast } from '../ui/toast';
@@ -145,6 +146,15 @@ export const QuizMode = ({ questions, selectedExam, simPreset, visible = true, o
 
       allAnalytics[selectedExam] = examAnalytics;
       StorageService.saveExamAnalytics(allAnalytics);
+      recordResult({
+        examId: selectedExam,
+        mode: simThreshold !== null ? 'sim' : 'quiz',
+        correct: score,
+        total: quizQuestions.length,
+        percent: result.percentage,
+        ...(simThreshold !== null ? { passed: isPass(result.percentage, simThreshold) } : {}),
+        timeSpentSec: timeSpent,
+      });
       setShouldSaveResult(false);
     }
   }, [shouldSaveResult, showResults, selectedExam, quizQuestions, timeSpent, simThreshold]);
