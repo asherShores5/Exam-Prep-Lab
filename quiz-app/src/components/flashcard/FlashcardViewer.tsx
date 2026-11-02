@@ -323,10 +323,13 @@ export const FlashcardViewer = ({
   // Local copy of questions for shuffle support (deck review mode)
   const [localQuestions, setLocalQuestions] = useState(questions);
 
-  // Sync localQuestions when the questions prop changes
+  // Sync localQuestions when the question SET changes. Parents rebuild the
+  // array every render, so key on content, not identity, or a shuffle resets (B10).
+  const questionsKey = questions.map(q => `${q.id}:${q.question}`).join('\u0000');
   useEffect(() => {
     setLocalQuestions(questions);
-  }, [questions]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [questionsKey]);
 
   // Swipe gesture support for touch navigation
   const cardContainerRef = useRef<HTMLDivElement>(null);
