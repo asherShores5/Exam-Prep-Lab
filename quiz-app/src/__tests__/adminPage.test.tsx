@@ -20,7 +20,7 @@ const LEARNERS = {
     {
       learnerId: A, name: 'Pat', firstSeen: '2026-10-01T10:00:00.000Z', lastSeen: '2026-11-01T10:00:00.000Z',
       exams: ['AWS-SAA-C03', 'PSM-I'], resultCount: 3,
-      latestScores: [
+      latestResults: [
         { examId: 'PSM-I', at: '2026-10-05T10:00:00.000Z', mode: 'sim', percent: 80, passed: true },
         { examId: 'AWS-SAA-C03', at: '2026-10-03T10:00:00.000Z', mode: 'quiz', percent: 50 },
       ],
@@ -78,7 +78,7 @@ describe('Admin Page', () => {
     expect(screen.queryByText(/what's your name/i)).not.toBeInTheDocument();
   });
 
-  it('lists Learners with first/last seen, exams, Result count and latest scores, using the bearer token', async () => {
+  it('lists Learners with first/last seen, exams, Result count and latest Results, using the bearer token', async () => {
     signedIn();
     const fetchFn = vi.fn().mockResolvedValue(json(200, LEARNERS));
     render(<AdminPage config={CONFIG} fetchFn={fetchFn} />);

@@ -186,10 +186,10 @@ function Learners({ api, onAuthLost }: { api: Api; onAuthLost: () => void }) {
               <div className="text-sm text-gray-400">
                 {l.exams.length ? l.exams.join(', ') : 'no exams'} · {l.resultCount} {l.resultCount === 1 ? 'Result' : 'Results'}
               </div>
-              {l.latestScores.length > 0 && (
+              {l.latestResults.length > 0 && (
                 <div className="text-sm text-gray-300">
-                  {l.latestScores
-                    .map((s) => [s.examId, `${Math.round(s.percent)}%`, s.mode, passText(s.passed)].filter(Boolean).join(' '))
+                  {l.latestResults
+                    .map((r) => [r.examId, `${Math.round(r.percent)}%`, r.mode, passText(r.passed)].filter(Boolean).join(' '))
                     .join(' · ')}
                 </div>
               )}

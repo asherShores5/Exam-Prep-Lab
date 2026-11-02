@@ -135,7 +135,7 @@ Its IAM role has only `dynamodb:GetItem`, `Query` and `Scan` on the table. All r
       "lastSeen": "2026-11-01T10:00:00.000Z",
       "exams": ["AWS-SAA-C03", "PSM-I"],                // sorted examIds from Exam Opened and Results
       "resultCount": 3,
-      "latestScores": [                                 // newest Result per exam, newest first
+      "latestResults": [                                 // newest Result per exam, newest first
         { "examId": "PSM-I", "at": "2026-10-05T10:00:00.000Z", "mode": "sim", "percent": 80, "passed": true }
       ]
     }

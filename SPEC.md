@@ -417,7 +417,7 @@ in `docs/adr/0001-small-backend-for-learner-activity.md`. Tickets live in `.scra
   Cognito hosted UI with PKCE (no client secret).
 - `GET /admin/learners` and `GET /admin/learners/{id}/activity` use a Cognito JWT authorizer
   that also checks the `admins` group.
-- The view lists Learners (name, first and last seen, exams, Result count, latest scores). Tap a
+- The view lists Learners (name, first and last seen, exams, Result count, latest Result per exam). Tap a
   Learner to see their Activity timeline. Plaintext-style lists, no charts.
 
 ### 9.4 Audit bug fixes  🟢 DONE
