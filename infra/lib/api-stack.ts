@@ -5,7 +5,6 @@ import {
   aws_apigatewayv2_authorizers as authorizers,
   aws_apigatewayv2_integrations as integrations,
   aws_cognito as cognito,
-  aws_budgets as budgets,
   aws_dynamodb as dynamodb,
   aws_lambda as lambda,
   aws_lambda_nodejs as nodejs,
@@ -23,7 +22,6 @@ export const ADMIN_REDIRECT_URLS = [`${SITE_ORIGIN}/admin`, `${DEV_ORIGIN}/admin
 /** Hosted UI at https://<prefix>.auth.<region>.amazoncognito.com (must be unique in the region). */
 export const HOSTED_UI_PREFIX = "exampreplab-admin";
 export const ADMIN_GROUP = "admins";
-const BUDGET_EMAIL = "asher.shores5@gmail.com";
 const INFRA_ROOT = path.join(__dirname, "..");
 
 export interface ApiStackProps extends StackProps {
@@ -165,27 +163,8 @@ export class ApiStack extends Stack {
       this.httpApi.addRoutes({ path: routePath, methods: [apigw.HttpMethod.GET], integration: adminIntegration, authorizer });
     }
 
-    new budgets.CfnBudget(this, "Budget", {
-      budget: {
-        // Coworker use costs cents; $1 catches a runaway (or a flood of fake Activity). Needs the
-        // `app` cost allocation tag active in Billing (it is, from the other apps).
-        budgetName: "exam-prep-lab-monthly",
-        budgetType: "COST",
-        timeUnit: "MONTHLY",
-        budgetLimit: { amount: 1, unit: "USD" },
-        costFilters: { TagKeyValue: [`user:app$${APP_TAG}`] },
-      },
-      notificationsWithSubscribers: [
-        {
-          notification: { notificationType: "ACTUAL", comparisonOperator: "GREATER_THAN", threshold: 80 },
-          subscribers: [{ subscriptionType: "EMAIL", address: BUDGET_EMAIL }],
-        },
-        {
-          notification: { notificationType: "FORECASTED", comparisonOperator: "GREATER_THAN", threshold: 100 },
-          subscribers: [{ subscriptionType: "EMAIL", address: BUDGET_EMAIL }],
-        },
-      ],
-    });
+    // The exam-prep-lab-monthly $1 budget (app=exam-prep-lab) is managed outside CDK, like the
+    // owner's other apps; it also covers the Amplify app, which CDK does not own.
 
     new CfnOutput(this, "ActivityApiUrl", { value: this.stage.url, description: "API base URL (VITE_ACTIVITY_API origin)" });
     new CfnOutput(this, "ActivityEndpoint", { value: `${this.stage.url}activity`, description: "POST /activity" });

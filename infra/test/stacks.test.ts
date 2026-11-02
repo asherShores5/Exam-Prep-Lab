@@ -121,16 +121,8 @@ describe("Activity API stack", () => {
     expect(dynamoActions(false)).toEqual(["dynamodb:GetItem", "dynamodb:Query", "dynamodb:Scan"]);
   });
 
-  it("has a $1/month budget on the app=exam-prep-lab cost tag", () => {
-    const { Budget, NotificationsWithSubscribers } = only(api, "AWS::Budgets::Budget").Properties;
-    expect(Budget).toMatchObject({
-      BudgetName: "exam-prep-lab-monthly",
-      BudgetType: "COST",
-      TimeUnit: "MONTHLY",
-      BudgetLimit: { Amount: 1, Unit: "USD" },
-      CostFilters: { TagKeyValue: ["user:app$exam-prep-lab"] },
-    });
-    expect(NotificationsWithSubscribers.length).toBeGreaterThan(0);
+  it("does not define the budget (managed outside CDK)", () => {
+    expect(Object.keys(api.findResources("AWS::Budgets::Budget"))).toHaveLength(0);
   });
 
   it("tags every taggable resource app=exam-prep-lab", () => {

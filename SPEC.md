@@ -400,7 +400,7 @@ in `docs/adr/0001-small-backend-for-learner-activity.md`. Tickets live in `.scra
   If it fails (offline or 5xx), the batch goes into `epl_activity_outbox`, capped at 200 items,
   oldest dropped first. The outbox is flushed on the next load or `online` event.
 - Infra: a new `infra/` CDK app (TypeScript) in us-west-1, account 334772842524, tag
-  `app=exam-prep-lab`, $1/month tag budget. It contains:
+  `app=exam-prep-lab` ($1/month tag budget `exam-prep-lab-monthly` created by hand 2026-11-02, outside CDK; Amplify app tagged too). It contains:
   - an HTTP API with CORS limited to `https://exampreplab.ashershores.com` and
     `http://localhost:5173`, and stage throttling of 5 rps with a burst of 20;
   - a Node 22 Lambda that validates and caps input: name 40 chars, 20 activities per request,

@@ -10,8 +10,8 @@ Site hosting stays on Amplify; this app is only the API.
   `content-type` and `authorization` headers from `https://exampreplab.ashershores.com` and
   `http://localhost:5173`), the write-only Activity Lambda (`src/activity/handler.ts`), the
   read-only admin Lambda (`src/admin/handler.ts`), the DynamoDB table (on-demand, PITR, RETAIN,
-  deletion protection, no TTL), the admin Cognito pool and the `exam-prep-lab-monthly` $1 budget
-  on the `app` cost tag.
+  deletion protection, no TTL), and the admin Cognito pool. The `exam-prep-lab-monthly` $1 budget on the `app`
+  cost tag is managed outside CDK (created 2026-11-02; the Amplify app is tagged too).
   Outputs: `ActivityApiUrl`, `ActivityEndpoint`, `TableName`, `UserPoolId`, `ClientId`, `HostedUiDomain`.
 - `ExamPrepLabCi`: role `exam-prep-lab-github-deploy`, assumable only by GitHub OIDC tokens with
   `sub = repo:asherShores5/Exam-Prep-Lab:environment:production`; it can only assume the CDK
