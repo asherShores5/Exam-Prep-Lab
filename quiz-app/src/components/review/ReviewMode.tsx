@@ -18,6 +18,15 @@ export const ReviewMode = ({ questions, shuffleQuestions, examId }: ReviewModePr
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showAnswer, setShowAnswer] = useState(false);
 
+  // B2: a new question list (exam switch, shuffle) starts again at question 1.
+  // Reset during render so a stale index never reaches the JSX below.
+  const [prevQuestions, setPrevQuestions] = useState(questions);
+  if (questions !== prevQuestions) {
+    setPrevQuestions(questions);
+    setCurrentIndex(0);
+    setShowAnswer(false);
+  }
+
   const lastIndex = questions.length - 1;
   useKeyboardNav({
     enabled: questions.length > 0,
@@ -28,16 +37,18 @@ export const ReviewMode = ({ questions, shuffleQuestions, examId }: ReviewModePr
 
   if (!questions.length) return <QuestionSkeleton />;
 
-  const question = questions[currentIndex];
+  // Clamp as well, so this render is safe even before the reset above applies.
+  const index = Math.min(currentIndex, lastIndex);
+  const question = questions[index];
 
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <div className="text-sm text-gray-400">
-          Question {currentIndex + 1} of {questions.length}
+          Question {index + 1} of {questions.length}
         </div>
         <div className="flex items-center gap-1">
-          <StarToggle key={question.id ?? currentIndex} examId={examId} questionId={question.id} size="md" />
+          <StarToggle key={question.id ?? index} examId={examId} questionId={question.id} size="md" />
           <Button variant="outline" size="sm" onClick={shuffleQuestions}>
             <Shuffle className="w-4 h-4 mr-2" />
             Shuffle
@@ -71,7 +82,7 @@ export const ReviewMode = ({ questions, shuffleQuestions, examId }: ReviewModePr
           <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-between">
             <Button
               onClick={() => { setCurrentIndex(i => Math.max(0, i - 1)); setShowAnswer(false); }}
-              disabled={currentIndex === 0}
+              disabled={index === 0}
             >
               Previous
             </Button>
@@ -80,7 +91,7 @@ export const ReviewMode = ({ questions, shuffleQuestions, examId }: ReviewModePr
             </Button>
             <Button
               onClick={() => { setCurrentIndex(i => Math.min(questions.length - 1, i + 1)); setShowAnswer(false); }}
-              disabled={currentIndex === questions.length - 1}
+              disabled={index === lastIndex}
             >
               Next
             </Button>
