@@ -9,8 +9,6 @@ export const LIMITS = {
   /** A Result's question count. The biggest bank is well under this. */
   maxQuestions: 1000,
   maxTimeSpentSec: 86_400,
-  /** Clock skew allowed for `at`. */
-  atFutureMs: 5 * 60_000,
   /** How old a queued (outbox) Activity may be. */
   atPastMs: 90 * 86_400_000,
 } as const;
@@ -78,9 +76,9 @@ function parseAt(v: unknown, where: string, now: Date): string {
   if (typeof v !== "string" || !ISO_DATE_TIME.test(v)) return fail(`${where}.at must be an ISO date-time with a zone`);
   const ms = Date.parse(v);
   if (Number.isNaN(ms)) return fail(`${where}.at is not a real date`);
-  if (ms > now.getTime() + LIMITS.atFutureMs) fail(`${where}.at is in the future`);
   if (ms < now.getTime() - LIMITS.atPastMs) fail(`${where}.at is more than 90 days old`);
-  return new Date(ms).toISOString();
+  // A device clock running fast is not the Learner's fault: store server now instead of rejecting.
+  return new Date(Math.min(ms, now.getTime())).toISOString();
 }
 
 function parseExamId(v: unknown, where: string, ctx: ValidationContext): string {

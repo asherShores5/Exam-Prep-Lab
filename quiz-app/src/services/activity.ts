@@ -15,6 +15,10 @@ export const ACTIVITY_BATCH_SIZE = 20;
 export const ACTIVITY_OUTBOX_CAP = 200;
 /** The API rejects Activity older than 90 days, so the outbox drops it. */
 export const ACTIVITY_MAX_AGE_MS = 90 * 24 * 60 * 60 * 1000;
+/** A Result's question count must be 1..this. */
+export const ACTIVITY_MAX_QUESTIONS = 1000;
+/** A Result's timeSpentSec must be 0..this (one day). */
+export const ACTIVITY_MAX_TIME_SPENT_SEC = 86_400;
 
 export type ResultMode = 'quiz' | 'sim';
 
@@ -54,10 +58,10 @@ const clamp = (n: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, n
 /** Shape a Result to the API's ranges, or null if it can't be sent (no questions). */
 function toResultActivity(input: ResultInput, at: string): Activity | null {
   if (!Number.isFinite(input.total) || input.total < 1) return null;
-  const total = clamp(Math.round(input.total), 1, 1000);
+  const total = clamp(Math.round(input.total), 1, ACTIVITY_MAX_QUESTIONS);
   const correct = clamp(Math.round(input.correct || 0), 0, total);
   const percent = Math.round(clamp(input.percent || 0, 0, 100) * 100) / 100;
-  const timeSpentSec = clamp(Math.round(input.timeSpentSec || 0), 0, 86400);
+  const timeSpentSec = clamp(Math.round(input.timeSpentSec || 0), 0, ACTIVITY_MAX_TIME_SPENT_SEC);
   return {
     type: 'result',
     at,
@@ -71,15 +75,39 @@ function toResultActivity(input: ResultInput, at: string): Activity | null {
   };
 }
 
-function isActivity(value: unknown): value is Activity {
-  if (typeof value !== 'object' || value === null) return false;
+// Mirrors the per-item rules in infra/src/activity/validate.ts (the age limit is applied in
+// dropExpired, and known examIds are the server's call), so one bad item never costs a batch.
+const ISO_DATE_TIME = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{1,3})?(Z|[+-]\d{2}:\d{2})$/;
+const KEYS: Record<Activity['type'], readonly string[]> = {
+  visit: ['type', 'at'],
+  exam_opened: ['type', 'at', 'examId'],
+  result: ['type', 'at', 'examId', 'mode', 'correct', 'total', 'percent', 'passed', 'timeSpentSec'],
+};
+const intIn = (v: unknown, min: number, max: number): v is number =>
+  typeof v === 'number' && Number.isInteger(v) && v >= min && v <= max;
+
+/** True if the API would accept this item (shape, fields and ranges). */
+export function isValidActivity(value: unknown): value is Activity {
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) return false;
   const v = value as Record<string, unknown>;
-  return typeof v.type === 'string' && typeof v.at === 'string' && !Number.isNaN(Date.parse(v.at));
+  if (v.type !== 'visit' && v.type !== 'exam_opened' && v.type !== 'result') return false;
+  if (Object.keys(v).some((k) => !KEYS[v.type as Activity['type']].includes(k))) return false;
+  if (typeof v.at !== 'string' || !ISO_DATE_TIME.test(v.at) || Number.isNaN(Date.parse(v.at))) return false;
+  if (v.type === 'visit') return true;
+  if (typeof v.examId !== 'string' || v.examId.length === 0) return false;
+  if (v.type === 'exam_opened') return true;
+  if (v.mode !== 'quiz' && v.mode !== 'sim') return false;
+  if (!intIn(v.total, 1, ACTIVITY_MAX_QUESTIONS) || !intIn(v.correct, 0, v.total)) return false;
+  const { percent } = v;
+  if (typeof percent !== 'number' || !Number.isFinite(percent) || percent < 0 || percent > 100) return false;
+  if (Math.abs(percent - (v.correct / v.total) * 100) > 1) return false;
+  if (v.passed !== undefined && typeof v.passed !== 'boolean') return false;
+  return intIn(v.timeSpentSec, 0, ACTIVITY_MAX_TIME_SPENT_SEC);
 }
 
 function readOutbox(): Activity[] {
   try {
-    return StorageService.getActivityOutbox().filter(isActivity);
+    return StorageService.getActivityOutbox().filter(isValidActivity);
   } catch {
     return [];
   }
@@ -114,6 +142,24 @@ export function createActivityClient(deps: ActivityDeps) {
     if (fresh.length !== items.length) writeOutbox(fresh);
   }
 
+  /** POST one batch; the HTTP status, or null on a network error. */
+  async function post(learner: Learner, activities: Activity[]): Promise<number | null> {
+    try {
+      const res = await deps.fetch(endpoint, {
+        method: 'POST',
+        keepalive: true,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ learnerId: learner.learnerId, name: learner.name, activities }),
+      });
+      return res.status;
+    } catch {
+      return null; // offline / network error: keep for later
+    }
+  }
+
+  // 2xx = stored; 400 = will never be accepted, drop it. Anything else: retry later.
+  const isDone = (status: number | null) => status !== null && ((status >= 200 && status < 300) || status === 400);
+
   /** Send the outbox in batches; stop at the first retryable failure. */
   async function sendOutbox(): Promise<void> {
     const learner = deps.getLearner();
@@ -122,20 +168,17 @@ export function createActivityClient(deps: ActivityDeps) {
     for (;;) {
       const batch = readOutbox().slice(0, ACTIVITY_BATCH_SIZE);
       if (batch.length === 0) return;
-      let status: number;
-      try {
-        const res = await deps.fetch(endpoint, {
-          method: 'POST',
-          keepalive: true,
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ learnerId: learner.learnerId, name: learner.name, activities: batch }),
-        });
-        status = res.status;
-      } catch {
-        return; // offline / network error: keep for later
+      const status = await post(learner, batch);
+      if (status === 400 && batch.length > 1) {
+        // One bad item rejects the whole batch: retry each once so only the bad ones are dropped.
+        for (const item of batch) {
+          const itemStatus = await post(learner, [item]);
+          if (!isDone(itemStatus)) return;
+          removeSent([item]);
+        }
+        continue;
       }
-      // 2xx = stored; 400 = will never be accepted, drop it. Anything else: retry later.
-      if ((status >= 200 && status < 300) || status === 400) removeSent(batch);
+      if (isDone(status)) removeSent(batch);
       else return;
     }
   }
@@ -151,7 +194,7 @@ export function createActivityClient(deps: ActivityDeps) {
   }
 
   async function record(activity: Activity): Promise<void> {
-    if (!enabled) return;
+    if (!enabled || !isValidActivity(activity)) return;
     try {
       writeOutbox([...readOutbox(), activity].slice(-ACTIVITY_OUTBOX_CAP));
     } catch {
