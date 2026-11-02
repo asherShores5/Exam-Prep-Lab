@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Flag } from 'lucide-react';
 import { Card, CardContent } from '../ui/card';
 import { Modal } from '../ui/Modal';
@@ -11,12 +11,14 @@ import { getAllTagsForExam, filterByTag } from '../../services/tagService';
 import { shuffle } from '../../lib/shuffle';
 import { isAnswerCorrect, isSingleSelect } from '../../lib/answers';
 import { resolveSimPreset, isPass } from '../../lib/examSim';
+import { recordResult } from '../../services/activity';
 import { QuestionSkeleton } from '../ui/skeleton';
 import { useKeyboardNav } from '../../hooks/useKeyboardNav';
 import { useToast } from '../ui/toast';
 import { StarToggle } from '../flashcard/StarToggle';
 import { DomainBadge, ExplanationBlock } from '../flashcard/FlashcardViewer';
 import { getPracticeIncorrectIds } from '../../services/studyState';
+import { useQuizTimer } from '../../lib/quizTimer';
 
 // ---------------------------------------------------------------------------
 // QuizMode
@@ -40,7 +42,6 @@ export const QuizMode = ({ questions, selectedExam, simPreset, visible = true, o
   const [quizStarted, setQuizStarted] = useState(false);
   const [timeLimit, setTimeLimit] = useState(30);
   const [questionCount, setQuestionCount] = useState(10);
-  const [timeRemaining, setTimeRemaining] = useState(0);
   const [quizQuestions, setQuizQuestions] = useState<LegacyQuestion[]>([]);
   const [shouldSaveResult, setShouldSaveResult] = useState(false);
   const [selectedDomain, setSelectedDomain] = useState<string>('all');
@@ -74,21 +75,15 @@ export const QuizMode = ({ questions, selectedExam, simPreset, visible = true, o
     setSelectedTags([]);
   }, [selectedExam]);
 
-  useEffect(() => {
-    if (quizStarted && timeRemaining > 0) {
-      const timer = setInterval(() => {
-        setTimeRemaining(time => {
-          if (time <= 1) {
-            setShowResults(true);
-            setShouldSaveResult(true);
-            return 0;
-          }
-          return time - 1;
-        });
-      }, 1000);
-      return () => clearInterval(timer);
-    }
-  }, [quizStarted, timeRemaining]);
+  // Deadline-based countdown (B8); stops once results show.
+  const onTimeUp = useCallback(() => {
+    setShowResults(true);
+    setShouldSaveResult(true);
+  }, []);
+  const { remaining: timeRemaining, timeSpent, start: startTimer } = useQuizTimer(
+    quizStarted && !showResults,
+    onTimeUp,
+  );
 
   // One-shot low-time warning toast at the 60-second mark.
   useEffect(() => {
@@ -101,7 +96,6 @@ export const QuizMode = ({ questions, selectedExam, simPreset, visible = true, o
   useEffect(() => {
     if (shouldSaveResult && showResults && selectedExam) {
       const score = calculateScore();
-      const timeSpent = timeLimit * 60 - timeRemaining;
 
       // Build per-domain breakdown to persist with this result
       const domainMap = new Map<string, { correct: number; total: number }>();
@@ -152,9 +146,18 @@ export const QuizMode = ({ questions, selectedExam, simPreset, visible = true, o
 
       allAnalytics[selectedExam] = examAnalytics;
       StorageService.saveExamAnalytics(allAnalytics);
+      recordResult({
+        examId: selectedExam,
+        mode: simThreshold !== null ? 'sim' : 'quiz',
+        correct: score,
+        total: quizQuestions.length,
+        percent: result.percentage,
+        ...(simThreshold !== null ? { passed: isPass(result.percentage, simThreshold) } : {}),
+        timeSpentSec: timeSpent,
+      });
       setShouldSaveResult(false);
     }
-  }, [shouldSaveResult, showResults, selectedExam, quizQuestions, timeLimit, timeRemaining, simThreshold]);
+  }, [shouldSaveResult, showResults, selectedExam, quizQuestions, timeSpent, simThreshold]);
 
   /** Start a quiz from a given pool. `count` caps the question count;
    * `minutes` sets the timer; `threshold` (percent) marks this as an Exam
@@ -168,7 +171,7 @@ export const QuizMode = ({ questions, selectedExam, simPreset, visible = true, o
     const shuffled = shuffle(pool);
     const picked = shuffled.slice(0, count);
     setQuizQuestions(picked);
-    setTimeRemaining(minutes * 60);
+    startTimer(minutes);
     setAnswers(Array.from({ length: picked.length }, () => []));
     setCurrentIndex(0);
     setQuizStarted(true);

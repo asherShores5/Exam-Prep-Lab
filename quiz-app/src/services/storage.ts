@@ -28,6 +28,8 @@ export const STORAGE_KEYS = {
   STUDY_STATE: 'epl_study_state',
   THEME: 'epl_theme',
   LEARNER: 'epl_learner',
+  ACTIVITY_OUTBOX: 'epl_activity_outbox',
+  ACTIVITY_LAST_VISIT: 'epl_activity_last_visit',
   // Legacy keys kept for backward-compat migration
   QUIZ_ANALYTICS: 'quizAnalytics',
   SELECTED_EXAM: 'selectedExam',
@@ -210,12 +212,37 @@ export const StorageService = {
     writeJson(STORAGE_KEYS.LEARNER, learner);
   },
 
+  // ── Activity outbox (epl_activity_outbox) + last Visit day ───────────────
+  // Raw read/write only; entry shape and send rules live in services/activity.ts.
+
+  getActivityOutbox(): unknown[] {
+    return readJson<unknown[]>(STORAGE_KEYS.ACTIVITY_OUTBOX, []);
+  },
+
+  saveActivityOutbox(items: unknown[]): void {
+    writeJson(STORAGE_KEYS.ACTIVITY_OUTBOX, items);
+  },
+
+  getActivityLastVisit(): string | null {
+    return localStorage.getItem(STORAGE_KEYS.ACTIVITY_LAST_VISIT);
+  },
+
+  saveActivityLastVisit(day: string): void {
+    writeRaw(STORAGE_KEYS.ACTIVITY_LAST_VISIT, day);
+  },
+
   /**
    * Remove all Exam Prep Lab study data from localStorage. The Learner record
-   * is kept: its id never changes (SPEC §9.1).
+   * is kept: its id never changes (SPEC §9.1). Unsent Activity and the last
+   * Visit day are kept too: they are not study data.
    */
   clearAllData(): void {
-    const eplKeys = Object.values(STORAGE_KEYS).filter((k) => k !== STORAGE_KEYS.LEARNER);
+    const kept: string[] = [
+      STORAGE_KEYS.LEARNER,
+      STORAGE_KEYS.ACTIVITY_OUTBOX,
+      STORAGE_KEYS.ACTIVITY_LAST_VISIT,
+    ];
+    const eplKeys = Object.values(STORAGE_KEYS).filter((k) => !kept.includes(k));
     for (const key of eplKeys) {
       localStorage.removeItem(key);
     }
