@@ -31,6 +31,9 @@ export default defineConfig({
         // deliberately NOT in this glob (no `.json`) so the ~4MB of banks don't
         // bloat the install — they're runtime-cached on first view instead.
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+        // The Admin Page chunk (src/admin/AdminApp.tsx, lazy) is not precached, so a Learner's
+        // service worker never downloads it (SPEC §9.3).
+        globIgnores: ['**/AdminApp-*.js'],
         navigateFallback: '/index.html',
         // Exam index + per-exam banks: NetworkFirst with offline cache fallback,
         // JSON-only (see src/lib/examBankCaching.ts, B11).

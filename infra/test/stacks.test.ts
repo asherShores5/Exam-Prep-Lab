@@ -25,10 +25,26 @@ describe("Activity API stack", () => {
     expect(built.ci.region).toBe("us-west-1");
   });
 
-  it("is an HTTP API with exactly one public route, POST /activity, and no read route", () => {
+  it("has one public write route and two admin read routes behind the Cognito JWT authorizer", () => {
     only(api, "AWS::ApiGatewayV2::Api");
-    const routes = Object.values(api.findResources("AWS::ApiGatewayV2::Route")).map((r: any) => r.Properties.RouteKey);
-    expect(routes).toEqual(["POST /activity"]);
+    const routes = Object.fromEntries(
+      Object.values(api.findResources("AWS::ApiGatewayV2::Route")).map((r: any) => [r.Properties.RouteKey, r.Properties]),
+    );
+    expect(Object.keys(routes).sort()).toEqual(["GET /admin/learners", "GET /admin/learners/{id}/activity", "POST /activity"]);
+    expect(routes["POST /activity"].AuthorizationType ?? "NONE").toBe("NONE");
+    for (const key of ["GET /admin/learners", "GET /admin/learners/{id}/activity"]) {
+      expect(routes[key].AuthorizationType).toBe("JWT");
+      expect(routes[key].AuthorizerId).toBeDefined();
+    }
+  });
+
+  it("verifies admin tokens against this user pool and its web client", () => {
+    const authorizer = only(api, "AWS::ApiGatewayV2::Authorizer").Properties;
+    expect(authorizer).toMatchObject({ AuthorizerType: "JWT", IdentitySource: ["$request.header.Authorization"] });
+    const [poolId] = Object.keys(api.findResources("AWS::Cognito::UserPool"));
+    const [clientId] = Object.keys(api.findResources("AWS::Cognito::UserPoolClient"));
+    expect(JSON.stringify(authorizer.JwtConfiguration.Issuer)).toContain(poolId);
+    expect(authorizer.JwtConfiguration.Audience).toEqual([{ Ref: clientId }]);
   });
 
   it("throttles the stage to 5 requests a second with a burst of 20", () => {
@@ -43,8 +59,8 @@ describe("Activity API stack", () => {
   it("allows CORS only from the live site and the local dev server", () => {
     const { CorsConfiguration } = only(api, "AWS::ApiGatewayV2::Api").Properties;
     expect([...CorsConfiguration.AllowOrigins].sort()).toEqual(["http://localhost:5173", "https://exampreplab.ashershores.com"]);
-    expect(CorsConfiguration.AllowMethods).toEqual(["POST"]);
-    expect(CorsConfiguration.AllowHeaders).toEqual(["content-type"]);
+    expect([...CorsConfiguration.AllowMethods].sort()).toEqual(["GET", "POST"]);
+    expect([...CorsConfiguration.AllowHeaders].sort()).toEqual(["authorization", "content-type"]);
     expect(CorsConfiguration.AllowCredentials).toBeFalsy();
   });
 
@@ -64,6 +80,14 @@ describe("Activity API stack", () => {
     });
   });
 
+  it("runs the admin handler as a separate Node 22 function with only the table name", () => {
+    api.hasResourceProperties("AWS::Lambda::Function", {
+      Runtime: "nodejs22.x",
+      Environment: { Variables: { TABLE_NAME: Match.anyValue() } },
+    });
+    expect(Object.keys(api.findResources("AWS::Lambda::Function", { Properties: { Runtime: "nodejs22.x" } }))).toHaveLength(2);
+  });
+
   it("runs the handler on Node 22 with the table name and every known examId from index.json", () => {
     api.hasResourceProperties("AWS::Lambda::Function", {
       Runtime: "nodejs22.x",
@@ -74,11 +98,27 @@ describe("Activity API stack", () => {
     });
   });
 
-  it("lets the Lambda write items but never read, query or scan them", () => {
-    const actions = Object.values(api.findResources("AWS::IAM::Policy"))
+  /** DynamoDB actions granted to the role of the function whose env has (or lacks) KNOWN_EXAM_IDS. */
+  const dynamoActions = (isActivityFn: boolean) => {
+    const fns = Object.values(api.findResources("AWS::Lambda::Function")).filter(
+      (f: any) => f.Properties.Runtime === "nodejs22.x" && ("KNOWN_EXAM_IDS" in (f.Properties.Environment?.Variables ?? {})) === isActivityFn,
+    ) as any[];
+    expect(fns).toHaveLength(1);
+    const roleRef = fns[0].Properties.Role["Fn::GetAtt"][0];
+    return Object.values(api.findResources("AWS::IAM::Policy"))
+      .filter((p: any) => p.Properties.Roles.some((r: any) => r.Ref === roleRef))
       .flatMap((p: any) => p.Properties.PolicyDocument.Statement)
-      .flatMap((s: any) => [s.Action].flat());
-    expect(actions.filter((a: string) => a.startsWith("dynamodb:")).sort()).toEqual(["dynamodb:PutItem", "dynamodb:UpdateItem"]);
+      .flatMap((s: any) => [s.Action].flat())
+      .filter((a: string) => a.startsWith("dynamodb:"))
+      .sort();
+  };
+
+  it("lets the Activity Lambda write items but never read, query or scan them", () => {
+    expect(dynamoActions(true)).toEqual(["dynamodb:PutItem", "dynamodb:UpdateItem"]);
+  });
+
+  it("lets the admin Lambda read the table and nothing else", () => {
+    expect(dynamoActions(false)).toEqual(["dynamodb:GetItem", "dynamodb:Query", "dynamodb:Scan"]);
   });
 
   it("has a $1/month budget on the app=exam-prep-lab cost tag", () => {
@@ -106,8 +146,49 @@ describe("Activity API stack", () => {
     expect(only(api, "AWS::ApiGatewayV2::Api").Properties.Tags).toEqual({ app: "exam-prep-lab" });
   });
 
-  it("outputs the API base URL, the full /activity endpoint and the table name", () => {
-    expect(Object.keys(api.findOutputs("*")).sort()).toEqual(["ActivityApiUrl", "ActivityEndpoint", "TableName"]);
+  it("outputs the API base URL, the /activity endpoint, the table name and the Cognito settings the web app needs", () => {
+    expect(Object.keys(api.findOutputs("*")).sort()).toEqual([
+      "ActivityApiUrl", "ActivityEndpoint", "ClientId", "HostedUiDomain", "TableName", "UserPoolId",
+    ]);
+  });
+});
+
+describe("Admin sign-in (Cognito)", () => {
+  it("is a pool nobody can sign up to, with no recovery path and kept on stack delete", () => {
+    const pool = only(api, "AWS::Cognito::UserPool");
+    expect(pool.DeletionPolicy).toBe("Retain");
+    expect(pool.Properties).toMatchObject({
+      AdminCreateUserConfig: { AllowAdminCreateUserOnly: true },
+      AccountRecoverySetting: { RecoveryMechanisms: [{ Name: "admin_only", Priority: 1 }] },
+      DeletionProtection: "ACTIVE",
+    });
+    expect(pool.Properties.Policies.PasswordPolicy.MinimumLength).toBeGreaterThanOrEqual(16);
+  });
+
+  it("has an admins group and creates no users", () => {
+    expect(only(api, "AWS::Cognito::UserPoolGroup").Properties.GroupName).toBe("admins");
+    api.resourceCountIs("AWS::Cognito::UserPoolUser", 0);
+    api.resourceCountIs("AWS::Cognito::UserPoolUserToGroupAttachment", 0);
+  });
+
+  it("has a hosted UI domain", () => {
+    expect(only(api, "AWS::Cognito::UserPoolDomain").Properties.Domain).toBe("exampreplab-admin");
+  });
+
+  it("has one public web client using only the authorization code flow, back to /admin", () => {
+    const client = only(api, "AWS::Cognito::UserPoolClient").Properties;
+    expect(client.GenerateSecret).toBeFalsy();
+    expect(client.AllowedOAuthFlowsUserPoolClient).toBe(true);
+    expect(client.AllowedOAuthFlows).toEqual(["code"]);
+    expect(client.AllowedOAuthScopes).toEqual(["openid"]);
+    expect(client.SupportedIdentityProviders).toEqual(["COGNITO"]);
+    // No direct password/SRP/custom sign-in through this client; only the hosted UI.
+    expect(client.ExplicitAuthFlows).toEqual(["ALLOW_REFRESH_TOKEN_AUTH"]);
+    const urls = ["http://localhost:5173/admin", "https://exampreplab.ashershores.com/admin"];
+    expect([...client.CallbackURLs].sort()).toEqual(urls);
+    expect([...client.LogoutURLs].sort()).toEqual(urls);
+    expect(client.PreventUserExistenceErrors).toBe("ENABLED");
+    expect(client.EnableTokenRevocation).not.toBe(false);
   });
 });
 
