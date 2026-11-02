@@ -29,11 +29,11 @@ These constraints frame every decision below. They are settled, not open questio
 
 Measured 2026-11-02 after §9 landed (CI runs on Node 22):
 
-- `quiz-app`: `npm test` **183 passing / 0 failing** (17 files). `npm run assign-ids:check` passes
+- `quiz-app`: `npm test` **213 passing / 0 failing** (18 files). `npm run assign-ids:check` passes
   (11 Banks, none stale). `npm run build` succeeds and emits `sw.js` + `manifest.webmanifest`.
   `npm run lint` reports **0 errors + 2 warnings** (a QuizMode exhaustive-deps warning and a
   button.tsx react-refresh warning, both pre-existing and benign).
-- `infra`: `npm test` **109 passing / 0 failing** (5 files); `typecheck` and `synth` run in CI.
+- `infra`: `npm test` **110 passing / 0 failing** (5 files); `typecheck` and `synth` run in CI.
 
 > Before §9 (audit of `752e47f`) the app suite was 76 passing and `assign-ids:check` failed on 7
 > stale files. Test files live in `quiz-app/src/__tests__/` and `infra/test/`.
