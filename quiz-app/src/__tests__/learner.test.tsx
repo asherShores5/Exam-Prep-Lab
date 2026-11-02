@@ -79,7 +79,7 @@ describe('learner service', () => {
 
   it('strips control characters and collapses whitespace, so the API accepts any name it returns', () => {
     expect(normalizeLearnerName('Pat\n\tSmith')).toBe('Pat Smith');
-    expect(normalizeLearnerName('  Ada   \u0000 Lovelace  ')).toBe('Ada Lovelace');
+    expect(normalizeLearnerName('  Ada   \u0000 Lovelace\u2028 ')).toBe('Ada Lovelace');
     expect(normalizeLearnerName('Gr\u0085ace')).toBe('Gr ace');
     expect(normalizeLearnerName('\u0007\u001b')).toBeNull();
     expect(createLearner('Pat\r\nSmith').name).toBe('Pat Smith');
