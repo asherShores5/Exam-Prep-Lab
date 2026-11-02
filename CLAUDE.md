@@ -97,17 +97,21 @@ tab stays mounted (`forceMount` + `hidden`) so switching tabs keeps it.
 `services/activity.ts` records Visit (once per local day), Exam Opened and Result to
 `POST /activity` (contract in `infra/README.md`). Every Activity is queued in
 `epl_activity_outbox` (cap 200, oldest dropped, items older than 90 days dropped) and sent in
-batches of 20; the outbox flushes on load and on `online`. A 400 drops the batch; network errors,
-429 and 5xx keep it for retry. Recording never throws and never blocks studying. With
+batches of 20; the outbox flushes on load and on `online`. Each item is checked against the API's
+rules (`isValidActivity`) before it is queued or sent, so bad items are dropped alone. A 400 on a
+multi-item batch retries each item once and drops only the ones that 400 again; network errors,
+429 and 5xx keep items for retry. `activityContract.test.ts` keeps the client limits in step with
+`infra/src/activity/validate.ts`. Recording never throws and never blocks studying. With
 `VITE_ACTIVITY_API` unset it is a no-op.
 
 ### localStorage: always through StorageService
 
 Study data lives only in localStorage. **Every read and write goes through `StorageService`**
-(`src/services/storage.ts`, including `tagService.ts`), which centralizes keys (`STORAGE_KEYS`,
+(`src/services/storage.ts`), which centralizes keys (`STORAGE_KEYS`,
 `epl_` prefix except two legacy keys), wraps writes in quota-error handling and dispatches
 `QUOTA_EXCEEDED_EVENT` for `App.tsx`'s warning banner. Readers shape-check stored JSON and fall
-back to the default. `clearAllData` (Settings, "Clear local data") keeps the Learner, the outbox
+back to the default, and drop array/object entries of the wrong shape. The theme preference
+(`services/theme.ts`, `epl_theme`) is read before React mounts and is the one direct caller. `clearAllData` (Settings, "Clear local data") keeps the Learner, the outbox
 and the last-Visit day. There is no import/export.
 
 ### Flashcards & spaced repetition
@@ -145,7 +149,7 @@ with a sha256 hash of the inline theme script in `index.html`: editing that scri
 ## Testing
 
 Vitest + jsdom + `@testing-library/react`, with `fast-check` for property tests; matchers in
-`src/__tests__/setup.ts`. Baseline 2026-11-02: quiz-app **183 tests / 17 files**, infra **109
+`src/__tests__/setup.ts`. Baseline 2026-11-02: quiz-app **213 tests / 18 files**, infra **110
 tests / 5 files**, all green. Each bug fix lands with a failing test first. Tests exercise the
 real modules; never test private copies of logic inlined into a test file.
 

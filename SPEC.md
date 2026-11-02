@@ -404,7 +404,10 @@ in `docs/adr/0001-small-backend-for-learner-activity.md`. Tickets live in `.scra
   - an HTTP API with CORS limited to `https://exampreplab.ashershores.com` and
     `http://localhost:5173`, and stage throttling of 5 rps with a burst of 20;
   - a Node 22 Lambda that validates and caps input: name 40 chars, 20 activities per request,
-    known examIds only, numbers in range. Anything invalid gets a 400;
+    known examIds only, numbers in range, `at` at most 90 days old (an `at` in the future is
+    stored as server now, not rejected). Anything invalid gets a 400. The client checks each item
+    against the same rules first and, on a 400 for a multi-item batch, retries items one at a
+    time so only the bad ones are dropped;
   - a DynamoDB table (on-demand, PITR on, RETAIN): `PK=LEARNER#<id>`, `SK=PROFILE` for name,
     firstSeen and lastSeen, and `SK=ACT#<iso>#<rand>` for Activity. No TTL, so records are kept
     forever.
@@ -416,7 +419,8 @@ in `docs/adr/0001-small-backend-for-learner-activity.md`. Tickets live in `.scra
 - Sign-in uses a Cognito user pool with self sign-up off and one user (`asher`), through the
   Cognito hosted UI with PKCE (no client secret).
 - `GET /admin/learners` and `GET /admin/learners/{id}/activity` use a Cognito JWT authorizer
-  that also checks the `admins` group.
+  (signature, issuer, client id, expiry). The `admins` group check lives in the admin Lambda,
+  which returns 403 without it.
 - The view lists Learners (name, first and last seen, exams, Result count, latest Result per exam). Tap a
   Learner to see their Activity timeline. Plaintext-style lists, no charts.
 
@@ -429,6 +433,15 @@ Fix B1-B11 from §2, each with a failing test first.
     `connect-src 'self'` plus the API origin and the Cognito domain; `frame-ancestors 'none'`;
     `object-src 'none'`; `base-uri 'self'`;
   - HSTS, nosniff, `Referrer-Policy: strict-origin-when-cross-origin`, and a Permissions-Policy.
+  - `style-src` needs `'unsafe-inline'`: Radix Select injects `<style>` elements at runtime
+    (computed content, so no hash works).
+  - `connect-src` allows the `https://*.execute-api.us-west-1.amazonaws.com` wildcard until the
+    first infra deploy, because the API host isn't known yet. After that deploy it must be pinned
+    to the real API host (§9.7).
+  - `customHttp.yml` sits at the repo root, not in `quiz-app/`, because the Amplify app root is
+    the repo root (the build spec does `cd quiz-app`).
+- The `admins` group is checked in the admin Lambda; API Gateway's JWT authorizer only validates
+  the token.
 - Verify the live headers after deploy.
 - Remove the stale Amplify redirect rule for `exampreplab.com`, which is no longer associated
   with the app.
@@ -456,6 +469,8 @@ Only the owner can do these; exact commands are in `docs/DEPLOY-RUNBOOK.md`.
 - 🔴 First infra deploy by hand (`cdk deploy --all`, change sets reviewed with `--no-execute` first).
 - 🔴 Create the Cognito admin user and add it to `admins`.
 - 🔴 Set `VITE_ACTIVITY_API`, `VITE_COGNITO_DOMAIN`, `VITE_COGNITO_CLIENT_ID` in Amplify and redeploy.
+- 🔴 Pin CSP `connect-src` in `customHttp.yml` from the `*.execute-api` wildcard to the real API
+  host (`ActivityApiUrl` output), then redeploy the site.
 - 🔴 GitHub: branch protection on `main` (PR + green CI) and the `production` environment with the
   owner as required reviewer.
 - 🔴 Remove the stale Amplify redirect rule for `exampreplab.com`.

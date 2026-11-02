@@ -4,7 +4,10 @@
 # - style-src needs 'unsafe-inline': Radix Select injects <style> elements at runtime (its viewport
 #   scrollbar rule and react-remove-scroll's scroll lock, whose content is computed, so no hash).
 # - connect-src: the Activity/admin API (execute-api) and the Cognito token endpoint
-#   (infra/lib/api-stack.ts HOSTED_UI_PREFIX).
+#   (infra/lib/api-stack.ts HOSTED_UI_PREFIX). The execute-api wildcard stays only until the first
+#   infra deploy; then pin it to the real API host (docs/DEPLOY-RUNBOOK.md step 6).
+# - This file is at the repo root because the Amplify app root is the repo root (the build spec
+#   does `cd quiz-app`).
 customHeaders:
   - pattern: '**/*'
     headers:
