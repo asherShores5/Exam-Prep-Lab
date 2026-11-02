@@ -27,6 +27,7 @@ export const STORAGE_KEYS = {
   QUESTION_TAGS: 'epl_question_tags',
   STUDY_STATE: 'epl_study_state',
   THEME: 'epl_theme',
+  LEARNER: 'epl_learner',
   // Legacy keys kept for backward-compat migration
   QUIZ_ANALYTICS: 'quizAnalytics',
   SELECTED_EXAM: 'selectedExam',
@@ -54,11 +55,25 @@ function dispatchQuotaExceeded(): void {
 // Internal helpers
 // ---------------------------------------------------------------------------
 
+/** Same container kind as the fallback: array vs. plain (non-null, non-array) object. */
+function hasSameShape(value: unknown, fallback: unknown): boolean {
+  if (Array.isArray(fallback)) return Array.isArray(value);
+  if (fallback !== null && typeof fallback === 'object') {
+    return value !== null && typeof value === 'object' && !Array.isArray(value);
+  }
+  return typeof value === typeof fallback;
+}
+
 function readJson<T>(key: string, fallback: T): T {
   try {
     const raw = localStorage.getItem(key);
     if (raw === null) return fallback;
-    return JSON.parse(raw) as T;
+    const parsed: unknown = JSON.parse(raw);
+    if (!hasSameShape(parsed, fallback)) {
+      console.warn(`[StorageService] Unexpected shape for key "${key}"; using default.`);
+      return fallback;
+    }
+    return parsed as T;
   } catch (err) {
     console.warn(`[StorageService] Malformed JSON for key "${key}":`, err);
     return fallback;
@@ -66,8 +81,13 @@ function readJson<T>(key: string, fallback: T): T {
 }
 
 function writeJson<T>(key: string, value: T): void {
+  writeRaw(key, JSON.stringify(value));
+}
+
+/** Quota-safe setItem: on a quota error, dispatch QUOTA_EXCEEDED_EVENT instead of throwing. */
+function writeRaw(key: string, value: string): void {
   try {
-    localStorage.setItem(key, JSON.stringify(value));
+    localStorage.setItem(key, value);
   } catch (err) {
     if (
       err instanceof DOMException &&
@@ -114,7 +134,7 @@ export const StorageService = {
 
   saveSelectedExam(examId: string): void {
     // Store as plain string (not JSON-wrapped) for consistency with getSelectedExam
-    localStorage.setItem(STORAGE_KEYS.SELECTED_EXAM, examId);
+    writeRaw(STORAGE_KEYS.SELECTED_EXAM, examId);
   },
 
   // ── Decks ─────────────────────────────────────────────────────────────────
@@ -147,6 +167,16 @@ export const StorageService = {
     writeJson(STORAGE_KEYS.REVIEW_SESSIONS, sessions);
   },
 
+  // ── Question tags (epl_question_tags; entries validated by tagService) ──────
+
+  getQuestionTags(): unknown[] {
+    return readJson<unknown[]>(STORAGE_KEYS.QUESTION_TAGS, []);
+  },
+
+  saveQuestionTags(assignments: unknown[]): void {
+    writeJson(STORAGE_KEYS.QUESTION_TAGS, assignments);
+  },
+
   // ── Per-question study state (epl_study_state) ────────────────────────────
 
   getStudyState(): QuestionStudyState[] {
@@ -169,9 +199,23 @@ export const StorageService = {
     return { bytes, percentage: (bytes / quota) * 100 };
   },
 
-  /** Remove all Exam Prep Lab keys from localStorage. */
+  // ── Learner (epl_learner) ─────────────────────────────────────────────────
+  // Raw read/write only; shape checks and name rules live in services/learner.ts.
+
+  getLearnerRaw(): unknown {
+    return readJson<unknown>(STORAGE_KEYS.LEARNER, null);
+  },
+
+  saveLearnerRaw(learner: unknown): void {
+    writeJson(STORAGE_KEYS.LEARNER, learner);
+  },
+
+  /**
+   * Remove all Exam Prep Lab study data from localStorage. The Learner record
+   * is kept: its id never changes (SPEC §9.1).
+   */
   clearAllData(): void {
-    const eplKeys = Object.values(STORAGE_KEYS);
+    const eplKeys = Object.values(STORAGE_KEYS).filter((k) => k !== STORAGE_KEYS.LEARNER);
     for (const key of eplKeys) {
       localStorage.removeItem(key);
     }

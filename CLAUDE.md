@@ -90,8 +90,6 @@ npx vitest run -t "SAP-C02 entry should have id"
 npx vitest         # watch mode
 ```
 
-Deploy outside Amplify (manual S3 sync): `pwsh ./sync_to_s3.ps1` (reads `BUCKET_NAME` / AWS creds from a `.env` file in `quiz-app/`).
-
 ## Architecture
 
 ### One question model — `LegacyQuestion`
@@ -117,7 +115,7 @@ the same string. Migrating *those* to `(examId, id)` is deferred follow-up work 
 
 ### localStorage is the only persistence — go through StorageService
 
-There is **no backend**. All user data lives in localStorage. **Components must never call `localStorage` directly** — always use `StorageService` (`src/services/storage.ts`), which centralizes keys (`STORAGE_KEYS`, all prefixed `epl_` except two legacy keys), wraps every write in quota-error handling, and dispatches a `QUOTA_EXCEEDED_EVENT` DOM event that `App.tsx` listens for to show a warning banner. (`tagService.ts` is the one exception that touches localStorage directly, using the `epl_question_tags` key.) The service exposes the derived study-data surface: `Decks`, `Flashcards`, `ReviewSessions`, `StudyState` (`epl_study_state`), the legacy `quizAnalytics`/`selectedExam` keys, plus `getStorageUsage` / `clearAllData`.
+There is **no backend**. All user data lives in localStorage. **Components must never call `localStorage` directly** — always use `StorageService` (`src/services/storage.ts`), which centralizes keys (`STORAGE_KEYS`, all prefixed `epl_` except two legacy keys), wraps every write in quota-error handling, and dispatches a `QUOTA_EXCEEDED_EVENT` DOM event that `App.tsx` listens for to show a warning banner. Readers shape-check stored JSON (array vs. object) and fall back to the default. (`tagService.ts` reads/writes `epl_question_tags` through `StorageService.getQuestionTags`/`saveQuestionTags` and drops malformed entries.) The service exposes the derived study-data surface: `Decks`, `Flashcards`, `ReviewSessions`, `StudyState` (`epl_study_state`), the legacy `quizAnalytics`/`selectedExam` keys, plus `getStorageUsage` / `clearAllData`.
 
 There is **no import/export** — it was removed in step 2. The "Settings" tab (`components/settings/SettingsPanel.tsx`) only shows the storage meter and a "Clear local data" action.
 
