@@ -1,0 +1,34 @@
+# Amplify custom headers (SPEC §9.5). Checked by quiz-app/src/__tests__/securityHeaders.test.ts.
+# - script-src hash = sha256 of the inline theme script in quiz-app/index.html. Edit that script
+#   and the test prints the hash it now expects.
+# - style-src needs 'unsafe-inline': Radix Select injects <style> elements at runtime (its viewport
+#   scrollbar rule and react-remove-scroll's scroll lock, whose content is computed, so no hash).
+# - connect-src: the Activity/admin API (execute-api) and the Cognito token endpoint
+#   (infra/lib/api-stack.ts HOSTED_UI_PREFIX).
+customHeaders:
+  - pattern: '**/*'
+    headers:
+      - key: 'Content-Security-Policy'
+        value: "default-src 'self'; script-src 'self' 'sha256-XS4WPkNG+pgvCe8EFwc0/JYL7iAHITPuN0KmjBBRMC4='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://*.execute-api.us-west-1.amazonaws.com https://exampreplab-admin.auth.us-west-1.amazoncognito.com; manifest-src 'self'; worker-src 'self'; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self' https://exampreplab-admin.auth.us-west-1.amazoncognito.com"
+      - key: 'Strict-Transport-Security'
+        value: 'max-age=31536000; includeSubDomains'
+      - key: 'X-Content-Type-Options'
+        value: 'nosniff'
+      - key: 'Referrer-Policy'
+        value: 'strict-origin-when-cross-origin'
+      - key: 'Permissions-Policy'
+        value: 'camera=(), microphone=(), geolocation=(), payment=()'
+      - key: 'Cross-Origin-Opener-Policy'
+        value: 'same-origin'
+  - pattern: '/sw.js'
+    headers:
+      - key: 'Cache-Control'
+        value: 'no-cache'
+  - pattern: '/index.html'
+    headers:
+      - key: 'Cache-Control'
+        value: 'no-cache'
+  - pattern: '/'
+    headers:
+      - key: 'Cache-Control'
+        value: 'no-cache'
