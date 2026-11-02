@@ -73,10 +73,11 @@ export function createAdminHandler(deps: AdminDeps) {
 /** Up to 10 scan pages (1 MB each) per request; past that the list says `truncated: true`. */
 export const MAX_SCAN_PAGES = 10;
 
-export interface LatestScore {
+/** The newest Result for one exam, as shown in a Learner's summary. */
+export interface LatestResult {
   examId: string;
   at: string;
-  mode: string;
+  mode: "quiz" | "sim";
   percent: number;
   passed?: boolean;
 }
@@ -89,19 +90,19 @@ export interface LearnerSummary {
   exams: string[];
   resultCount: number;
   /** Newest Result per exam, newest first. */
-  latestScores: LatestScore[];
+  latestResults: LatestResult[];
 }
 
 const LEARNER_PREFIX = "LEARNER#";
 const str = (v: unknown): string | null => (typeof v === "string" ? v : null);
 
 async function listLearners(deps: AdminDeps): Promise<{ learners: LearnerSummary[]; truncated: boolean }> {
-  const byId = new Map<string, { summary: LearnerSummary; exams: Set<string>; latest: Map<string, LatestScore> }>();
+  const byId = new Map<string, { summary: LearnerSummary; exams: Set<string>; latest: Map<string, LatestResult> }>();
   const entry = (learnerId: string) => {
     let e = byId.get(learnerId);
     if (!e) {
       e = {
-        summary: { learnerId, name: null, firstSeen: null, lastSeen: null, exams: [], resultCount: 0, latestScores: [] },
+        summary: { learnerId, name: null, firstSeen: null, lastSeen: null, exams: [], resultCount: 0, latestResults: [] },
         exams: new Set(),
         latest: new Map(),
       };
@@ -138,13 +139,15 @@ async function listLearners(deps: AdminDeps): Promise<{ learners: LearnerSummary
       const examId = str(item.examId);
       if (examId) e.exams.add(examId);
       const at = str(item.at);
+      const mode = item.mode;
       if (item.type !== "result" || !examId || !at || typeof item.percent !== "number") continue;
+      if (mode !== "quiz" && mode !== "sim") continue;
       e.summary.resultCount++;
       const prev = e.latest.get(examId);
       if (!prev || prev.at < at) {
-        const score: LatestScore = { examId, at, mode: str(item.mode) ?? "", percent: item.percent };
-        if (typeof item.passed === "boolean") score.passed = item.passed;
-        e.latest.set(examId, score);
+        const latest: LatestResult = { examId, at, mode, percent: item.percent };
+        if (typeof item.passed === "boolean") latest.passed = item.passed;
+        e.latest.set(examId, latest);
       }
     }
     startKey = page.LastEvaluatedKey;
@@ -153,7 +156,7 @@ async function listLearners(deps: AdminDeps): Promise<{ learners: LearnerSummary
   const learners = [...byId.values()].map(({ summary, exams, latest }) => ({
     ...summary,
     exams: [...exams].sort(),
-    latestScores: [...latest.values()].sort((a, b) => b.at.localeCompare(a.at)),
+    latestResults: [...latest.values()].sort((a, b) => b.at.localeCompare(a.at)),
   }));
   // Most recently seen first; Learners with no profile last.
   learners.sort((a, b) => (b.lastSeen ?? "").localeCompare(a.lastSeen ?? ""));

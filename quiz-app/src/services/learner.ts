@@ -18,10 +18,23 @@ export interface Learner {
 
 export const LEARNER_NAME_MAX = 40;
 
-/** Trim a name and return it if valid (1-40 chars), else null. */
+// Same set the API rejects (infra/src/activity/validate.ts): C0/C1 controls plus U+2028/U+2029.
+// eslint-disable-next-line no-control-regex -- matching control characters is the point
+const CONTROL = /[\u0000-\u001f\u007f-\u009f\u2028\u2029]+/g;
+
+/**
+ * Turn control characters into spaces, collapse runs of whitespace, trim, and return the name
+ * if it is 1-40 characters, else null. Anything this returns, the API accepts.
+ */
 export function normalizeLearnerName(raw: string): string | null {
-  const name = raw.trim();
-  return name.length >= 1 && name.length <= LEARNER_NAME_MAX ? name : null;
+  const name = raw.replace(CONTROL, ' ').replace(/\s+/g, ' ').trim();
+  const chars = [...name].length;
+  return chars >= 1 && chars <= LEARNER_NAME_MAX ? name : null;
+}
+
+/** The message to show for an invalid name, or null if the name is fine. */
+export function learnerNameError(raw: string): string | null {
+  return normalizeLearnerName(raw) === null ? `Please enter a name (1-${LEARNER_NAME_MAX} characters).` : null;
 }
 
 function isLearner(value: unknown): value is Learner {
@@ -55,7 +68,7 @@ function requireName(raw: string): string {
 export function getLearner(): Learner | null {
   try {
     const raw = StorageService.getLearnerRaw();
-    return isLearner(raw) ? { learnerId: raw.learnerId, name: raw.name } : null;
+    return isLearner(raw) ? { learnerId: raw.learnerId, name: normalizeLearnerName(raw.name)! } : null;
   } catch {
     return null;
   }

@@ -62,17 +62,21 @@ Request: `Content-Type: application/json`, body at most 16 KB.
 ```
 
 - `at` is when the Activity happened on the device: a full ISO date-time with a zone (`Z` or
-  `+hh:mm`), no more than 5 minutes in the future and no more than 90 days old (so the outbox
-  should drop items older than that). Stored as UTC.
+  `+hh:mm`), no more than 90 days old (so the outbox should drop items older than that). Stored
+  as UTC. An `at` in the future (a device clock running fast) is not rejected: it is stored as
+  the server's current time.
 - `examId` must be an `id` in `quiz-app/public/exams/index.json`.
-- Unknown fields anywhere are rejected. One bad Activity rejects the whole batch.
+- Unknown fields anywhere are rejected. One bad Activity rejects the whole batch, so the client
+  checks each item against these rules before queueing or sending and drops only the bad ones.
 - At most one Visit per Learner per local day is the client's job; the server stores what it gets.
 
 Responses (all `application/json`, `Cache-Control: no-store`):
 
 - `200 {"accepted": <number of activities>}`: written in one transaction.
 - `400 {"error": "invalid", "message": "<what was wrong, e.g. activities[0].examId is not a known exam>"}`:
-  nothing written. Don't retry; drop the batch.
+  nothing written. Don't retry the same batch. If it had more than one Activity, send each one
+  on its own once (the web client does this) so only the bad ones are dropped; a single-Activity
+  400 is dropped.
 - `429` (API Gateway throttle) or `500 {"error": "internal"}`: nothing written. Safe to keep in
   the outbox and retry later.
 
@@ -131,7 +135,7 @@ Its IAM role has only `dynamodb:GetItem`, `Query` and `Scan` on the table. All r
       "lastSeen": "2026-11-01T10:00:00.000Z",
       "exams": ["AWS-SAA-C03", "PSM-I"],                // sorted examIds from Exam Opened and Results
       "resultCount": 3,
-      "latestScores": [                                 // newest Result per exam, newest first
+      "latestResults": [                                 // newest Result per exam, newest first
         { "examId": "PSM-I", "at": "2026-10-05T10:00:00.000Z", "mode": "sim", "percent": 80, "passed": true }
       ]
     }

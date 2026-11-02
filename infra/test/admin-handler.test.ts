@@ -100,7 +100,7 @@ describe("GET /admin/learners", () => {
     profile(B, "Sam", "2026-10-20T10:00:00.000Z", "2026-11-02T09:00:00.000Z"),
   ];
 
-  it("lists every Learner, most recently seen first, with exams, Result count and latest score per exam", async () => {
+  it("lists every Learner, most recently seen first, with exams, Result count and latest Result per exam", async () => {
     const send = vi.fn().mockResolvedValue({ Items: items });
     const { handler } = setup(send);
     const res = await handler(get(LEARNERS));
@@ -108,18 +108,30 @@ describe("GET /admin/learners", () => {
     expect(body(res)).toEqual({
       truncated: false,
       learners: [
-        { learnerId: B, name: "Sam", firstSeen: "2026-10-20T10:00:00.000Z", lastSeen: "2026-11-02T09:00:00.000Z", exams: [], resultCount: 0, latestScores: [] },
+        { learnerId: B, name: "Sam", firstSeen: "2026-10-20T10:00:00.000Z", lastSeen: "2026-11-02T09:00:00.000Z", exams: [], resultCount: 0, latestResults: [] },
         {
           learnerId: A, name: "Pat", firstSeen: "2026-10-01T10:00:00.000Z", lastSeen: "2026-11-01T10:00:00.000Z",
           exams: ["AWS-SAA-C03", "PSM-I"],
           resultCount: 3,
-          latestScores: [
+          latestResults: [
             { examId: "PSM-I", at: "2026-10-05T10:00:00.000Z", mode: "sim", percent: 80, passed: true },
             { examId: "AWS-SAA-C03", at: "2026-10-03T10:00:00.000Z", mode: "quiz", percent: 50 },
           ],
         },
       ],
     });
+  });
+
+  it("leaves a stored Result with an unknown mode out of latestResults", async () => {
+    const send = vi.fn().mockResolvedValue({
+      Items: [
+        profile(B, "Sam", "2026-10-20T10:00:00.000Z", "2026-11-02T09:00:00.000Z"),
+        act(B, "2026-10-21T10:00:00.000Z", { type: "result", examId: "PSM-I", mode: "practice", correct: 1, total: 2, percent: 50, timeSpentSec: 9 }),
+      ],
+    });
+    const { handler } = setup(send);
+    const [sam] = body(await handler(get(LEARNERS))).learners;
+    expect(sam.latestResults).toEqual([]);
   });
 
   it("follows scan pages until the table is done", async () => {
@@ -147,7 +159,7 @@ describe("GET /admin/learners", () => {
     const { handler } = setup(send);
     const res = await handler(get(LEARNERS));
     expect(body(res).learners).toEqual([
-      { learnerId: A, name: null, firstSeen: null, lastSeen: null, exams: [], resultCount: 0, latestScores: [] },
+      { learnerId: A, name: null, firstSeen: null, lastSeen: null, exams: [], resultCount: 0, latestResults: [] },
     ]);
   });
 });

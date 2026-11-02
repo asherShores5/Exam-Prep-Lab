@@ -80,6 +80,11 @@ describe("parseActivityBatch: each Activity", () => {
     expect(r.ok && r.value.activities[0].at).toBe("2026-11-02T17:00:00.000Z");
   });
 
+  it("clamps an `at` in the future (a device clock running fast) to server now instead of rejecting", () => {
+    const r = one({ type: "visit", at: "2026-11-03T18:00:00.000Z" });
+    expect(r.ok && r.value.activities[0].at).toBe("2026-11-02T18:00:00.000Z");
+  });
+
   it("accepts an `at` up to 90 days old, so a queued outbox can still be sent", () => {
     expect(one({ type: "visit", at: "2026-08-04T18:00:00.000Z" }).ok).toBe(true);
   });
@@ -90,7 +95,6 @@ describe("parseActivityBatch: each Activity", () => {
     ["a missing at", { type: "visit" }],
     ["an unparseable at", { type: "visit", at: "yesterday" }],
     ["a date-only at", { type: "visit", at: "2026-11-02" }],
-    ["an at more than 5 minutes in the future", { type: "visit", at: "2026-11-02T18:06:00.000Z" }],
     ["an at more than 90 days old", { type: "visit", at: "2026-08-04T17:59:00.000Z" }],
     ["an extra field on a Visit", { type: "visit", at: AT, examId: "PSM-I" }],
     ["an unknown examId", { type: "exam_opened", at: AT, examId: "NOT-AN-EXAM" }],

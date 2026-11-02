@@ -85,7 +85,16 @@ VITE_COGNITO_CLIENT_ID   = ClientId output
 Then redeploy `main` (vars are baked in at build time). While you're in the console, remove the
 stale redirect rule for `exampreplab.com` (Hosting > Rewrites and redirects).
 
-## 6. Live checks
+## 6. Pin the API host in the CSP
+
+`customHttp.yml` (repo root) allows `https://*.execute-api.us-west-1.amazonaws.com` in
+`connect-src` because the API host wasn't known before the first deploy. Replace that wildcard
+with the real host from the `ActivityApiUrl` output (scheme + host only, e.g.
+`https://abc123.execute-api.us-west-1.amazonaws.com`) and update the matching expectation in
+`quiz-app/src/__tests__/securityHeaders.test.ts`. Run `cd quiz-app && npm test`, merge via a PR
+and let Amplify redeploy.
+
+## 7. Live checks
 
 ```bash
 SITE=https://exampreplab.ashershores.com
@@ -109,7 +118,7 @@ curl -s -o /dev/null -w '%{http_code}\n' "$API/admin/learners"
 Then in a browser: open the site, enter a name, open an Exam (no CSP errors in the console); open
 `$SITE/admin`, sign in, and check your Learner and its Visit appear.
 
-## 7. Hand over to CI
+## 8. Hand over to CI
 
 Approve the waiting `deploy-infra` run (or re-run it) in GitHub Actions. It should finish with no
 changes. From now on, merging to `main` deploys the site, and infra after your approval.

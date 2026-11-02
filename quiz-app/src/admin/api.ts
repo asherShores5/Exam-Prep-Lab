@@ -1,9 +1,10 @@
 /** Client for the owner-only read API (infra/README.md, "GET /admin/*"). */
 
-export interface LatestScore {
+/** The newest Result for one exam, as shown in a Learner's summary. */
+export interface LatestResult {
   examId: string;
   at: string;
-  mode: string;
+  mode: 'quiz' | 'sim';
   percent: number;
   passed?: boolean;
 }
@@ -15,7 +16,7 @@ export interface LearnerSummary {
   lastSeen: string | null;
   exams: string[];
   resultCount: number;
-  latestScores: LatestScore[];
+  latestResults: LatestResult[];
 }
 
 export interface LearnersResponse {
@@ -27,7 +28,7 @@ export interface TimelineActivity {
   type: string;
   at: string;
   examId?: string;
-  mode?: string;
+  mode?: 'quiz' | 'sim';
   correct?: number;
   total?: number;
   percent?: number;

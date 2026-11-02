@@ -85,6 +85,73 @@ describe('Activity client', () => {
     expect(StorageService.getActivityOutbox()).toEqual([]);
   });
 
+  it('on a 400 for a multi-item batch, retries each item once so only the bad one is dropped', async () => {
+    const { client, fetch } = setup({ fetch: fakeFetch('network') });
+    await client.recordExamOpened('AWS-SAA-C03');
+    await client.recordExamOpened('NOT-AN-EXAM');
+    await client.recordExamOpened('PSM-I');
+    // The server rejects any request that carries the unknown exam.
+    fetch.mockClear();
+    fetch.mockImplementation(async (_url, init) => {
+      const body = JSON.parse(String(init!.body)) as { activities: { examId: string }[] };
+      const bad = body.activities.some((a) => a.examId === 'NOT-AN-EXAM');
+      return new Response('{}', { status: bad ? 400 : 200 });
+    });
+    await client.flush();
+    const sent = bodies(fetch).map((b) => b.activities.map((a: { examId: string }) => a.examId));
+    expect(sent).toEqual([['AWS-SAA-C03', 'NOT-AN-EXAM', 'PSM-I'], ['AWS-SAA-C03'], ['NOT-AN-EXAM'], ['PSM-I']]);
+    expect(StorageService.getActivityOutbox()).toEqual([]);
+  });
+
+  it('keeps the rest of the batch when an individual retry hits a retryable failure', async () => {
+    const { client, fetch } = setup({ fetch: fakeFetch('network') });
+    await client.recordExamOpened('NOT-AN-EXAM');
+    await client.recordExamOpened('AWS-SAA-C03');
+    fetch.mockClear();
+    fetch.mockImplementation(async (_url, init) => {
+      const body = JSON.parse(String(init!.body)) as { activities: { examId: string }[] };
+      if (body.activities.length > 1) return new Response('{}', { status: 400 });
+      return new Response('{}', { status: body.activities[0].examId === 'NOT-AN-EXAM' ? 400 : 503 });
+    });
+    await client.flush();
+    expect(StorageService.getActivityOutbox()).toEqual([
+      { type: 'exam_opened', at: '2026-11-02T17:00:00.000Z', examId: 'AWS-SAA-C03' },
+    ]);
+  });
+
+  it('drops only the outbox items the API would reject and sends the rest', async () => {
+    const good = { type: 'exam_opened', at: '2026-11-02T16:00:00.000Z', examId: 'AWS-SAA-C03' };
+    const result = {
+      type: 'result', at: '2026-11-02T16:00:00.000Z', examId: 'PSM-I', mode: 'sim',
+      correct: 8, total: 10, percent: 80, passed: true, timeSpentSec: 90,
+    };
+    StorageService.saveActivityOutbox([
+      { type: 'visit', at: '2026-11-02' },                        // date-only at
+      { type: 'visit', at: '2026-11-02T16:00:00' },               // no zone
+      { type: 'page_view', at: '2026-11-02T16:00:00.000Z' },      // unknown type
+      { ...good, extra: 1 },                                      // unknown field
+      { type: 'exam_opened', at: '2026-11-02T16:00:00.000Z' },    // no examId
+      { ...result, percent: 20 },                                 // percent doesn't match
+      { ...result, correct: 11 },                                 // correct above total
+      { ...result, mode: 'practice' },                            // unknown mode
+      { ...result, timeSpentSec: 86_401 },                        // over a day
+      { ...result, passed: 'yes' },                               // non-boolean passed
+      good,
+      result,
+    ]);
+    const { client, fetch } = setup();
+    await client.flush();
+    expect(bodies(fetch).map((b) => b.activities)).toEqual([[good, result]]);
+    expect(StorageService.getActivityOutbox()).toEqual([]);
+  });
+
+  it('never queues a Result whose percent does not match correct/total', async () => {
+    const { client, fetch } = setup({ fetch: fakeFetch('network') });
+    await client.recordResult({ examId: 'PSM-I', mode: 'quiz', correct: 3, total: 10, percent: 90, timeSpentSec: 5 });
+    expect(StorageService.getActivityOutbox()).toEqual([]);
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
   it('sends queued Activity together with the next one once the API is back', async () => {
     const fetch = fakeFetch(503, 200);
     const { client, setNow } = setup({ fetch });

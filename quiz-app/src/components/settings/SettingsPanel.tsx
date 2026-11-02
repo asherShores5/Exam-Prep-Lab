@@ -14,7 +14,7 @@ import { Modal } from '../ui/Modal';
 import { StorageService } from '../../services/storage';
 import { Trash2, Monitor, Sun, Moon } from 'lucide-react';
 import { getThemePreference, setThemePreference, type ThemePreference } from '../../services/theme';
-import { getLearner, normalizeLearnerName, renameLearner, LEARNER_NAME_MAX } from '../../services/learner';
+import { getLearner, learnerNameError, renameLearner, LEARNER_NAME_MAX } from '../../services/learner';
 
 const THEME_OPTIONS: { value: ThemePreference; label: string; icon: typeof Monitor }[] = [
   { value: 'system', label: 'System', icon: Monitor },
@@ -32,8 +32,9 @@ export function SettingsPanel() {
 
   function handleNameSave(e: FormEvent) {
     e.preventDefault();
-    if (normalizeLearnerName(learnerName) === null) {
-      setNameStatus(`Please enter a name (1-${LEARNER_NAME_MAX} characters).`);
+    const nameError = learnerNameError(learnerName);
+    if (nameError) {
+      setNameStatus(nameError);
       return;
     }
     setLearnerName(renameLearner(learnerName).name);

@@ -10,7 +10,7 @@ import { Button } from '../ui/button';
 import {
   createLearner,
   getLearner,
-  normalizeLearnerName,
+  learnerNameError,
   LEARNER_NAME_MAX,
   type Learner,
 } from '../../services/learner';
@@ -24,8 +24,9 @@ export function LearnerGate({ children }: { children: ReactNode }) {
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    if (normalizeLearnerName(name) === null) {
-      setError(`Please enter a name (1-${LEARNER_NAME_MAX} characters).`);
+    const nameError = learnerNameError(name);
+    if (nameError) {
+      setError(nameError);
       return;
     }
     setLearner(createLearner(name));

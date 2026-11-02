@@ -9,6 +9,7 @@ import {
   createLearner,
   renameLearner,
   normalizeLearnerName,
+  learnerNameError,
   LEARNER_NAME_MAX,
 } from '../services/learner';
 import { StorageService, STORAGE_KEYS } from '../services/storage';
@@ -74,6 +75,25 @@ describe('learner service', () => {
     createLearner('Ada');
     expect(() => renameLearner('a'.repeat(41))).toThrow();
     expect(getLearner()?.name).toBe('Ada');
+  });
+
+  it('strips control characters and collapses whitespace, so the API accepts any name it returns', () => {
+    expect(normalizeLearnerName('Pat\n\tSmith')).toBe('Pat Smith');
+    expect(normalizeLearnerName('  Ada   \u0000 Lovelace\u2028 ')).toBe('Ada Lovelace');
+    expect(normalizeLearnerName('Gr\u0085ace')).toBe('Gr ace');
+    expect(normalizeLearnerName('\u0007\u001b')).toBeNull();
+    expect(createLearner('Pat\r\nSmith').name).toBe('Pat Smith');
+  });
+
+  it('cleans a name saved before names were normalized', () => {
+    localStorage.setItem('epl_learner', JSON.stringify({ learnerId: 'abc', name: 'Pat\tSmith' }));
+    expect(getLearner()).toEqual({ learnerId: 'abc', name: 'Pat Smith' });
+  });
+
+  it('gives one message for an invalid name, and none for a valid one', () => {
+    expect(learnerNameError('  ')).toBe('Please enter a name (1-40 characters).');
+    expect(learnerNameError('a'.repeat(41))).toBe('Please enter a name (1-40 characters).');
+    expect(learnerNameError(' Ada ')).toBeNull();
   });
 
   it('treats stored data of the wrong shape as no Learner', () => {
