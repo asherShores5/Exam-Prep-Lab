@@ -8,12 +8,13 @@
  * (Theme toggle — SPEC §3.7 — will be added here in a later step.)
  */
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 import { Button } from '../ui/button';
 import { Modal } from '../ui/Modal';
 import { StorageService } from '../../services/storage';
 import { Trash2, Monitor, Sun, Moon } from 'lucide-react';
 import { getThemePreference, setThemePreference, type ThemePreference } from '../../services/theme';
+import { getLearner, normalizeLearnerName, renameLearner, LEARNER_NAME_MAX } from '../../services/learner';
 
 const THEME_OPTIONS: { value: ThemePreference; label: string; icon: typeof Monitor }[] = [
   { value: 'system', label: 'System', icon: Monitor },
@@ -26,6 +27,18 @@ export function SettingsPanel() {
   const [status, setStatus] = useState<string | null>(null);
   const [storageUsage, setStorageUsage] = useState({ bytes: 0, percentage: 0 });
   const [theme, setTheme] = useState<ThemePreference>(() => getThemePreference());
+  const [learnerName, setLearnerName] = useState(() => getLearner()?.name ?? '');
+  const [nameStatus, setNameStatus] = useState<string | null>(null);
+
+  function handleNameSave(e: FormEvent) {
+    e.preventDefault();
+    if (normalizeLearnerName(learnerName) === null) {
+      setNameStatus(`Please enter a name (1-${LEARNER_NAME_MAX} characters).`);
+      return;
+    }
+    setLearnerName(renameLearner(learnerName).name);
+    setNameStatus('Name saved.');
+  }
 
   function handleThemeChange(pref: ThemePreference) {
     setThemePreference(pref);
@@ -59,6 +72,39 @@ export function SettingsPanel() {
   return (
     <div className="space-y-6">
       <h2 className="text-lg font-semibold">Settings</h2>
+
+      {/* ── Learner name ── */}
+      <section aria-labelledby="name-heading" className="space-y-3">
+        <h3 id="name-heading" className="text-sm font-medium text-gray-300">
+          Name
+        </h3>
+        <form onSubmit={handleNameSave} className="flex flex-wrap items-center gap-2" noValidate>
+          <label htmlFor="settings-learner-name" className="sr-only">
+            Your name
+          </label>
+          <input
+            id="settings-learner-name"
+            type="text"
+            maxLength={LEARNER_NAME_MAX}
+            value={learnerName}
+            onChange={(e) => {
+              setLearnerName(e.target.value);
+              setNameStatus(null);
+            }}
+            className="min-w-0 flex-1 rounded-md border border-gray-700 bg-gray-900 px-3 py-1.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+          />
+          <Button type="submit" size="sm" variant="outline">
+            Save name
+          </Button>
+        </form>
+        {nameStatus && (
+          <p role="status" aria-live="polite" className="text-xs text-gray-400">
+            {nameStatus}
+          </p>
+        )}
+      </section>
+
+      <hr className="border-gray-700" />
 
       {/* ── Appearance / theme ── */}
       <section aria-labelledby="theme-heading" className="space-y-3">
