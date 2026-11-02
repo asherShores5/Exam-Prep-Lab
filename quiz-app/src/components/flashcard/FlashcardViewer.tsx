@@ -341,7 +341,11 @@ export const FlashcardViewer = ({
   // Local copy of questions for shuffle support (deck review mode)
   const [localQuestions, setLocalQuestions] = useState(questions);
 
-  const [prevQuestions, setPrevQuestions] = useState(questions);
+  // Parents rebuild the questions array every render, so track the question SET
+  // by content (order included), not array identity, or a local shuffle resets
+  // on every re-render (B10).
+  const questionsKey = questions.map(q => `${q.id}:${q.question}`).join('\u0000');
+  const [prevQuestionsKey, setPrevQuestionsKey] = useState(questionsKey);
   // Set by Shuffle: a parent reshuffle in the same click restarts at card 1
   // instead of following the current card. Cleared after that render commits.
   const restartOnSyncRef = useRef(false);
@@ -374,8 +378,8 @@ export const FlashcardViewer = ({
   // the index points at by identity; if it left, keep the index (it now points at
   // the next remaining card), clamped to the new list. Done during render so the
   // stale index never reaches the JSX below.
-  if (questions !== prevQuestions) {
-    setPrevQuestions(questions);
+  if (questionsKey !== prevQuestionsKey) {
+    setPrevQuestionsKey(questionsKey);
     setLocalQuestions(questions);
     setCurrentIndex(restartOnSyncRef.current ? 0 : relocateIndex(localQuestions, currentIndex, questions));
     return null; // React re-renders immediately with the synced state
