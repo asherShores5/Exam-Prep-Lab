@@ -27,9 +27,13 @@ export interface QuizModeProps {
   selectedExam: string;
   /** Optional Exam Simulation preset for this exam (from index.json). */
   simPreset?: ExamSimPreset;
+  /** False while the tab is hidden (QuizMode stays mounted, B4); disables keyboard nav. */
+  visible?: boolean;
+  /** Called with true while a Quiz or Exam Simulation is running, false otherwise (B3). */
+  onRunningChange?: (running: boolean) => void;
 }
 
-export const QuizMode = ({ questions, selectedExam, simPreset }: QuizModeProps) => {
+export const QuizMode = ({ questions, selectedExam, simPreset, visible = true, onRunningChange }: QuizModeProps) => {
   const [answers, setAnswers] = useState<number[][]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showResults, setShowResults] = useState(false);
@@ -261,8 +265,14 @@ export const QuizMode = ({ questions, selectedExam, simPreset }: QuizModeProps) 
   // Keyboard navigation during an in-progress quiz (number keys select an
   // option, arrows move between questions, Enter advances/finishes).
   const inQuiz = quizStarted && !showResults && quizQuestions.length > 0;
+  const running = quizStarted && !showResults;
+  useEffect(() => {
+    onRunningChange?.(running);
+  }, [running, onRunningChange]);
+  // Release the lock if QuizMode unmounts mid-quiz (e.g. error boundary).
+  useEffect(() => () => onRunningChange?.(false), [onRunningChange]);
   useKeyboardNav({
-    enabled: inQuiz,
+    enabled: inQuiz && visible,
     onSelectOption: (idx) => {
       const q = quizQuestions[currentIndex];
       if (q && idx < q.options.length) selectAnswer(idx, isSingleSelect(q.correctAnswers));
