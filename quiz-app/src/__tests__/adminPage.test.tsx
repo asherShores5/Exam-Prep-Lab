@@ -1,6 +1,7 @@
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { AdminPage, type AdminPageConfig } from '../admin/AdminPage';
+import { StrictMode } from 'react';
 import { isAdminPath } from '../lib/route';
 
 const A = '3b241101-e2bb-4255-8caf-4136c566a962';
@@ -157,5 +158,21 @@ describe('Admin Page', () => {
     expect(await screen.findByRole('button', { name: /Pat/ })).toBeInTheDocument();
     expect(window.location.search).toBe('');
     expect(window.location.pathname).toBe('/admin');
+  });
+
+  it('finishes a callback under React StrictMode (effects run twice), trading the code once', async () => {
+    sessionStorage.setItem('epl_admin_pending', JSON.stringify({ state: 's2', verifier: 'v'.repeat(43) }));
+    window.history.replaceState(null, '', '/admin?code=xyz&state=s2');
+    const fetchFn = route((url) =>
+      url.endsWith('/oauth2/token') ? json(200, { access_token: 'AT', expires_in: 3600 }) : json(200, LEARNERS),
+    );
+    render(
+      <StrictMode>
+        <AdminPage config={CONFIG} fetchFn={fetchFn} />
+      </StrictMode>,
+    );
+    expect(await screen.findByRole('button', { name: /Pat/ })).toBeInTheDocument();
+    expect(screen.queryByText(/Sign-in did not complete/)).not.toBeInTheDocument();
+    expect(fetchFn.mock.calls.filter(([u]) => String(u).endsWith('/oauth2/token'))).toHaveLength(1);
   });
 });

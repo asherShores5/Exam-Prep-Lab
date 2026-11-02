@@ -89,13 +89,27 @@ export interface CompleteDeps {
   now?: () => number;
 }
 
+/** In-flight code exchanges by `code|state`, so a second call (React StrictMode re-running the
+ * callback effect) joins the first instead of finding the verifier already consumed. */
+const inFlight = new Map<string, Promise<boolean>>();
+
 /**
  * Finishes sign-in from the callback's query string. Returns true when an access token was
- * stored. The pending state/verifier is consumed whatever happens, so a callback can't be replayed.
+ * stored. The pending state/verifier is consumed whatever happens, so a callback can't be replayed
+ * once its exchange has settled; calls made while it is still running share its result.
  */
-export async function completeSignIn(config: AdminAuthConfig, search: string, deps: CompleteDeps = {}): Promise<boolean> {
-  const { fetchFn = fetch, now = Date.now } = deps;
+export function completeSignIn(config: AdminAuthConfig, search: string, deps: CompleteDeps = {}): Promise<boolean> {
   const params = new URLSearchParams(search);
+  const key = `${params.get('code')}|${params.get('state')}`;
+  const running = inFlight.get(key);
+  if (running) return running;
+  const exchange = exchangeCode(config, params, deps).finally(() => inFlight.delete(key));
+  inFlight.set(key, exchange);
+  return exchange;
+}
+
+async function exchangeCode(config: AdminAuthConfig, params: URLSearchParams, deps: CompleteDeps): Promise<boolean> {
+  const { fetchFn = fetch, now = Date.now } = deps;
   const code = params.get('code');
   const state = params.get('state');
   const pending = store.read<Pending>(PENDING_KEY);
