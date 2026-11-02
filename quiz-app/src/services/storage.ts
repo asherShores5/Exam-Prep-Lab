@@ -195,6 +195,14 @@ export const StorageService = {
     writeRaw(STORAGE_KEYS.SELECTED_EXAM, examId);
   },
 
+  clearSelectedExam(): void {
+    try {
+      localStorage.removeItem(STORAGE_KEYS.SELECTED_EXAM);
+    } catch {
+      // storage blocked: nothing to forget
+    }
+  },
+
   // ── Decks ─────────────────────────────────────────────────────────────────
 
   getDecks(): Deck[] {

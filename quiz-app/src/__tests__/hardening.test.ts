@@ -8,6 +8,8 @@ import { StorageService, STORAGE_KEYS, QUOTA_EXCEEDED_EVENT } from '../services/
 import { addTag, getTags, getAllTagsForExam } from '../services/tagService';
 import { validateExamQuestions } from '../services/validateExam';
 import { examBankRuntimeCaching } from '../lib/examBankCaching';
+import { readdirSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
 
 beforeEach(() => localStorage.clear());
 afterEach(() => vi.restoreAllMocks());
@@ -155,6 +157,25 @@ describe('B11: exam-bank runtime caching', () => {
 function quotaError(): DOMException {
   return new DOMException('full', 'QuotaExceededError');
 }
+
+describe('selected exam goes through StorageService', () => {
+  it('clearSelectedExam forgets the saved exam', () => {
+    StorageService.saveSelectedExam('AWS-SAA-C03');
+    StorageService.clearSelectedExam();
+    expect(StorageService.getSelectedExam()).toBeNull();
+  });
+
+  it('App.tsx and components never call localStorage directly', () => {
+    const files = [
+      'src/App.tsx',
+      ...readdirSync('src/components', { recursive: true, encoding: 'utf8' })
+        .filter((f) => /\.tsx?$/.test(f))
+        .map((f) => join('src/components', f)),
+    ];
+    const offenders = files.filter((f) => /\blocalStorage\./.test(readFileSync(f, 'utf8')));
+    expect(offenders).toEqual([]);
+  });
+});
 
 describe('B9: saveSelectedExam is quota-safe', () => {
   it('dispatches the quota event instead of throwing', () => {

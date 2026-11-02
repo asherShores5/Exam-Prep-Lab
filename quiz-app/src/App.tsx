@@ -4,7 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from './components/ui/tabs';
 import { Button } from './components/ui/button';
 import { X, PlayCircle } from 'lucide-react';
 import type { LegacyQuestion, ExamIndex } from './types/index';
-import { StorageService, STORAGE_KEYS, QUOTA_EXCEEDED_EVENT, type QuotaExceededDetail } from './services/storage';
+import { StorageService, QUOTA_EXCEEDED_EVENT, type QuotaExceededDetail } from './services/storage';
 import { SettingsPanel } from './components/settings/SettingsPanel';
 import { ProgressDashboard } from './components/progress/ProgressDashboard';
 import { ReviewMode } from './components/review/ReviewMode';
@@ -120,7 +120,7 @@ const QuizApp = () => {
     if (savedExam && examIndex.some(e => e.id === savedExam)) {
       setSelectedExam(savedExam);
     } else if (savedExam) {
-      localStorage.removeItem(STORAGE_KEYS.SELECTED_EXAM);
+      StorageService.clearSelectedExam();
     }
   }, [examIndex]);
 
