@@ -1,0 +1,98 @@
+name: CI / Deploy
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: quiz-app
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with: { persist-credentials: false }
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: quiz-app/package-lock.json
+      - run: npm ci
+      - run: npm test
+      - run: npm run lint
+      - run: npm run build
+      - run: npm run assign-ids:check
+
+  # hashFiles() is not allowed in a job-level `if`, so the infra check runs as a
+  # step after checkout; every later step (and deploy-infra) is gated on it.
+  infra-test:
+    runs-on: ubuntu-latest
+    outputs:
+      present: ${{ steps.infra.outputs.present }}
+    env:
+      AWS_REGION: us-west-1
+      CDK_DEFAULT_ACCOUNT: "334772842524"
+      CDK_DEFAULT_REGION: us-west-1
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with: { persist-credentials: false }
+      - id: infra
+        run: echo "present=${{ hashFiles('infra/package.json') != '' }}" >> "$GITHUB_OUTPUT"
+      - if: steps.infra.outputs.present == 'true'
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: infra/package-lock.json
+      - if: steps.infra.outputs.present == 'true'
+        working-directory: infra
+        run: npm ci
+      - if: steps.infra.outputs.present == 'true'
+        working-directory: infra
+        run: npm test
+      - if: steps.infra.outputs.present == 'true'
+        working-directory: infra
+        run: npm run typecheck
+      - if: steps.infra.outputs.present == 'true'
+        working-directory: infra
+        run: npm run synth
+
+  deploy-infra:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.infra-test.outputs.present == 'true'
+    needs: [test, infra-test]
+    runs-on: ubuntu-latest
+    # Waits for Asher's approval in GitHub; the AWS role trusts only this environment.
+    environment: production
+    permissions:
+      id-token: write # OIDC -> AWS, no stored keys
+      contents: read
+    defaults:
+      run:
+        working-directory: infra
+    env:
+      AWS_REGION: us-west-1
+      CDK_DEFAULT_ACCOUNT: "334772842524"
+      CDK_DEFAULT_REGION: us-west-1
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with: { persist-credentials: false }
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: infra/package-lock.json
+      - uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
+        with:
+          role-to-assume: arn:aws:iam::334772842524:role/exam-prep-lab-github-deploy
+          aws-region: us-west-1
+      # infra/package.json "deploy" must be: cdk deploy --all --require-approval never
+      - run: npm ci && npm run deploy
