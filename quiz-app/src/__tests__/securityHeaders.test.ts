@@ -68,7 +68,7 @@ describe('CSP origins match infra', () => {
     const connect = csp().get('connect-src') ?? [];
     expect(connect).toContain("'self'");
     expect(connect).toContain(hostedUi);
-    expect(connect).toContain('https://*.execute-api.us-west-1.amazonaws.com');
+    expect(connect).toContain('https://f2qdrtmrgh.execute-api.us-west-1.amazonaws.com');
   });
 
   it('lets forms go only to self and the hosted UI', () => {
