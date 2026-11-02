@@ -1,6 +1,5 @@
 import type { LegacyQuestion } from '../types/index';
-
-const STORAGE_KEY = 'epl_question_tags';
+import { StorageService } from './storage';
 
 export interface TagAssignment {
   examId: string;
@@ -8,18 +7,21 @@ export interface TagAssignment {
   tags: string[];
 }
 
+function isTagAssignment(v: unknown): v is TagAssignment {
+  if (v === null || typeof v !== 'object') return false;
+  const a = v as Record<string, unknown>;
+  return typeof a.examId === 'string'
+    && typeof a.questionKey === 'string'
+    && Array.isArray(a.tags)
+    && a.tags.every(t => typeof t === 'string');
+}
+
 function readStore(): TagAssignment[] {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return [];
-    return JSON.parse(raw) as TagAssignment[];
-  } catch {
-    return [];
-  }
+  return StorageService.getQuestionTags().filter(isTagAssignment);
 }
 
 function writeStore(assignments: TagAssignment[]): void {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(assignments));
+  StorageService.saveQuestionTags(assignments);
 }
 
 function findOrCreate(

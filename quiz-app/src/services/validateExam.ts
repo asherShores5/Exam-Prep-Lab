@@ -34,6 +34,22 @@ export function validateExamQuestions(
       return;
     }
 
+    const options = obj.options as unknown[];
+    const answers = obj.correctAnswers as unknown[];
+    const problems: string[] = [];
+    if (options.length === 0) problems.push('no options');
+    if (!options.every(o => typeof o === 'string')) problems.push('non-string option');
+    if (answers.length === 0) problems.push('empty correctAnswers');
+    if (!answers.every(a => Number.isInteger(a) && (a as number) >= 0 && (a as number) < options.length)) {
+      problems.push('correctAnswers index out of range');
+    }
+
+    if (problems.length > 0) {
+      warnings.push(`${examId}[${idx}]: ${problems.join(', ')} — skipped.`);
+      skipped++;
+      return;
+    }
+
     valid.push(item as LegacyQuestion);
   });
 
