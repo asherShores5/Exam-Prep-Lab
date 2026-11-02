@@ -276,6 +276,24 @@ const MultipleChoiceCard = ({ question, onResult }: MultipleChoiceCardProps) => 
   );
 };
 
+/** Identity of a card across list rebuilds: its stable id, else its prompt. */
+const cardKey = (q: LegacyQuestion) => (typeof q.id === 'number' ? `id:${q.id}` : `q:${q.question}`);
+
+/**
+ * Where the viewer should point after its list changes from `prev` to `next`:
+ * the same card if it is still there, otherwise the same position (which is now
+ * the next remaining card), clamped to the new list.
+ */
+function relocateIndex(prev: LegacyQuestion[], index: number, next: LegacyQuestion[]): number {
+  const current = prev[index];
+  if (current) {
+    const key = cardKey(current);
+    const found = next.findIndex(q => cardKey(q) === key);
+    if (found !== -1) return found;
+  }
+  return Math.max(0, Math.min(index, next.length - 1));
+}
+
 // ---------------------------------------------------------------------------
 // FlashcardViewer
 // ---------------------------------------------------------------------------
@@ -323,10 +341,15 @@ export const FlashcardViewer = ({
   // Local copy of questions for shuffle support (deck review mode)
   const [localQuestions, setLocalQuestions] = useState(questions);
 
-  // Sync localQuestions when the questions prop changes
-  useEffect(() => {
-    setLocalQuestions(questions);
-  }, [questions]);
+  // Parents rebuild the questions array every render, so track the question SET
+  // by content (order included), not array identity, or a local shuffle resets
+  // on every re-render (B10).
+  const questionsKey = questions.map(q => `${q.id}:${q.question}`).join('\u0000');
+  const [prevQuestionsKey, setPrevQuestionsKey] = useState(questionsKey);
+  // Set by Shuffle: a parent reshuffle in the same click restarts at card 1
+  // instead of following the current card. Cleared after that render commits.
+  const restartOnSyncRef = useRef(false);
+  useEffect(() => { restartOnSyncRef.current = false; });
 
   // Swipe gesture support for touch navigation
   const cardContainerRef = useRef<HTMLDivElement>(null);
@@ -349,6 +372,18 @@ export const FlashcardViewer = ({
   const [saveDeckId, setSaveDeckId] = useState('');
   const [newDeckNameForSave, setNewDeckNameForSave] = useState('');
   const [showSavePanel, setShowSavePanel] = useState(false);
+
+  // Sync localQuestions when the questions prop changes (B1). In a filtered view
+  // the card just rated / un-starred drops out of the list, so re-locate the card
+  // the index points at by identity; if it left, keep the index (it now points at
+  // the next remaining card), clamped to the new list. Done during render so the
+  // stale index never reaches the JSX below.
+  if (questionsKey !== prevQuestionsKey) {
+    setPrevQuestionsKey(questionsKey);
+    setLocalQuestions(questions);
+    setCurrentIndex(restartOnSyncRef.current ? 0 : relocateIndex(localQuestions, currentIndex, questions));
+    return null; // React re-renders immediately with the synced state
+  }
 
   if (!localQuestions.length) return <QuestionSkeleton />;
 
@@ -500,6 +535,7 @@ export const FlashcardViewer = ({
             size="sm"
             onClick={() => {
               setLocalQuestions(shuffle(localQuestions));
+              restartOnSyncRef.current = true;
               shuffleQuestions();
               handleStartOver();
             }}

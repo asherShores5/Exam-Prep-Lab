@@ -4,7 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from './components/ui/tabs';
 import { Button } from './components/ui/button';
 import { X, PlayCircle } from 'lucide-react';
 import type { LegacyQuestion, ExamIndex } from './types/index';
-import { StorageService, STORAGE_KEYS, QUOTA_EXCEEDED_EVENT, type QuotaExceededDetail } from './services/storage';
+import { StorageService, QUOTA_EXCEEDED_EVENT, type QuotaExceededDetail } from './services/storage';
 import { SettingsPanel } from './components/settings/SettingsPanel';
 import { ProgressDashboard } from './components/progress/ProgressDashboard';
 import { ReviewMode } from './components/review/ReviewMode';
@@ -14,6 +14,8 @@ import { ErrorBoundary } from './components/ui/ErrorBoundary';
 import { validateExamQuestions } from './services/validateExam';
 import { shuffle } from './lib/shuffle';
 import { watchSystemTheme } from './services/theme';
+import { LearnerGate } from './components/learner/LearnerGate';
+import { startActivity, recordExamOpened } from './services/activity';
 
 // ---------------------------------------------------------------------------
 // QuizApp — root component
@@ -31,11 +33,19 @@ const TAB_LABELS: Record<TabValue, string> = {
 
 const TAB_ORDER: TabValue[] = ['review', 'quiz', 'flashcards', 'settings', 'progress'];
 
+const EMPTY_BANK: LegacyQuestion[] = [];
+
 const QuizApp = () => {
   const [examIndex, setExamIndex] = useState<ExamIndex[]>([]);
   const [selectedExam, setSelectedExam] = useState<string>('');
-  const [questions, setQuestions] = useState<LegacyQuestion[]>([]);
-  const [skippedCount, setSkippedCount] = useState(0);
+  // The loaded bank, tagged with the exam it belongs to. `questions` is derived
+  // so a bank for another exam is never shown or written to (B5).
+  const [bank, setBank] = useState<{ examId: string; questions: LegacyQuestion[]; skipped: number }>(
+    { examId: '', questions: [], skipped: 0 },
+  );
+  const [reloadKey, setReloadKey] = useState(0);
+  // True while a Quiz or Exam Simulation is running; locks the exam picker (B3).
+  const [quizRunning, setQuizRunning] = useState(false);
   const [storageWarning, setStorageWarning] = useState<string | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
 
@@ -56,6 +66,14 @@ const QuizApp = () => {
   // Keep 'system' theme tracking live OS changes (initial theme is applied by
   // the no-FOUC script in index.html before React mounts).
   useEffect(() => watchSystemTheme(() => {}), []);
+
+  // Activity (SPEC §9.2): today's Visit + outbox flush on load and when back online.
+  useEffect(() => startActivity(), []);
+
+  // An Exam Opened each time the Learner switches to (or returns to) an Exam.
+  useEffect(() => {
+    if (selectedExam) recordExamOpened(selectedExam);
+  }, [selectedExam]);
 
   // Check storage usage on mount and warn if >80%
   useEffect(() => {
@@ -102,40 +120,42 @@ const QuizApp = () => {
     if (savedExam && examIndex.some(e => e.id === savedExam)) {
       setSelectedExam(savedExam);
     } else if (savedExam) {
-      localStorage.removeItem(STORAGE_KEYS.SELECTED_EXAM);
+      StorageService.clearSelectedExam();
     }
   }, [examIndex]);
 
-  const fetchExamQuestions = useCallback((exam: ExamIndex) => {
-    fetch(exam.path)
+  useEffect(() => {
+    if (!selectedExam) return;
+    StorageService.saveSelectedExam(selectedExam);
+    const exam = examIndex.find(e => e.id === selectedExam);
+    if (!exam) return;
+    // Cancel the previous exam's request; a late response is ignored (B5).
+    const controller = new AbortController();
+    fetch(exam.path, { signal: controller.signal })
       .then(res => {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         return res.json();
       })
       .then((data) => {
+        if (controller.signal.aborted) return;
         const { valid, skipped } = validateExamQuestions(data, exam.id);
-        setQuestions(valid);
-        setSkippedCount(skipped);
+        setBank({ examId: exam.id, questions: valid, skipped });
         setLoadError(null);
       })
       .catch((err) => {
+        if (controller.signal.aborted) return;
         console.error(err);
         setLoadError(`Failed to load exam questions. ${err instanceof Error ? err.message : ''}`);
       });
-  }, []);
+    return () => controller.abort();
+  }, [selectedExam, examIndex, reloadKey]);
 
-  useEffect(() => {
-    if (selectedExam) {
-      StorageService.saveSelectedExam(selectedExam);
-      const exam = examIndex.find(e => e.id === selectedExam);
-      if (exam) {
-        fetchExamQuestions(exam);
-      }
-    }
-  }, [selectedExam, examIndex, fetchExamQuestions]);
+  const bankMatches = bank.examId === selectedExam;
+  const questions = bankMatches ? bank.questions : EMPTY_BANK;
+  const skippedCount = bankMatches ? bank.skipped : 0;
 
   const shuffleQuestions = () => {
-    setQuestions(questions => shuffle(questions));
+    setBank(b => ({ ...b, questions: shuffle(b.questions) }));
   };
 
   return (
@@ -170,8 +190,7 @@ const QuizApp = () => {
               if (examIndex.length === 0) {
                 fetchExamIndex();
               } else if (selectedExam) {
-                const exam = examIndex.find(e => e.id === selectedExam);
-                if (exam) fetchExamQuestions(exam);
+                setReloadKey(k => k + 1);
               }
             }}
             className="ml-4 shrink-0"
@@ -185,8 +204,8 @@ const QuizApp = () => {
         <label className="block text-sm font-medium text-gray-300 mb-1.5">
           Select an exam to get started
         </label>
-        <Select value={selectedExam} onValueChange={setSelectedExam}>
-          <SelectTrigger>
+        <Select value={selectedExam} onValueChange={setSelectedExam} disabled={quizRunning}>
+          <SelectTrigger title={quizRunning ? 'Finish the quiz to switch exams' : undefined}>
             <SelectValue placeholder="Choose an exam..." />
           </SelectTrigger>
           <SelectContent>
@@ -272,12 +291,15 @@ const QuizApp = () => {
                 <ReviewMode questions={questions} shuffleQuestions={shuffleQuestions} examId={selectedExam} />
               </ErrorBoundary>
             </TabsContent>
-            <TabsContent value="quiz">
+            {/* Kept mounted so a quiz in progress survives tab switches (B4). */}
+            <TabsContent value="quiz" forceMount hidden={activeTab !== 'quiz'}>
               <ErrorBoundary fallbackTitle="Quiz Mode Error">
                 <QuizMode
                   questions={questions}
                   selectedExam={selectedExam}
                   simPreset={examIndex.find(e => e.id === selectedExam)?.sim}
+                  visible={activeTab === 'quiz'}
+                  onRunningChange={setQuizRunning}
                 />
               </ErrorBoundary>
             </TabsContent>
@@ -307,4 +329,11 @@ const QuizApp = () => {
   );
 };
 
-export default QuizApp;
+/** Asks a new Learner for their name before the app renders (SPEC §9.1). */
+const GatedQuizApp = () => (
+  <LearnerGate>
+    <QuizApp />
+  </LearnerGate>
+);
+
+export default GatedQuizApp;

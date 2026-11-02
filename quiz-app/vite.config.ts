@@ -3,6 +3,7 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 import path from 'path'
+import { examBankRuntimeCaching } from './src/lib/examBankCaching'
 
 export default defineConfig({
   plugins: [
@@ -30,20 +31,13 @@ export default defineConfig({
         // deliberately NOT in this glob (no `.json`) so the ~4MB of banks don't
         // bloat the install — they're runtime-cached on first view instead.
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+        // The Admin Page chunk (src/admin/AdminApp.tsx, lazy) is not precached, so a Learner's
+        // service worker never downloads it (SPEC §9.3).
+        globIgnores: ['**/AdminApp-*.js'],
         navigateFallback: '/index.html',
-        runtimeCaching: [
-          {
-            // Exam index + per-exam banks: serve cached, refresh in background,
-            // so any exam (and the index) works offline after its first load.
-            urlPattern: ({ url }) => url.pathname.startsWith('/exams/') && url.pathname.endsWith('.json'),
-            handler: 'StaleWhileRevalidate',
-            options: {
-              cacheName: 'exam-banks',
-              expiration: { maxEntries: 40, maxAgeSeconds: 60 * 60 * 24 * 30 },
-              cacheableResponse: { statuses: [0, 200] },
-            },
-          },
-        ],
+        // Exam index + per-exam banks: NetworkFirst with offline cache fallback,
+        // JSON-only (see src/lib/examBankCaching.ts, B11).
+        runtimeCaching: [examBankRuntimeCaching],
       },
     }),
   ],

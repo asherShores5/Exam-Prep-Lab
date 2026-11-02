@@ -179,8 +179,9 @@ export function learningAutoDeckId(examId: string): string {
  *   (existing state always wins — re-running is a no-op).
  * - "Known" cards → status 'known' (mastery carried over, min 1);
  *   "Still Learning" cards → status 'still-learning'.
- * - Returns the auto-deck card ids that were consumed, so the caller can drop
- *   them from epl_flashcards.
+ * - Returns the auto-deck card ids that were consumed (migrated, or already
+ *   covered by study state), so the caller can drop them from epl_flashcards.
+ *   Cards whose prompt isn't in `questions` are left alone.
  */
 export function migrateAutoDecksForExam(
   examId: string,
@@ -208,9 +209,10 @@ export function migrateAutoDecksForExam(
   const consumedCardIds: string[] = [];
 
   for (const card of autoCards) {
-    consumedCardIds.push(card.id);
     const questionId = promptToId.get(card.front);
-    if (questionId === undefined) continue;     // prompt no longer in bank
+    // Prompt not in this bank: keep the card (the bank may be stale or partial, B6).
+    if (questionId === undefined) continue;
+    consumedCardIds.push(card.id);
     if (have.has(questionId)) continue;          // already has study state
     have.add(questionId);
     const known = card.deckId === knownId;

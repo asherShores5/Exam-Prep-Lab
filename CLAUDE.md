@@ -2,149 +2,169 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## ⚠️ Active overhaul — read SPEC.md first
+## Current state
 
-`SPEC.md` (repo root) is the **source of truth for product direction and planned work**. An
-overhaul is in progress. Read `SPEC.md` before planning any feature work. Progress so far:
+`SPEC.md` is the source of truth for product direction and the work log; read it before planning
+feature work. Domain words (Exam, Bank, Question, Study State, Deck, Quiz, Exam Simulation, Learner,
+Activity, Result, Admin Page) are defined in `GLOSSARY.md`; use them in code, docs and commits.
 
-- ✅ **Step 1 (Stabilize) done** (`SPEC.md` §8): shared Fisher-Yates (`lib/shuffle.ts`), shared
-  answer scoring (`lib/answers.ts`), Review show-answer reset, single/multi-select UI, filter
-  reset on exam change. `bug-conditions.test.ts` re-authored against real modules.
-- ✅ **Step 2 done** (`SPEC.md` §3.1/§5.1/§5.2): **Import/Export and all frontend data editing
-  are removed** — the app is fully static; questions are edited by committing JSON to
-  `public/exams/`. The dual question-model system is **collapsed**: the canonical
-  `Question`/`QuizSession`/`AppDataExport` types and `transformLegacy` are deleted. `LegacyQuestion`
-  is the only question shape, now with a **stable integer `id`** (`scripts/assign-ids.mjs`). The
-  "Data" tab is now a **"Settings"** tab.
-- ✅ **Step 3 (flashcard overhaul) done** (`SPEC.md` §3.2/§3.3/§3.4): **per-question study state**
-  (`QuestionStudyState`, `epl_study_state`, `services/studyState.ts`) keyed on `(examId, id)`.
-  Practice-Incorrect/Known/Still-Learning/Starred are **filtered views** over study state (auto-decks
-  removed); ratings + the `StarToggle` (in Flashcards, Review, Quiz review) write study state by id;
-  `QuizResult.incorrectQuestionIds` feeds Practice-Incorrect; Progress mastery reads study state.
-  **Deferred:** custom-deck → id migration (custom decks + `tagService` still key on the prompt string).
-- ✅ **Step 4 (light/dark theme) done** (`SPEC.md` §3.7): CSS-var token system in `src/index.css`
-  (gray scale + semantic tokens; the gray ramp reverses under light so existing `gray-*` classes flip
-  automatically), `services/theme.ts` (system default, `.dark` class, `epl_theme`, no-FOUC script in
-  `index.html`), 3-way toggle in Settings. Accent colors not yet tokenized (follow-up).
-- ✅ **Step 5 (Exam Simulation) done** (`SPEC.md` §3.5): per-exam `sim` presets in `index.json`
-  (`ExamIndex.sim`), `lib/examSim.ts` (`resolveSimPreset` with A.5 defaults + cap-to-bank, `isPass`),
-  an "Exam Simulation" card in Quiz that runs a full-length timed attempt with a PASS/FAIL result;
-  `QuizResult.passThresholdPercent` records the graded threshold.
-- ✅ **Step 6 (PWA / offline) done** (`SPEC.md` §3.6): `vite-plugin-pwa` in `vite.config.ts` generates
-  the service worker + `manifest.webmanifest`. App shell precached; exam banks runtime-cached
-  (StaleWhileRevalidate). PWA icons live in `public/`; `src/pwa.ts` registers the SW with a prompt-to-reload
-  update banner (`registerType: 'prompt'`). `dev-dist`/`dist` are gitignored.
-- 🟡 **Step 7 (UX polish + keyboard nav) substantially done** (`SPEC.md` §6/§3.8): centralized toasts
-  (`components/ui/toast.tsx` — `ToastProvider` wraps the app in `main.tsx`, `useToast()`; replaced the
-  ad-hoc per-component toasts), loading skeletons (`components/ui/skeleton.tsx`), keyboard nav
-  (`hooks/useKeyboardNav.ts` in Quiz + Review), quiz question-grid + flag-for-review, low-time warning +
-  finish-confirm. **Remaining §6:** deck ergonomics, mobile 44px polish, time-per-question, spacing/type tokens.
+- SPEC §8 steps 1-7 and step 9 (§9, 2026-11) have landed: stable Question ids, Import/Export
+  removed, per-question Study State, light/dark theme, Exam Simulation, PWA, UX polish, then the
+  Learner gate, Activity recording with an outbox, the `infra/` Activity API, the Admin Page,
+  audit bugs B1-B11 fixed test-first, `customHttp.yml` security headers, CI and Dependabot.
+- Owner-only steps still open after §9 (the code is done): the first infra deploy, the Cognito
+  admin user, the three Amplify env vars, branch protection and the `production` environment,
+  removing the stale Amplify redirect rule, and the live header/401 checks. Runbook:
+  `docs/DEPLOY-RUNBOOK.md`.
+- Open follow-ups, none blocking: custom Decks and `tagService.ts` still key on the prompt string
+  (migrate to `(examId, id)`, SPEC §3.3 / Appendix A.3); §6 polish (Deck ergonomics, 44px targets,
+  time-per-question, spacing/type tokens, accent-color tokens); §4 domain backfill and converting
+  more Banks from `unsorted-data/`.
 
-**All 7 sequenced steps (`SPEC.md` §8) are done or substantially done.** What remains, for picking
-this up later (none blocking; pick by priority):
-- **Deferred — custom-deck identity migration.** Custom `Deck`/`Flashcard` records and `tagService.ts`
-  still key on the prompt string; migrate to `(examId, id)` membership (`Deck.questionIds`, SPEC §3.3 /
-  Appendix A.3). This is the last prompt-string-keyed code.
-- **§6 remainder (P2 polish):** deck ergonomics (detail view, bulk add/remove, card preview), mobile
-  44px-target audit + swipe-vs-scroll, time-per-question in results, spacing/typography token pass,
-  tokenize accent colors (`text-blue-200` etc.) for per-theme contrast.
-- **§8 step 8 (later/separate):** domain-metadata backfill via batched subagents (§4); convert more
-  exam banks from `unsorted-data/` (run `npm run assign-ids` after adding any).
-- **§7 repo cleanup:** stale scrape artifacts, `assets/old/`, rewrite the stale root `README.md`,
-  retire `CHANGES.md`.
-
-Working style that's been used here: one step at a time, propose before editing, keep `npm test` /
-`npm run build` / `npm run lint` green after each, and update SPEC.md + this file's progress bullets +
-the baseline memory when a step lands.
-
-The sections below describe the codebase **as it exists today** — accurate for understanding
-current code, but check `SPEC.md` for where a given subsystem is headed.
+Working style: one step at a time, propose before editing, keep tests, lint and build green, and
+update SPEC.md and this section when a step lands.
 
 ## Repository layout
 
-This repo has two parts:
-
-- **`quiz-app/`** — the React + TypeScript + Vite web app (the product). Almost all development happens here. Deployed at [exampreplab.com](https://www.exampreplab.com) via AWS Amplify (push to `main`).
-- **`unsorted-data/`** — raw source question banks (from the ditectrev GitHub repos), kept as input for future content conversion. Not shipped, not part of the build.
-
-> A `scrape/` directory of one-off Python parsers and an `assets/old/` vanilla-JS prototype previously existed but were removed. The scrape pipeline can be rebuilt as needed; shipped exam content lives in `quiz-app/public/exams/`.
+- **`quiz-app/`**: the React + TypeScript + Vite web app. Live at https://exampreplab.ashershores.com
+  via AWS Amplify, which builds on every merge to `main`.
+- **`infra/`**: CDK app (us-west-1) for the Activity API, its DynamoDB table and the admin Cognito
+  pool. Contract and stacks in `infra/README.md`; reasons in `docs/adr/0001-small-backend-for-learner-activity.md`.
+- **`customHttp.yml`**: Amplify response headers (CSP, HSTS, etc.).
+- **`scrape/`**: offline Python scripts that convert raw dumps into Bank JSON. Not part of the build.
+- **`unsorted-data/`**: raw source Banks for future conversion. `unsorted-data/udemy/` is local-only
+  (gitignored).
+- **`.github/workflows/ci.yml`**: app tests/lint/build/assign-ids check, infra tests/typecheck/synth,
+  and the `deploy-infra` job (push to `main`, gated by the `production` environment, OIDC role).
 
 ## Commands
 
-All app commands run from `quiz-app/`:
+Web app, from `quiz-app/`:
 
 ```bash
-npm run dev      # Vite dev server
-npm run build    # tsc -b && vite build  (type-checks, then builds to dist/)
-npm run lint     # eslint .
-npm test         # vitest --run  (one-shot; CI mode)
-npm run assign-ids        # assign stable integer ids to public/exams/*.json (idempotent)
-npm run assign-ids:check  # report-only; exits non-zero if any bank is missing ids
+npm run dev               # Vite dev server (http://localhost:5173; Admin Page at /admin)
+npm run build             # tsc -b && vite build
+npm run lint              # 0 errors, 2 known warnings
+npm test                  # vitest --run
+npm run assign-ids        # assign stable ids to public/exams/*.json (idempotent)
+npm run assign-ids:check  # CI guard; non-zero if any Bank needs ids or reformatting
+npx vitest run src/__tests__/studyState.test.ts   # one file
+npx vitest run -t "name of a test"                # one test
 ```
 
-Run a single test file or test:
+Infra, from `infra/`. The dev desktop defaults to us-west-2, so any `cdk` command must pin the region:
 
 ```bash
-npx vitest run src/__tests__/bug-conditions.test.ts
-npx vitest run -t "SAP-C02 entry should have id"
-npx vitest         # watch mode
+npm test && npm run typecheck
+npm run synth                                     # script pins AWS_REGION=us-west-1
+AWS_REGION=us-west-1 AWS_DEFAULT_REGION=us-west-1 npx cdk diff    # needs AWS creds
 ```
 
-Deploy outside Amplify (manual S3 sync): `pwsh ./sync_to_s3.ps1` (reads `BUCKET_NAME` / AWS creds from a `.env` file in `quiz-app/`).
+`npm run deploy` is for CI only.
 
 ## Architecture
 
-### One question model — `LegacyQuestion`
+### One question model: `LegacyQuestion`
 
-As of step 2 there is a **single question shape**: `LegacyQuestion`
-(`{ id, question, options, correctAnswers, explanation, domain? }`) — the shape of the **static
-exam JSON files** in `public/exams/`. Review, Quiz, and Flashcard study flows all run on
-`LegacyQuestion[]` loaded at runtime from those files. The old canonical
-`Exam`/`Question`/`QuizSession`/`AppDataExport` model and `transformLegacy.ts` were **deleted** —
-don't reintroduce them. Persisted records in `src/types/index.ts`: the **derived, UUID-keyed**
-`Deck`, `Flashcard`, `ReviewSession`, and the **`(examId, questionId)`-keyed** `QuestionStudyState`.
+There is a **single question shape**: `LegacyQuestion` (`{ id, question, options, correctAnswers,
+explanation, domain? }`), the shape of the static Bank files in `public/exams/`. Review, Quiz and
+Flashcards all run on `LegacyQuestion[]` loaded at runtime. The old canonical
+`Exam`/`Question`/`QuizSession`/`AppDataExport` model and `transformLegacy.ts` were deleted on
+purpose. Persisted records in `src/types/index.ts`: the UUID-keyed `Deck`, `Flashcard`,
+`ReviewSession`, and the `(examId, questionId)`-keyed `QuestionStudyState`.
 
-**Question identity:** the stable per-question identity is the pair `(examId, id)` where `id` is
-the integer assigned by `scripts/assign-ids.mjs` (see Content pipeline). **Per-question study state**
-(known/unknown + stars + mastery) keys on this pair via `services/studyState.ts` (`epl_study_state`).
-⚠️ **Remaining legacy gap:** custom-deck `Flashcard` records still use the prompt string as identity
-(`front`, the `bankMap` lookups in `FlashcardsTab.toViewerQuestions`), and `tagService.ts` keys on
-the same string. Migrating *those* to `(examId, id)` is deferred follow-up work (SPEC §3.3).
+**Question identity** is the pair `(examId, id)`, where `id` comes from `scripts/assign-ids.mjs`.
+Study State (known/still-learning + stars + mastery) keys on it via `services/studyState.ts`
+(`epl_study_state`). Remaining gap: custom-deck `Flashcard` records (`front`, the `bankMap`
+lookups in `FlashcardsTab.toViewerQuestions`) and `tagService.ts` still key on the prompt string.
 
-### Data loading flow
+### Entry and data loading
 
-`App.tsx` is the root. On mount it fetches `/exams/index.json` (the `ExamIndex[]` list), then on exam selection fetches that exam's JSON file. Every loaded file goes through `validateExamQuestions` (`validateExam.ts`), which drops malformed records and reports a skipped count rather than throwing. Adding a new exam = drop a JSON file in `public/exams/` and add an entry to `public/exams/index.json`.
+`main.tsx` renders the Admin Page for `/admin` (`lib/route.ts`), loaded with `React.lazy` as its
+own chunk so Learners never download it and it records no Activity. Every other path renders
+`App` inside `ToastProvider` and the **Learner gate** (`components/learner/LearnerGate.tsx`): a
+one-time name screen that creates `epl_learner` (`services/learner.ts`); if storage is blocked
+the Learner lives in memory and studying still works.
 
-### localStorage is the only persistence — go through StorageService
+`App.tsx` fetches `/exams/index.json`, then the selected Exam's Bank. Every Bank goes through
+`validateExamQuestions` (`validateExam.ts`), which drops malformed records (including bad
+`correctAnswers` and non-string options) and reports a skipped count. Exam switches clear the
+questions and ignore stale responses; the exam picker is disabled while a Quiz runs, and the Quiz
+tab stays mounted (`forceMount` + `hidden`) so switching tabs keeps it.
 
-There is **no backend**. All user data lives in localStorage. **Components must never call `localStorage` directly** — always use `StorageService` (`src/services/storage.ts`), which centralizes keys (`STORAGE_KEYS`, all prefixed `epl_` except two legacy keys), wraps every write in quota-error handling, and dispatches a `QUOTA_EXCEEDED_EVENT` DOM event that `App.tsx` listens for to show a warning banner. (`tagService.ts` is the one exception that touches localStorage directly, using the `epl_question_tags` key.) The service exposes the derived study-data surface: `Decks`, `Flashcards`, `ReviewSessions`, `StudyState` (`epl_study_state`), the legacy `quizAnalytics`/`selectedExam` keys, plus `getStorageUsage` / `clearAllData`.
+### Activity recording and the outbox
 
-There is **no import/export** — it was removed in step 2. The "Settings" tab (`components/settings/SettingsPanel.tsx`) only shows the storage meter and a "Clear local data" action.
+`services/activity.ts` records Visit (once per local day), Exam Opened and Result to
+`POST /activity` (contract in `infra/README.md`). Every Activity is queued in
+`epl_activity_outbox` (cap 200, oldest dropped, items older than 90 days dropped) and sent in
+batches of 20; the outbox flushes on load and on `online`. Each item is checked against the API's
+rules (`isValidActivity`) before it is queued or sent, so bad items are dropped alone. A 400 on a
+multi-item batch retries each item once and drops only the ones that 400 again; network errors,
+429 and 5xx keep items for retry. `activityContract.test.ts` keeps the client limits in step with
+`infra/src/activity/validate.ts`. Recording never throws and never blocks studying. With
+`VITE_ACTIVITY_API` unset it is a no-op.
+
+### localStorage: always through StorageService
+
+Study data lives only in localStorage. **Every read and write goes through `StorageService`**
+(`src/services/storage.ts`), which centralizes keys (`STORAGE_KEYS`,
+`epl_` prefix except two legacy keys), wraps writes in quota-error handling and dispatches
+`QUOTA_EXCEEDED_EVENT` for `App.tsx`'s warning banner. Readers shape-check stored JSON and fall
+back to the default, and drop array/object entries of the wrong shape. The theme preference
+(`services/theme.ts`, `epl_theme`) is read before React mounts and is the one direct caller. `clearAllData` (Settings, "Clear local data") keeps the Learner, the outbox
+and the last-Visit day. There is no import/export.
 
 ### Flashcards & spaced repetition
 
-`FlashcardsTab.tsx` is the hub. As of step 3, **Known / Still Learning / Starred are filtered VIEWS** computed over the exam bank from per-question study state (`services/studyState.ts`, `epl_study_state`) — there are no longer "auto-decks" or copied cards for these. A virtual "All Exam Questions" view (ID `__all_questions__`) streams the raw legacy bank. **Custom decks** remain as user-named `Deck` records with copied `Flashcard` content (the one place still keyed by prompt string — deferred migration). On exam load, `migrateAutoDecksForExam` folds any legacy `__known__`/`__learning__` auto-deck cards into study state once. Rating "Known" increments `masteryLevel`, "Still Learning" resets it to 0 (mirrored in `spacedRepetition.ts`, which computes due dates: 0→+1d, 1→+3d, ≥2→+3×level days). The star toggle in `FlashcardViewer` flips `QuestionStudyState.starred`.
+`FlashcardsTab.tsx` is the hub. Known / Still Learning / Starred / Practice Incorrect are
+**filtered views** over Study State, not stored Decks. A virtual "All Exam Questions" view
+(`__all_questions__`) streams the Bank. Custom Decks are user-named `Deck` records with copied
+`Flashcard` content. On exam load, `migrateAutoDecksForExam` folds legacy `__known__`/`__learning__`
+cards into Study State once, only after the loaded Bank matches the Exam. Rating "Known"
+increments `masteryLevel`, "Still Learning" resets it to 0 (`spacedRepetition.ts`: 0→+1d, 1→+3d,
+≥2→+3×level days).
+
+### Quiz timer
+
+Remaining time is computed from a deadline timestamp (`lib/quizTimer.ts`), not by counting
+interval ticks, so background-tab throttling doesn't skew it; `timeSpent` is per attempt.
+
+### PWA and security headers
+
+`vite-plugin-pwa` precaches the app shell; Banks use the NetworkFirst runtime cache in
+`lib/examBankCaching.ts` (only 200 JSON responses are cached). `customHttp.yml` carries the CSP
+with a sha256 hash of the inline theme script in `index.html`: editing that script makes
+`securityHeaders.test.ts` fail and print the new hash.
 
 ### UI conventions
 
-- shadcn/ui-style primitives in `src/components/ui/` (Tailwind + Radix + `cva`); `cn()` from `src/lib/utils.ts` merges classes. **Light + dark themes** (step 4): colors come from CSS-var tokens in `src/index.css` (`gray-*` scale reverses under light mode; named `background`/`foreground`/`card`/`border`/`ring` tokens for new work). Theme is managed by `services/theme.ts` (`.dark` class on `<html>`). New components should use the token-backed Tailwind classes (e.g. `bg-gray-900`, `text-foreground`) rather than hardcoded hex/`bg-[#…]` so they theme correctly.
-- Feature components are grouped by area: `quiz/`, `review/`, `flashcard/`, `progress/`, `settings/`, `analytics/`, and shared primitives in `ui/`. (The old `management/` dir was deleted in step 2.)
-- Each top-level tab is wrapped in an `ErrorBoundary` in `App.tsx` so one mode crashing doesn't take down the app.
+- shadcn/ui-style primitives in `src/components/ui/` (Tailwind + Radix + `cva`); `cn()` from
+  `src/lib/utils.ts`. Colors come from CSS-var tokens in `src/index.css` (the `gray-*` ramp
+  reverses under light mode; `background`/`foreground`/`card`/`border`/`ring` for new work), so
+  use token-backed classes rather than hardcoded hex. Theme: `services/theme.ts`.
+- Feature components by area: `quiz/`, `review/`, `flashcard/`, `progress/`, `settings/`,
+  `analytics/`, `learner/`, shared `ui/`; the Admin Page in `src/admin/`.
+- Each top-level tab is wrapped in an `ErrorBoundary` in `App.tsx`.
 
 ## Testing
 
-Vitest + jsdom + `@testing-library/react`, with `fast-check` for property tests. Matchers are wired via `src/__tests__/setup.ts` (`@testing-library/jest-dom`). The suite is **all-green** (66 tests as of step 7 — see SPEC.md "Verified baseline"). Test files:
-- `bug-conditions.test.ts` — re-authored in step 1 to exercise the **real** modules (`lib/shuffle.ts`, `lib/answers.ts`, rendering `FlashcardViewer`/`QuestionSearchPanel`); a genuine regression guard.
-- `question-ids.test.ts` — every shipped bank has unique integer ids (`findIdIssues`).
-- `studyState.test.ts` — per-question study state: transforms, stateful ops, counts, auto-deck migration, practice-incorrect.
-- `examSim.test.ts` — sim preset resolution/defaults/cap-to-bank, pass/fail, and a guard that index.json presets are feasible.
-- `theme.test.ts` — theme resolution + persist/apply.
-- `preservation.test.ts` — guards refactors (incl. a check that the import/export surface stays removed).
+Vitest + jsdom + `@testing-library/react`, with `fast-check` for property tests; matchers in
+`src/__tests__/setup.ts`. Baseline 2026-11-02: quiz-app **213 tests / 18 files**, infra **110
+tests / 5 files**, all green. Each bug fix lands with a failing test first. Tests exercise the
+real modules; never test private copies of logic inlined into a test file.
 
-⚠️ **Gotcha:** components that call `useToast()` (FlashcardViewer, QuestionSearchPanel, QuizMode) must be rendered inside a `ToastProvider` in tests, or they throw "useToast must be used within a ToastProvider".
+Gotcha: components that call `useToast()` (FlashcardViewer, QuestionSearchPanel, QuizMode) must
+render inside a `ToastProvider` in tests, or they throw.
 
 ## Content pipeline
 
-Shipped exam content lives in `quiz-app/public/exams/` (one JSON file per bank, listed in `index.json`). Raw source banks are in `unsorted-data/`. The previous `scrape/` Python parsers (which converted raw dumps into the `LegacyQuestion` JSON shape) were removed and can be rebuilt as needed — see SPEC.md §4 and Appendix A for the target JSON schema.
+Banks live in `quiz-app/public/exams/` (one JSON file each, listed in `index.json`; schema in SPEC
+Appendix A). Raw sources are in `unsorted-data/`; `scrape/` holds the converters.
 
-**Stable question ids (required step).** Every question carries a stable integer `id`, unique *within its file*; the app-wide identity of a question is the pair `(examId, id)` — ids are **not** globally unique across banks, and study state / stars / metadata key on that pair (SPEC.md §5.1). Files are stored as 2-space JSON with CRLF. **After adding or editing any bank, run `npm run assign-ids`** (idempotent — it only assigns ids to questions that lack one, continuing from the file's current max, and never renumbers existing questions). `npm run assign-ids:check` is a report-only CI guard. `question-ids.test.ts` fails if any shipped bank is missing/duplicating ids.
+**Stable question ids (required).** Every Question has an integer `id`, unique within its file;
+ids are not unique across Banks. Files are 2-space JSON with CRLF. **After adding or editing a
+Bank, run `npm run assign-ids`** (assigns ids only to Questions lacking one, never renumbers).
+`question-ids.test.ts` fails on missing or duplicate ids.
+
+**New Exam = infra deploy.** The Activity API learns valid examIds from `index.json` at synth
+time (`infra/lib/exams.ts`), so a new Exam's Activity is rejected (400) until infra is redeployed.

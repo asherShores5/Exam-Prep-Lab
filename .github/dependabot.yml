@@ -1,0 +1,20 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /quiz-app
+    schedule: { interval: monthly }
+    groups:
+      quiz-app:
+        patterns: ["*"]
+  - package-ecosystem: npm
+    directory: /infra
+    schedule: { interval: monthly }
+    groups:
+      infra:
+        patterns: ["*"]
+  - package-ecosystem: github-actions
+    directory: /
+    schedule: { interval: monthly }
+    groups:
+      actions:
+        patterns: ["*"]

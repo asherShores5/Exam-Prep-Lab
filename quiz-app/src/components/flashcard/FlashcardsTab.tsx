@@ -50,16 +50,20 @@ export const FlashcardsTab = ({ examId, legacyQuestions, shuffleLegacy }: Flashc
     const allCards = StorageService.getFlashcards();
 
     // One-time migration: fold legacy __known__/__learning__ auto-deck cards for
-    // this exam into per-question study state, then drop those cards.
-    const existingState = StorageService.getStudyState();
-    const { merged, consumedCardIds, migratedCount } = migrateAutoDecksForExam(
-      examId, legacyQuestions, allCards, existingState,
-    );
+    // this exam into per-question study state, then drop those cards. App only
+    // passes a bank that belongs to `examId` (empty while it loads), so wait for
+    // it before migrating (B6).
     let cards = allCards;
-    if (migratedCount > 0 || consumedCardIds.length > 0) {
-      StorageService.saveStudyState(merged);
-      cards = allCards.filter(c => !consumedCardIds.includes(c.id));
-      StorageService.saveFlashcards(cards);
+    if (legacyQuestions.length > 0) {
+      const existingState = StorageService.getStudyState();
+      const { merged, consumedCardIds, migratedCount } = migrateAutoDecksForExam(
+        examId, legacyQuestions, allCards, existingState,
+      );
+      if (migratedCount > 0 || consumedCardIds.length > 0) {
+        StorageService.saveStudyState(merged);
+        cards = allCards.filter(c => !consumedCardIds.includes(c.id));
+        StorageService.saveFlashcards(cards);
+      }
     }
 
     setDecks(allDecks);

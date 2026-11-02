@@ -128,3 +128,8 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# Local planning tickets
+.scratch/
+# Raw paid-course dumps: local only
+unsorted-data/udemy/

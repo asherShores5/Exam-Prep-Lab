@@ -8,8 +8,10 @@
 
 These constraints frame every decision below. They are settled, not open questions.
 
-- **Fully static, client-side only.** No backend, no accounts, no cloud sync. Hosted as
-  static files (S3/Amplify) serving content from the repo. Cheap and simple is the point.
+- **Static app plus one small usage backend.** Study features stay client-side: no accounts and
+  no cloud sync of study data. The one exception (2026-11, §9, `docs/adr/0001`) is a small
+  write-only API that records **Learner Activity** so the owner can see usage. Cheap and
+  simple is still the point.
 - **Content lives in the repo.** Questions are added/edited by committing JSON files under
   `public/exams/` — the repo *is* the "backend." There is **no frontend tooling to create
   or edit questions**, and there won't be.
@@ -18,23 +20,23 @@ These constraints frame every decision below. They are settled, not open questio
   single-device experience, not durability.
 - **Good UI/UX is the differentiator.** Within a static, local-only app, polish and
   thoughtful flows are where we invest.
-- **No substantial new architecture.** Anything requiring a server, build-time data
-  processing service, or multi-device infrastructure is out of scope.
+- **No substantial new architecture beyond §9.** Anything else that needs a server, a
+  build-time data processing service, or multi-device infrastructure is out of scope.
 
 **Legend:** 🟢 shipped · 🟡 partial / has issues · 🔴 not built · **P0** critical · **P1** high · **P2** nice-to-have
 
 ## Verified baseline (start here)
 
-Toolchain confirmed working: Node v26.x, npm 11.x. `npm install` and `npm run build` succeed.
+Measured 2026-11-02 after §9 landed (CI runs on Node 22):
 
-`npm test` shows **66 passing / 0 failing** (after §8 steps 1–7). `npm run build` succeeds and also
-emits the PWA service worker (`sw.js`) + `manifest.webmanifest`. `npm run lint` reports **0 errors +
-2 warnings** (a QuizMode exhaustive-deps warning and a button.tsx react-refresh warning — both
-pre-existing and benign).
+- `quiz-app`: `npm test` **213 passing / 0 failing** (18 files). `npm run assign-ids:check` passes
+  (11 Banks, none stale). `npm run build` succeeds and emits `sw.js` + `manifest.webmanifest`.
+  `npm run lint` reports **0 errors + 2 warnings** (a QuizMode exhaustive-deps warning and a
+  button.tsx react-refresh warning, both pre-existing and benign).
+- `infra`: `npm test` **110 passing / 0 failing** (5 files); `typecheck` and `synth` run in CI.
 
-> Test files: `bug-conditions` (regression guards for 5 historical bugs — all fixed), `question-ids`
-> (unique integer ids per bank), `studyState`, `examSim`, `theme`, and `preservation` (refactor guard,
-> incl. a check the import/export surface stays removed). Matchers wired via `src/__tests__/setup.ts`.
+> Before §9 (audit of `752e47f`) the app suite was 76 passing and `assign-ids:check` failed on 7
+> stale files. Test files live in `quiz-app/src/__tests__/` and `infra/test/`.
 
 > History: the baseline was once 5 failing + 6 passing, where the 5 reds were **broken tests** —
 > `bug-conditions.test.ts` asserted against private copies of buggy logic inlined into the test file,
@@ -52,7 +54,7 @@ pre-existing and benign).
 | **Quiz Mode** | 🟢 | Configurable count/time, domain + tag filters, timer, scoring, per-domain breakdown, post-quiz review, "save incorrect to deck" |
 | **Flashcards Mode** | 🟡 | Decks, auto-decks, virtual "All Questions" deck, search-to-build, classic + MC modes, spaced-repetition, swipe — but persistence & identity are buggy (§2, §3) |
 | **Progress Dashboard** | 🟢 | Quiz history, score trends, review history, domain accuracy, flashcard mastery, clear-progress |
-| **Data (Import/Export)** | ❌ **being removed** | See §3.1 |
+| **Data (Import/Export)** | ❌ **removed** | Replaced by the Settings tab (§3.1) |
 | Responsive + mobile nav, dark-mode | 🟢 | |
 | localStorage persistence + quota warnings | 🟢 | All writes via `StorageService` |
 | Error boundaries per tab | 🟢 | |
@@ -66,7 +68,7 @@ bugs** that came from user-created/edited records. What remains is matching/iden
 behavioral correctness.
 
 ### P0
-- **🔴 Question identity must become a stable ID.** Flashcards, stars, tags, and study state
+- **🟡 Question identity must become a stable ID.** Done for Study State and stars; custom Decks and tags still key on the prompt. Flashcards, stars, tags, and study state
   all need to key on a stable per-question ID, not the prompt string (today `front` /
   `question.question` is the key, which collides across exams and breaks if a prompt is
   edited in the repo). See §5.1 — this is now a **required** foundation, not optional.
@@ -88,10 +90,42 @@ behavioral correctness.
 - **🟢 `Array(questionCount).fill([])`** shared one array reference — ✅ *Done (step 1).* Now
   `Array.from({ length: questionCount }, () => [])`.
 
+### 2026-11 audit  🟢 all fixed test-first (§9.4)
+Found by a read-only audit of `752e47f`. Line numbers refer to that commit. Each fix landed with a
+failing test first (`crash-bugs`, `exam-switch`, `quiz-timer`, `hardening`, `flashcardShuffle` suites).
+- **🟢 B1 P0** (fixed, §9.4) Flashcards crash in filtered views. When a card is rated or un-starred it drops out
+  of the view (FlashcardsTab.tsx:173-213), but FlashcardViewer.tsx:383-391 still moves the index
+  forward. The next render reads past the end of the list and throws, or skips every other card.
+- **🟢 B2 P0** (fixed, §9.4) Review crashes after switching exams. ReviewMode.tsx never resets `currentIndex`,
+  so `questions[i]` is undefined in a smaller bank.
+- **🟢 B3 P0** (fixed, §9.4) Switching exams mid-quiz saves the score and the wrong-question ids under the new
+  exam. **Fix:** disable the exam picker while a Quiz or Exam Simulation is running.
+- **🟢 B4 P1** (fixed, §9.4) Switching tabs throws away a quiz in progress, because Radix unmounts hidden tabs.
+  **Fix:** keep Quiz mounted (`forceMount` + hidden). This narrows "Accepted" below to refresh
+  and close only.
+- **🟢 B5 P1** (fixed, §9.4) Exam-switch race (App.tsx:109-135). `questions` isn't cleared and the old fetch
+  isn't cancelled, so a star or rating can write to (examB, examA's id). **Fix:** clear the
+  questions and ignore stale responses with an AbortController or request token.
+- **🟢 B6 P1** (fixed, §9.4) Legacy auto-deck migration can run against the previous exam's bank and drop cards
+  (FlashcardsTab.tsx:48-69, studyState.ts:210-213). **Fix:** only run it once the bank matches
+  `examId`, and only mark cards consumed after they are migrated.
+- **🟢 B7 P1** (fixed, §9.4) Simulation `timeSpent` uses the normal-quiz time limit (QuizMode.tsx:100), so it can
+  go negative.
+- **🟢 B8 P1** (fixed, §9.4) The timer counts interval ticks, and browsers throttle those in background tabs.
+  **Fix:** compute remaining time from a deadline timestamp.
+- **🟢 B9 P2** (fixed, §9.4) Stored JSON isn't shape-checked (storage.ts:418-427), so valid JSON of the wrong
+  shape crashes. tagService.ts:21-23 and `saveSelectedExam` skip the quota handling.
+- **🟢 B10 P2** (fixed, §9.4) validateExam doesn't check `correctAnswers` (non-empty, in range) or that options
+  are strings. A local shuffle resets on every render (FlashcardViewer.tsx:326).
+- **🟢 B11 P2** (fixed, §9.4) PWA: banks use StaleWhileRevalidate, so the first load after a content deploy shows
+  the old bank, and an `index.html` fallback served with a 200 can get cached as JSON. **Fix:**
+  NetworkFirst with a cache fallback, and cache only `application/json` responses.
+
 ### Accepted (won't fix)
-- **Quiz/exam-sim sessions are lost if interrupted (refresh/navigation).** Per your
+- **Quiz/exam-sim sessions are lost on refresh or when the tab closes.** Per your
   direction, this is acceptable — quizzes are meant to be completed in one sitting. No
-  session-resume work for quiz mode. (Flashcard *progress*, by contrast, must persist — §3.3.)
+  session-resume work for quiz mode. Switching tabs inside the app no longer loses the
+  session (B4). (Flashcard *progress*, by contrast, must persist — §3.3.)
 
 ---
 
@@ -154,7 +188,8 @@ This was the core of the flashcard rework. **Model: per-question study state.**
 - ✅ `vite-plugin-pwa` (Workbox) generates the service worker + `manifest.webmanifest`. The app
   is installable and works offline. Configured in `vite.config.ts`.
 - ✅ App shell (JS/CSS/HTML/icons) is precached (~1.2 MB); per-exam banks (~4 MB total) are
-  **runtime-cached** (StaleWhileRevalidate, `exam-banks`) on first view rather than precached, so
+  **runtime-cached** (`exam-banks`; NetworkFirst with offline fallback and JSON-only caching since
+  B11, `lib/examBankCaching.ts`) on first view rather than precached, so
   install stays small and any studied exam works offline. localStorage progress is unaffected.
 - ✅ Real manifest (name/short_name/description, `#020817` theme, maskable icon); icons copied to
   `public/` and wired into `index.html` (favicons, apple-touch, theme-color). The old empty
@@ -291,16 +326,11 @@ All removed:
 
 ## 7. Repo Cleanup
 
-- **🟡 Remove committed scrape artifacts** (`scrape/out.json`, `merged_questions.json`,
-  `input.*`, `parsed_udemy_multiple_answers.json`) — regenerable intermediates. Keep raw
-  inputs out of version control.
-- **🟡 `assets/old/`** — legacy vanilla-JS prototype; archive or delete.
-- **🟡 `unsorted-data/`** — pipeline input, not app code; formalize as the content source or relocate.
-- **🟡 Delete dead components & import/export** (§5.2).
-- **🟡 Root `README.md` is stale** — describes a `QuizApp.tsx` structure and Amplify-CLI setup
-  that no longer match the current `src/` layout or `sync_to_s3.ps1`. Rewrite, and drop the
-  import/export and data-management language.
-- **🟡 `CHANGES.md`** — fold into this spec or a proper CHANGELOG and retire.
+- **🟢 Scrape artifacts removed.** `scrape/` now holds only the converter scripts.
+- **🟢 `assets/old/` and `CHANGES.md` gone.**
+- **🟡 `unsorted-data/`**: pipeline input, not app code. `udemy/` is now local-only (§9.5).
+- **🟢 Dead components & import/export deleted** (§5.2).
+- **🟢 Root and `quiz-app/` READMEs rewritten** (§9.6).
 
 ---
 
@@ -343,6 +373,109 @@ All removed:
    spacing/typography token pass.
 8. **Later / separate:** domain metadata backfill via batched subagents (§4); convert more
    exam banks.
+9. ✅ **Usage tracking + audit fixes + hardening (§9) — DONE in code (2026-11-02).** Learner gate,
+   Activity client + outbox, `infra/` Activity API + Admin Page with Cognito, B1-B11 fixed
+   test-first, `customHttp.yml` headers, CI + Dependabot, docs. `npm test` 183/183 (app) and
+   109/109 (infra), build green, lint 0 errors. Owner steps remain (§9.7).
+
+---
+
+## 9. Usage tracking, audit fixes, hardening (2026-11)
+
+Decided in a grilling session on 2026-11-02. Terms are defined in `GLOSSARY.md`; the reasons are
+in `docs/adr/0001-small-backend-for-learner-activity.md`. Tickets live in `.scratch/v2/issues/`.
+
+### 9.1 Learner sign-up (client)  🟢 DONE
+- On first visit, a one-time required screen asks "What's your name?" (1-40 chars, trimmed). It
+  stores `{ learnerId: crypto.randomUUID(), name }` under `epl_learner` through `StorageService`.
+  The name can be changed in Settings; the id never changes.
+- No notice about collection, per the owner's decision. This is recorded in the ADR.
+- If the name gate is broken or blocked, the site keeps working. If recording fails, studying
+  carries on.
+
+### 9.2 Activity recording  🟢 DONE (infra not yet deployed, §9.7)
+- Activity types: `visit` (at most one per Learner per local day), `exam_opened` (examId), and
+  `result` (examId, mode `quiz`|`sim`, correct, total, percent, passed?, timeSpentSec).
+- The client sends Activity with `POST /activity` (JSON, `{ learnerId, name, activities[] }`).
+  If it fails (offline or 5xx), the batch goes into `epl_activity_outbox`, capped at 200 items,
+  oldest dropped first. The outbox is flushed on the next load or `online` event.
+- Infra: a new `infra/` CDK app (TypeScript) in us-west-1, account 334772842524, tag
+  `app=exam-prep-lab` ($1/month tag budget `exam-prep-lab-monthly` created by hand 2026-11-02, outside CDK; Amplify app tagged too). It contains:
+  - an HTTP API with CORS limited to `https://exampreplab.ashershores.com` and
+    `http://localhost:5173`, and stage throttling of 5 rps with a burst of 20;
+  - a Node 22 Lambda that validates and caps input: name 40 chars, 20 activities per request,
+    known examIds only, numbers in range, `at` at most 90 days old (an `at` in the future is
+    stored as server now, not rejected). Anything invalid gets a 400. The client checks each item
+    against the same rules first and, on a 400 for a multi-item batch, retries items one at a
+    time so only the bad ones are dropped;
+  - a DynamoDB table (on-demand, PITR on, RETAIN): `PK=LEARNER#<id>`, `SK=PROFILE` for name,
+    firstSeen and lastSeen, and `SK=ACT#<iso>#<rand>` for Activity. No TTL, so records are kept
+    forever.
+- No reads are possible through the public API.
+
+### 9.3 Admin Page  🟢 DONE (needs Cognito user + env vars, §9.7)
+- Route `/admin`, code-split with `React.lazy` so Learners never download it, and not linked
+  anywhere in the UI.
+- Sign-in uses a Cognito user pool with self sign-up off and one user (`asher`), through the
+  Cognito hosted UI with PKCE (no client secret).
+- `GET /admin/learners` and `GET /admin/learners/{id}/activity` use a Cognito JWT authorizer
+  (signature, issuer, client id, expiry). The `admins` group check lives in the admin Lambda,
+  which returns 403 without it.
+- The view lists Learners (name, first and last seen, exams, Result count, latest Result per exam). Tap a
+  Learner to see their Activity timeline. Plaintext-style lists, no charts.
+
+### 9.4 Audit bug fixes  🟢 DONE
+Fix B1-B11 from §2, each with a failing test first.
+
+### 9.5 Security and repo hardening  🟢 DONE in repo (owner steps in §9.7)
+- Add `customHttp.yml` (Amplify) with these headers:
+  - a CSP of `default-src 'self'`; the script hash for the inline theme script;
+    `connect-src 'self'` plus the API origin and the Cognito domain; `frame-ancestors 'none'`;
+    `object-src 'none'`; `base-uri 'self'`;
+  - HSTS, nosniff, `Referrer-Policy: strict-origin-when-cross-origin`, and a Permissions-Policy.
+  - `style-src` needs `'unsafe-inline'`: Radix Select injects `<style>` elements at runtime
+    (computed content, so no hash works).
+  - `connect-src` allows the `https://*.execute-api.us-west-1.amazonaws.com` wildcard until the
+    first infra deploy, because the API host isn't known yet. After that deploy it must be pinned
+    to the real API host (§9.7).
+  - `customHttp.yml` sits at the repo root, not in `quiz-app/`, because the Amplify app root is
+    the repo root (the build spec does `cd quiz-app`).
+- The `admins` group is checked in the admin Lambda; API Gateway's JWT authorizer only validates
+  the token.
+- Verify the live headers after deploy.
+- Remove the stale Amplify redirect rule for `exampreplab.com`, which is no longer associated
+  with the app.
+- Delete `build.err` and `quiz-app/sync_to_s3.ps1`. Move `unsorted-data/udemy/` out of git into
+  a gitignored local copy; history is left alone.
+- `npm audit fix` and `npm run assign-ids` (reformats 7 stale files).
+- CI (`.github/workflows/ci.yml`, Actions pinned to SHAs):
+  - tests, lint, build and `assign-ids:check` on every PR and push;
+  - an infra deploy job on push to `main` that runs under the `production` environment (owner
+    approval) with OIDC role `exam-prep-lab-github-deploy`. The role trusts only that
+    environment.
+- Branch protection on `main` (PR plus green CI). Monthly grouped Dependabot.
+- Repo commits use asher.shores5@gmail.com from now on; old commits are left alone.
+- Kept by owner decision: `Tooling-SME-Prep.json` stays published.
+
+### 9.6 Docs  🟢 DONE
+- Rewrite the root `README.md` and `quiz-app/README.md` (currently the Vite template).
+- Update CLAUDE.md: progress bullets, test count, live URL `exampreplab.ashershores.com`, the
+  fact that `scrape/` still exists, `unsorted-data/udemy` now local-only, the new backend, and
+  the outbox.
+- Update the Verified baseline in this spec.
+
+### 9.7 Owner steps still open
+Only the owner can do these; exact commands are in `docs/DEPLOY-RUNBOOK.md`.
+- 🔴 First infra deploy by hand (`cdk deploy --all`, change sets reviewed with `--no-execute` first).
+- 🔴 Create the Cognito admin user and add it to `admins`.
+- 🔴 Set `VITE_ACTIVITY_API`, `VITE_COGNITO_DOMAIN`, `VITE_COGNITO_CLIENT_ID` in Amplify and redeploy.
+- 🔴 Pin CSP `connect-src` in `customHttp.yml` from the `*.execute-api` wildcard to the real API
+  host (`ActivityApiUrl` output), then redeploy the site.
+- 🔴 GitHub: branch protection on `main` (PR + green CI) and the `production` environment with the
+  owner as required reviewer.
+- 🔴 Remove the stale Amplify redirect rule for `exampreplab.com`.
+- 🔴 Live checks: response headers, `POST /activity` 200 and invalid 400, anonymous
+  `GET /admin/learners` 401.
 
 ---
 
