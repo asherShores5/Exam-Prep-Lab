@@ -14,6 +14,7 @@ import { ErrorBoundary } from './components/ui/ErrorBoundary';
 import { validateExamQuestions } from './services/validateExam';
 import { shuffle } from './lib/shuffle';
 import { watchSystemTheme } from './services/theme';
+import { LearnerGate } from './components/learner/LearnerGate';
 
 // ---------------------------------------------------------------------------
 // QuizApp — root component
@@ -307,4 +308,11 @@ const QuizApp = () => {
   );
 };
 
-export default QuizApp;
+/** Asks a new Learner for their name before the app renders (SPEC §9.1). */
+const GatedQuizApp = () => (
+  <LearnerGate>
+    <QuizApp />
+  </LearnerGate>
+);
+
+export default GatedQuizApp;
