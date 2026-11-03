@@ -131,5 +131,3 @@ dist
 
 # Local planning tickets
 .scratch/
-# Raw paid-course dumps: local only
-unsorted-data/udemy/
