@@ -1,0 +1,2720 @@
+
+2 of 5 complete.
+Home
+AWS Certified CloudOps Engineer Associate Practice Exams
+CloudOps - Results
+Attempt 1
+
+Question 1Skipped
+
+A CloudOps Engineer has set up an Amazon VPC with an IPv6 CIDR block. The VPC needs to have access to the internet while preventing inbound traffic from the internet. However, after configuring the necessary components, the administrator is unable to establish connectivity to internet domains. What additional route configuration should the administrator implement in the VPC to enable outbound internet access for IPv6?
+
+Route 0.0.0.0/0 traffic to an internet gateway
+
+Route ::/0 traffic to a NAT gateway
+
+Route 0.0.0.0/0 traffic to an egress-only internet gateway
+Correct answer
+
+Route ::/0 traffic to an egress-only internet gateway
+Overall explanation
+
+An egress-only internet gateway allows outbound IPv6 traffic from the VPC to the internet while preventing inbound traffic. By routing ::/0 traffic to the egress-only internet gateway, the administrator can enable outbound internet access for IPv6.
+
+CORRECT: "Route ::/0 traffic to an egress-only internet gateway" is the correct answer (as explained above.)
+
+INCORRECT: "Route ::/0 traffic to a NAT gateway" is incorrect.
+
+NAT gateways are used for IPv4 traffic and do not support IPv6 traffic.
+
+INCORRECT: "Route 0.0.0.0/0 traffic to an internet gateway" is incorrect.
+
+Internet gateways are used for IPv4 traffic and do not support IPv6 traffic.
+
+INCORRECT: "Route 0.0.0.0/0 traffic to an egress-only internet gateway" is incorrect.
+
+Egress-only internet gateways are used specifically for IPv6 traffic and should be used with the ::/0 route destination for IPv6 traffic.
+
+References:
+
+https://docs.aws.amazon.com/vpc/latest/userguide/what-is-amazon-vpc.html
+
+Save time with our AWS cheat sheets:
+
+https://digitalcloud.training/amazon-vpc/
+Domain
+AWS Networking & Content Delivery
+Question 2Skipped
+
+A CloudOps Engineer created a script that generates custom Amazon CloudWatch metrics. The EC2 instance on which the script was run had a misconfigured clock resulting in timestamps on the logs that were set to 30 minutes in the past.
+
+What will be the result of this situation?
+Correct answer
+
+Amazon CloudWatch will accept the custom metric data and record it.
+
+Amazon CloudWatch will not capture the data because it is in the past.
+
+Amazon CloudWatch will correct the time when recording the timestamp.
+
+Amazon CloudWatch creates its own timestamps and ignores metric timestamps.
+Overall explanation
+
+Each metric data point must be associated with a time stamp. The time stamp can be up to two weeks in the past and up to two hours into the future. If you do not provide a time stamp, CloudWatch creates a time stamp for you based on the time the data point was received.
+
+CORRECT: "Amazon CloudWatch will accept the custom metric data and record it" is the correct answer.
+
+INCORRECT: "Amazon CloudWatch will not capture the data because it is in the past" is incorrect. This is not the behavior of CloudWatch.
+
+INCORRECT: "Amazon CloudWatch will correct the time when recording the timestamp" is incorrect. This is not the behavior of CloudWatch.
+
+INCORRECT: "Amazon CloudWatch creates its own timestamps and ignores metric timestamps" is incorrect. This is not the behavior of CloudWatch.
+
+References:
+
+https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/cloudwatch_concepts.html
+
+Save time with our AWS cheat sheets:
+
+https://digitalcloud.training/amazon-cloudwatch/
+Domain
+AWS Management & Governance
+Question 3Skipped
+
+A SysOps team in a company would like to make AWS maintenance events that may affect their resources visible in their existing operations dashboard. What should a CloudOps Engineer do to include this data?
+
+Use Amazon Inspector to send notifications of upcoming maintenance events to the Operations team distribution list.
+
+Use an AWS Lambda function that queries Amazon CloudWatch Events for state changes in AWS infrastructure.
+Correct answer
+
+Use the AWS Health API to query for upcoming maintenance events and include this data in the operations dashboard.
+
+Integrate the AWS Service Health Dashboard's RSS feed into the company's existing operations dashboard.
+Overall explanation
+
+The AWS Health API provides programmatic access to the AWS Health information that is presented in the Personal Health Dashboard. You can use these API operations to get information about events that affect your AWS resources:
+
+DescribeEvents: Summary information about events.
+
+DescribeEventDetails: Detailed information about one or more events.
+
+DescribeAffectedEntities: Information about AWS resources that are affected by one or more events.
+
+CORRECT: "Use the AWS Health API to query for upcoming maintenance events and include this data in the operations dashboard" is the correct answer.
+
+INCORRECT: "Use an AWS Lambda function that queries Amazon CloudWatch Events for state changes in AWS infrastructure" is incorrect. You cannot query CloudWatch Events, it triggers Lambda and not the other way around. Also, it cannot report on AWS infrastructure changes, only state changes in a customer’s AWS resources.
+
+INCORRECT: "Integrate the AWS Service Health Dashboard's RSS feed into the company's existing operations dashboard" is incorrect. The service health dashboard does not show upcoming events that may affect your resources, only a general view of current status.
+
+INCORRECT: "Use Amazon Inspector to send notifications of upcoming maintenance events to the Operations team distribution list" is incorrect. Inspector does not notify on maintenance events.
+
+References:
+
+https://docs.aws.amazon.com/health/latest/ug/getting-started-api.html
+Domain
+AWS Management & Governance
+Question 4Skipped
+
+An AWS CloudOps Engineer has been tasked with the configuration of a high-performance computing (HPC) application, which is intended to operate on a resilient tier of Amazon EC2 instances. To ensure the smooth running of the application, it is critical that the latency between nodes is kept to a bare minimum.
+
+How should the CloudOps Engineer proceed to achieve this? (Select TWO.)
+
+Launch the EC2 instances into a spread placement group.
+
+Deploy the EC2 instances across multiple subnets to distribute the load.
+
+Launch the EC2 instances in an Auto Scaling group across Availability Zones.
+Correct selection
+
+Launch the EC2 instances in an Auto Scaling group within a single subnet.
+Correct selection
+
+Configure the EC2 instances in a cluster placement group.
+Overall explanation
+
+Using an Auto Scaling group within a single subnet can help ensure that instances are closely located, which can minimize latency. Auto Scaling also ensures that the desired number of instances are always running, contributing to the resiliency of the application.
+
+Cluster placement groups provide the lowest latency and the highest packet-per-second network performance of the placement group options. They do this by placing instances close together inside an Availability Zone. This is particularly beneficial for workloads that require high network throughput and low network latency, like HPC applications.
+
+CORRECT: "Launch the EC2 instances in an Auto Scaling group within a single subnet" is a correct answer (as explained above.)
+
+CORRECT: "Configure the EC2 instances in a cluster placement group" is also a correct answer (as explained above.)
+
+INCORRECT: "Deploy the EC2 instances across multiple subnets to distribute the load" is incorrect.
+
+Deploying instances across multiple subnets, especially if those subnets are in different Availability Zones, can introduce additional latency, contrary to the requirements of the HPC application.
+
+INCORRECT: "Launch the EC2 instances into a spread placement group" is incorrect.
+
+Spread placement groups are designed to reduce the risk of simultaneous failures by placing instances on distinct hardware. While this might increase resiliency, it wouldn't necessarily provide the minimum latency between nodes that is required by HPC applications.
+
+INCORRECT: "Launch the EC2 instances in an Auto Scaling group across Availability Zones" is incorrect.
+
+While distributing instances across Availability Zones can increase fault tolerance, it can also introduce additional network latency. This goes against the needs of the HPC application, which requires minimum latency between nodes.
+
+References:
+
+https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/placement-groups.html
+
+Save time with our AWS cheat sheets:
+
+https://digitalcloud.training/amazon-ec2-auto-scaling/
+
+https://digitalcloud.training/amazon-ec2/
+Domain
+AWS Compute
+Question 5Skipped
+
+A CloudOps Engineer needs to restrict access to a bucket to users connecting from the company IP address range. The company address range is: 51.210.100.0/24 and the Administrator has created the following policy:
+
+During testing it has been identified that users can connect from IP addresses outside the company IP address range.
+
+How can the Administrator address this issue?
+Correct answer
+
+Change Effect from Allow to Deny in the second statement of the policy to deny requests not from the source IP range.
+
+Modify the Condition operator to include both NotIpAddress and IpAddress to prevent unauthorized access to the S3 bucket.
+
+Modify the Condition element from the IAM policy to aws:StringEquals instead of aws:SourceIp.
+
+Modify the IAM policy instead of the bucket policy to restrict users from accessing the bucket based on their source IP addresses.
+Overall explanation
+
+As it is currently written the statement is actually having the opposite effect from the desired outcome. Let’s break down the statement.
+
+The "Effect": "Allow" statement will allow any principal (*), to perform any action (s3:*), on the specific resources:
+
+"arn:aws:s3:::examples3bucket", - provides bucket-level access.
+
+"arn:aws:s3: : :examples3bucket/*" – provides object-level access within the bucket.
+
+The allow takes effect only if the source IP address is NOT (NotIpAddress) within the company address space (aws: SourceIP": "51.210.100.0/24).
+
+Therefore, the resolution is to change the "Effect": "Allow" to "Effect": "Deny". This will mean that all connections are denied if they come from IP addresses that are not within the company address space.
+
+CORRECT: "Change Effect from Allow to Deny in the second statement of the policy to deny requests not from the source IP range" is the correct answer.
+
+INCORRECT: "Modify the Condition operator to include both NotIpAddress and IpAddress to prevent unauthorized access to the S3 bucket" is incorrect. Simply changing the effect from allow to deny has the desired result.
+
+INCORRECT: "Modify the Condition element from the IAM policy to aws:StringEquals instead of aws:SourceIp" is incorrect. This will not assist as the issue is that the statement is set to allow addresses from outside the company IP range rather than excluding them.
+
+INCORRECT: "Modify the IAM policy instead of the bucket policy to restrict users from accessing the bucket based on their source IP addresses" is incorrect. For this use case a bucket policy should be used instead of an IAM policy.
+
+References:
+
+https://aws.amazon.com/premiumsupport/knowledge-center/block-s3-traffic-vpc-ip/
+
+Save time with our AWS cheat sheets:
+
+https://digitalcloud.training/amazon-s3-and-glacier/
+Domain
+AWS Storage
+Question 6Skipped
+
+A company runs an application behind an Application Load Balancer (ALB). The CloudOps Engineer has noticed a large number of suspicious HTTP requests hitting the ALB. The requests originate from various IP addresses.
+
+How can the Administrator block this traffic with the LEAST effort?
+
+Use Amazon GuardDuty to analyze network activity, detect anomalies, and trigger a Lambda function to prevent access.
+Correct answer
+
+Create an AWS WAF rate-based rule to block this traffic when it exceeds a defined threshold.
+
+Create an Amazon CloudFront distribution to cache content and automatically block access to the suspicious source IP addresses.
+
+Use AWS Lambda to analyze a VPC Flow Log, detect the suspicious traffic, and block the IP address in the security groups.
+Overall explanation
+
+AWS WAF is a web application firewall that helps protect web applications from attacks by allowing you to configure rules that allow, block, or monitor (count) web requests based on conditions that you define. These conditions include IP addresses, HTTP headers, HTTP body, URI strings, SQL injection and cross-site scripting.
+
+Rate-based Rules are a new type of Rule that can be configured in AWS WAF. This feature allows you to specify the number of web requests that are allowed by a client IP in a trailing, continuously updated, 5-minute period. If an IP address breaches the configured limit, new requests will be blocked until the request rate falls below the configured threshold.
+
+CORRECT: "Create an AWS WAF rate-based rule to block this traffic when it exceeds a defined threshold" is the correct answer.
+
+INCORRECT: "Create an Amazon CloudFront distribution to cache content and automatically block access to the suspicious source IP addresses" is incorrect. CloudFront cannot automatically detect malicious traffic and block access to the source IP addresses.
+
+INCORRECT: "Use Amazon GuardDuty to analyze network activity, detect anomalies, and trigger a Lambda function to prevent access" is incorrect. GuardDuty can analyze logs and network flows and trigger a function to perform remediation. However, this does not represent the option that requires the least effort as you would need to write the Lambda function.
+
+INCORRECT: "Use AWS Lambda to analyze a VPC Flow Log, detect the suspicious traffic, and block the IP address in the security groups" is incorrect. This is not the option that requires the least effort (must write a Lambda function) and you cannot block IP addresses in security groups (they do not support deny rules).
+
+References:
+
+https://aws.amazon.com/waf/faq/
+
+Save time with our AWS cheat sheets:
+
+https://digitalcloud.training/amazon-vpc/
+Domain
+AWS Networking & Content Delivery
+Question 7Skipped
+
+A company uses an Amazon ElastiCache Memcached cluster for a popular website. The CloudOps Engineer received reports of performance issues. The Administrator checked the CloudWatch metrics and noticed high CPU utilization.
+
+Which remediation steps should be taken to resolve this issue? (Select TWO.)
+
+Add a load balancer to route traffic to the ElastiCache cluster.
+
+Add a larger Amazon EBS volume to the ElastiCache cluster nodes.
+
+Create an Auto Scaling group for the ElastiCache cluster.
+Correct selection
+
+Vertically scale the ElastiCache cluster by changing the node type.
+Correct selection
+
+Add additional nodes to the existing ElastiCache cluster.
+Overall explanation
+
+You can scale ElastiCache Memcached clusters either horizontally or vertically.
+
+Scaling Memcached Horizontally: The Memcached engine supports partitioning your data across multiple nodes. Because of this, Memcached clusters scale horizontally easily. A Memcached cluster can have from 1 to 20 nodes. To horizontally scale your Memcached cluster, merely add or remove nodes.
+
+Scaling Memcached Vertically: Scale vertically by using a different node type. When you scale your Memcached cluster up or down, you must create a new cluster. Memcached clusters always start out empty unless your application populates it.
+
+CORRECT: "Add additional nodes to the existing ElastiCache cluster" is the correct answer.
+
+CORRECT: "Vertically scale the ElastiCache cluster by changing the node type" is also a correct answer.
+
+INCORRECT: "Add a larger Amazon EBS volume to the ElastiCache cluster nodes" is incorrect. This will not resolve CPU issues for the nodes.
+
+INCORRECT: "Add a load balancer to route traffic to the ElastiCache cluster" is incorrect. You cannot use a load balancer to distribute traffic to ElastiCache nodes, you must map the key space in your application.
+
+INCORRECT: "Create an Auto Scaling group for the ElastiCache cluster" is incorrect. You cannot use Auto Scaling for ElastiCache nodes.
+
+References:
+
+https://docs.aws.amazon.com/AmazonElastiCache/latest/mem-ug/Scaling.html
+
+Save time with our AWS cheat sheets:
+
+https://digitalcloud.training/amazon-elasticache/
+Domain
+AWS Compute
+Question 8Skipped
+
+A company runs a data center in their office location. The company needs to provide low-latency local access to image files for users in the office. A synchronized backup of the images must be maintained in an offsite location.
+
+Which AWS storage solution would allow access to the image data for local users while also providing for disaster recovery?
+
+Use Amazon S3 for file storage and enable S3 Transfer Acceleration to maintain a cache for frequently used files to increase local performance.
+Correct answer
+
+Create an AWS Storage Gateway volume gateway configured as a stored volume. Mount it from clients using Internet Small Computer System Interface (iSCSI).
+
+Store the images in Amazon S3 and use AWS Server Migration Service to enable synchronization of S3 data to the local server.
+
+Mount an Amazon EFS volume on a local server. Share this volume with employees who need access to the images.
+Overall explanation
+
+You can run Volume Gateway in two modes: Cached and stored. With cached volumes, the Storage Gateway service stores the full volume in its Amazon S3 service bucket, and a portion of the volume—your recently accessed data—is retained in the gateway’s local cache for low-latency access.
+
+With stored volumes, your entire data volume is available locally in the gateway, for fast read access. At the same time, Volume Gateway maintains an asynchronous copy of your stored volume in the service’s Amazon S3 bucket.
+
+This a good solution for the requirements in this scenario. The data will be served at low-latency from the local AWS Storage Gateway virtual machine / appliance and will be backed up to S3 as snapshots which can be used for DR.
+
+CORRECT: "Create an AWS Storage Gateway volume gateway configured as a stored volume. Mount it from clients using Internet Small Computer System Interface (iSCSI)" is the correct answer.
+
+INCORRECT: "Mount an Amazon EFS volume on a local server. Share this volume with employees who need access to the images" is incorrect. This would not provide low-latency local access as the filesystem would be at AWS. Also, there is no DR copy of the data.
+
+INCORRECT: "Store the images in Amazon S3 and use AWS Server Migration Service to enable synchronization of S3 data to the local server" is incorrect. You cannot use AWS SMS to synchronize data from S3 to a local server. AWS SMS is used for migrating servers.
+
+INCORRECT: "Use Amazon S3 for file storage and enable S3 Transfer Acceleration to maintain a cache for frequently used files to increase local performance" is incorrect. Amazon S3 is not a local service and transfer acceleration is used for improving the speed of uploads to S3 (not for caching data locally).
+
+References:
+
+https://aws.amazon.com/storagegateway/volume/
+
+Save time with our AWS cheat sheets:
+
+https://digitalcloud.training/aws-storage-gateway/
+Domain
+AWS Storage
+Question 9Skipped
+
+A company has deployed a new web application. Following the release, penetration testing revealed a cross-site scripting vulnerability that could expose user data.
+Which AWS service will mitigate this issue?
+
+AWS Shield Standard
+
+AWS KMS
+
+Amazon GuardDuty
+Correct answer
+
+AWS WAF
+Overall explanation
+
+AWS WAF is a web application firewall that helps protect your web applications or APIs against common web exploits that may affect availability, compromise security, or consume excessive resources.
+
+AWS WAF gives you control over how traffic reaches your applications by enabling you to create security rules that block common attack patterns, such as SQL injection or cross-site scripting, and rules that filter out specific traffic patterns you define.
+
+This is the most appropriate service to use for mitigating web attacks using cross-site scripting techniques.
+
+CORRECT: "AWS WAF" is the correct answer.
+
+INCORRECT: "AWS Shield Standard" is incorrect. This service is used for preventing Distributed Denial of Service (DDoS) attacks, not cross-site scripting attacks.
+
+INCORRECT: "AWS KMS" is incorrect. This service is used for creating and managing encryption keys.
+
+INCORRECT: "Amazon GuardDuty" is incorrect. This service analyzes and processes VPC Flow Logs, AWS CloudTrail management event logs, Cloudtrail S3 data event logs, and DNS logs. It will not mitigate a cross-site scripting attack.
+
+References:
+
+https://aws.amazon.com/waf/
+
+Save time with our AWS cheat sheets:
+
+https://digitalcloud.training/aws-waf-shield/
+
+
+Domain
+AWS Security, Identity, & Compliance
+Question 10Skipped
+
+A company is implementing cross-account access from a production account to a development account. An IAM role must be created and a permissions policy must be attached.
+
+According to the AWS shared responsibility model, who is responsible for creating the IAM role and attaching the policy?
+
+AWS is responsible for creating the role and attaching the policy.
+
+A CloudOps Engineer is responsible for creating the role, and AWS is responsible for attaching the policy to the role.
+Correct answer
+
+A CloudOps Engineer is responsible for creating the role and attaching the policy.
+
+AWS is responsible for creating the role, and a CloudOps Engineer is responsible for attaching the policy to the role.
+Overall explanation
+
+This question is related to the shared responsibility model. It is important to understand that security in the cloud is the responsibility of the customer. In this case it is the customer’s responsibility to create the IAM role and attach a permissions policy to it.
+
+CORRECT: "A CloudOps Engineer is responsible for creating the role and attaching the policy" is the correct answer.
+
+INCORRECT: "A CloudOps Engineer is responsible for creating the role, and AWS is responsible for attaching the policy to the role" is incorrect. AWS are not responsible for attaching policies to roles.
+
+INCORRECT: "AWS is responsible for creating the role and attaching the policy" is incorrect. AWS is not responsible for creating the role or attaching the policy
+
+INCORRECT: "AWS is responsible for creating the role, and a CloudOps Engineer is responsible for attaching the policy to the role" is incorrect. AWS are not responsible for creating the role.
+
+References:
+
+https://docs.aws.amazon.com/IAM/latest/UserGuide/tutorial_cross-account-with-roles.html
+
+https://aws.amazon.com/compliance/shared-responsibility-model/
+
+Save time with our AWS cheat sheets:
+
+https://digitalcloud.training/aws-iam/
+Domain
+AWS Security, Identity, & Compliance
+Question 11Skipped
+
+A company has an application running on Amazon EC2 instances in an Auto Scaling group, managed by an Application Load Balancer (ALB). The application starts to malfunction when total requests per second surpass 150. A CloudOps Engineer is tasked to compile information about total requests over a span of three weeks to identify instances where this limit was exceeded. What should the CloudOps Engineer do to accumulate this data?
+
+Configure an AWS Lambda function to gather and aggregate request metrics across all the EC2 instances, then relay these metrics to Amazon CloudWatch.
+Correct answer
+
+Use the ALB's RequestCount metric, adjust a time duration of three weeks, and a period of 1 minute. Analyze the graph to identify peak traffic intervals and volumes.
+
+Set up Amazon CloudWatch Logs Insights to generate a sum of request counts for all the EC2 instances over a three-week period, sorting by a 1-minute interval.
+
+Establish an Amazon CloudWatch Events rule that will trigger based on a pattern matching high request volumes. Configure an Amazon SNS topic to alert the administrator when the limit is exceeded.
+Overall explanation
+
+By utilizing the ALB's RequestCount metric in Amazon CloudWatch, the CloudOps Engineer can configure a time range of three weeks and a period of 1 minute to collect data on the total requests. The graph generated from this metric will provide insights into peak traffic intervals and volumes.
+
+CORRECT: "Use the ALB's RequestCount metric, adjust a time duration of three weeks, and a period of 1 minute. Analyze the graph to identify peak traffic intervals and volumes" is the correct answer (as explained above.)
+
+INCORRECT: "Set up Amazon CloudWatch Logs Insights to generate a sum of request counts for all the EC2 instances over a three-week period, sorting by a 1-minute interval" is incorrect.
+
+Amazon CloudWatch Logs Insights is primarily used for analyzing log data, not for aggregating request counts. It is not the suitable tool for collecting the required information in this scenario.
+
+INCORRECT: "Establish an Amazon CloudWatch Events rule that will trigger based on a pattern matching high request volumes. Configure an Amazon SNS topic to alert the administrator when the limit is exceeded" is incorrect.
+
+While Amazon CloudWatch Events can be used to trigger actions based on events, such as high request volumes, it does not provide a direct way to accumulate the total request counts over a specific duration.
+
+INCORRECT: "Configure an AWS Lambda function to gather and aggregate request metrics across all the EC2 instances, then relay these metrics to Amazon CloudWatch" is incorrect.
+
+Although AWS Lambda functions can be utilized for various tasks, such as data aggregation, they are not the most efficient solution in this case. Amazon CloudWatch already provides native metrics, such as RequestCount, that can be directly used for collecting the required data.
+
+References:
+
+https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/working_with_metrics.html
+
+Save time with our AWS cheat sheets:
+
+https://digitalcloud.training/amazon-cloudwatch/
+Domain
+AWS Compute
+Question 12Skipped
+
+A company runs a resource-intensive daily reporting job on a production Amazon RDS database. The performance of the database is affected when the reporting job is running, and this has resulted in user complaints.
+
+How can a CloudOps Engineer resolve the performance issues?
+
+Enable Auto Scaling for the RDS database and ensure the maximum instances is greater than one.
+
+Create a copy of the database using a snapshot and run the reporting against the copy.
+Correct answer
+
+Create an Amazon RDS read replica and run the reporting job against the read replica.
+
+Enable Multi-AZ mode on Amazon RDS and run the reporting on the standby instance.
+Overall explanation
+
+This is a good use case for an Amazon RDS read replica. When you create a read replica the master database asynchronously replicates to it. The read replica has a separate endpoint that can be used for queries. In this case, the read replica can be used as the target for the reporting job and this will completely offload the pressure of the reporting job from the master database.
+
+CORRECT: "Create an Amazon RDS read replica and run the reporting job against the read replica" is the correct answer.
+
+INCORRECT: "Create a copy of the database using a snapshot and run the reporting against the copy" is incorrect. It is not practical to use this method as the reporting job runs daily so a new copy would need to be instantiated every day.
+
+INCORRECT: "Enable Multi-AZ mode on Amazon RDS and run the reporting on the standby instance" is incorrect. You cannot use a multi-AZ standby for offloading reads from the master DB.
+
+INCORRECT: "Enable Auto Scaling for the RDS database and ensure the maximum instances is greater than one" is incorrect. There is no such thing as Auto Scaling for Amazon RDS instances.
+
+References:
+
+https://aws.amazon.com/rds/features/read-replicas/
+
+Save time with our AWS cheat sheets:
+
+https://digitalcloud.training/amazon-rds/
+Domain
+AWS Database
+Question 13Skipped
+
+A Company has identified that a security vulnerability affects a version of MariaDB that is being used with an Amazon RDS database instance.
+
+Who is responsible for ensuring that the patch is applied to the database?
+Correct answer
+
+Amazon Web Services (AWS).
+
+The company’s CloudOps Engineer.
+
+The security department the company.
+
+The database vendor.
+Overall explanation
+
+Amazon RDS is a managed database service and AWS are responsible for patching the DB instance's underlying hardware, underlying operating system (OS), and database engine version.
+
+Required patching is automatically scheduled only for patches that are related to security and instance reliability. Such patching occurs infrequently (typically once every few months) and seldom requires more than a fraction of your maintenance window.
+
+CORRECT: "Amazon Web Services (AWS)" is the correct answer.
+
+INCORRECT: "The database vendor" is incorrect. The database vendor may release patches, but they are not responsible for applying them.
+
+INCORRECT: "The security department the company" is incorrect. Amazon RDS is a managed database and AWS will patch the underlying DB software.
+
+INCORRECT: "The company’s CloudOps Engineer " is incorrect. Amazon RDS is a managed database and AWS will patch the underlying DB software.
+
+References:
+
+https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_UpgradeDBInstance.Maintenance.html
+Domain
+AWS Security, Identity, & Compliance
+Question 14Skipped
+
+A faulty application is known to fully utilize a processor by running at 100% CPU utilization. A CloudOps Engineer is tasked with automating a solution to reboot an Amazon EC2 instance when this scenario occurs for a duration longer than 3 minutes. What is the MOST effective way to achieve this?
+Correct answer
+
+Set up a CloudWatch alarm for the EC2 instance with detailed monitoring. Configure the action to reboot the instance.
+
+Develop an AWS Lambda function to reboot the EC2 instance, triggered on a 3-minute interval schedule.
+
+Implement an AWS Lambda function to reboot the EC2 instance, invoked by EC2 instance status checks.
+
+Set up a CloudWatch alarm for the EC2 instance with basic monitoring. Configure the action to reboot the instance.
+Overall explanation
+
+This is the correct answer because Amazon CloudWatch provides detailed monitoring, which collects 1-minute period metrics for the instance. In this case, the CloudWatch alarm can be configured to trigger when the CPU utilization of the EC2 instance is at 100% for more than 3 minutes and execute the action to reboot the instance.
+
+CORRECT: "Set up a CloudWatch alarm for the EC2 instance with detailed monitoring. Configure the action to reboot the instance" is the correct answer (as explained above.)
+
+INCORRECT: "Set up a CloudWatch alarm for the EC2 instance with basic monitoring. Configure the action to reboot the instance" is incorrect.
+
+This option is incorrect because basic monitoring in CloudWatch collects data in 5-minute intervals. Thus, it cannot effectively detect when the CPU utilization exceeds 100% for 3 minutes.
+
+INCORRECT: "Develop an AWS Lambda function to reboot the EC2 instance, triggered on a 3-minute interval schedule" is incorrect.
+
+This option is incorrect because it proposes to reboot the instance every 3 minutes regardless of the CPU utilization. It does not provide a solution for checking CPU utilization or determining when it reaches 100% for more than 3 minutes.
+
+INCORRECT: "Implement an AWS Lambda function to reboot the EC2 instance, invoked by EC2 instance status checks" is incorrect.
+
+This option is incorrect because EC2 instance status checks do not specifically monitor for high CPU utilization. Instead, they check the VM and the host where the VM is running.
+
+References:
+
+https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/AlarmThatSendsEmail.html
+
+Save time with our AWS cheat sheets:
+
+https://digitalcloud.training/amazon-cloudwatch/
+Domain
+AWS Management & Governance
+Question 15Skipped
+
+A company runs an application on-premises that generates many gigabytes of data files each day. The company requires that the files are stored on the AWS cloud, but the most recent files should be available locally for low latency access.
+
+Which AWS service is most suitable for these requirements?
+
+Amazon EFS
+
+Amazon S3
+Correct answer
+
+AWS Storage Gateway
+
+Amazon EBS
+Overall explanation
+
+AWS Storage Gateway Volume Gateways offer two modes: Cached and stored. With cached volumes, the Storage Gateway service stores the full volume in its Amazon S3 service bucket, and a portion of the volume—your recently accessed data—is retained in the gateway’s local cache for low-latency access.
+
+This would be suitable for the requirements in this scenario.
+
+CORRECT: "AWS Storage Gateway" is the correct answer.
+
+INCORRECT: "Amazon EBS" is incorrect. Amazon EBS is not accessible from on-premises and offers no local caching feature.
+
+INCORRECT: "Amazon S3" is incorrect. Amazon S3 does not offer a local caching feature.
+
+INCORRECT: "Amazon EFS" is incorrect. Amazon EFS does not offer a local caching feature.
+
+References:
+
+https://aws.amazon.com/storagegateway/volume/
+
+Save time with our AWS cheat sheets:
+
+https://digitalcloud.training/aws-storage-gateway/
+Domain
+AWS Storage
+Question 16Skipped
+
+A company manages an application that is deployed on Amazon EC2 instances within a private subnet. The EC2 instances must be restricted from the internet for security and compliance reasons. The SysOps team must be able to manage the instances from the corporate office using the SSH protocol.
+
+Which combination of actions should be taken to permit SSH access to the EC2 instances while meeting the security and compliance requirements? (Select TWO.)
+
+Attach a NAT gateway to the VPC and configure routing.
+
+Configure a Network Load Balancer in front of the EC2 instances.
+Correct selection
+
+Configure a VPN connection back to the corporate office.
+Correct selection
+
+Attach a virtual private gateway to the VPC and configure routing.
+
+Attach an internet gateway to the VPC and configure routing.
+Overall explanation
+
+The best solution for this requirement is to configure an AWS site-to-site (S2S) virtual private network (VPN). To do this you must add a virtual private gateway to the VPC, update the route table, and configure the customer gateway to connect the VPN to the corporate office.
+
+The following diagram shows the key components of the configuration for this scenario.
+
+CORRECT: "Attach a virtual private gateway to the VPC and configure routing" is the correct answer.
+
+CORRECT: "Configure a VPN connection back to the corporate office" is the correct answer.
+
+INCORRECT: "Attach a NAT gateway to the VPC and configure routing" is incorrect. NAT gateways are used to enable internet connectivity for instances in private subnets. In this case internet connectivity should be restricted.
+
+INCORRECT: "Attach an internet gateway to the VPC and configure routing" is incorrect. An internet gateway is used for internet connectivity which should be restricted in this case. An internet gateway is not required for a VPN connection.
+
+INCORRECT: "Configure a Network Load Balancer in front of the EC2 instances" is incorrect. This does not enable secure access to the corporate network that avoids the internet.
+
+References:
+
+https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Scenario4.html
+
+Save time with our AWS cheat sheets:
+
+https://digitalcloud.training/amazon-vpc/
+Domain
+AWS Networking & Content Delivery
+Question 17Skipped
+
+A CloudOps Engineer has configured an Amazon EC2 instance in a public subnet for remote access over SSH. The Administrator is able to establish an SSH connection from an on-premises network via the internet but is unable to ping the instance.
+
+What is the most likely reason for this?
+
+The instance is behind a NAT gateway.
+
+The instance does not have an Elastic IP address.
+
+The instance is in a VPC that does not have an internet gateway.
+Correct answer
+
+The instance’s security group does not allow ICMP traffic.
+Overall explanation
+
+The most likely explanation is that the instance’s security group does not have a rule allowing the Internet Control Message Protocol (ICMP). This protocol must be allowed for ICMP ping requests to be successful.
+
+CORRECT: "The instance’s security group does not allow ICMP traffic" is the correct answer.
+
+INCORRECT: "The instance does not have an Elastic IP address" is incorrect. This does not matter; the instance must have a public IP address as an SSH connection has been established.
+
+INCORRECT: "The instance is in a VPC that does not have an internet gateway" is incorrect. If this is the case, no connections would be possible.
+
+INCORRECT: "The instance is behind a NAT gateway" is incorrect. If this is the case, no connections would be possible.
+
+References:
+
+https://docs.aws.amazon.com/vpc/latest/userguide/VPC_SecurityGroups.html
+
+Save time with our AWS cheat sheets:
+
+https://digitalcloud.training/amazon-vpc/
+Domain
+AWS Security, Identity, & Compliance
+Question 18Skipped
+
+A manager has requested a report that provides a detailed history of all API activity for a specific user over the last several months of employment. AWS CloudTrail is enabled in the account.
+
+What is the MOST efficient method for a CloudOps Engineer to generate the required report?
+
+Using the AWS management Console, search for the API activity in the CloudTrail history. Then filter by user name and download the report in CSV format.
+Correct answer
+
+Locate the CloudTrail logs in the appropriate Amazon S3 bucket. Use Amazon Athena to extract the information needed to generate the report.
+
+Use the CloudTrail digest files stored in the company's Amazon S3 bucket. then send the logs to Amazon QuickSight to create the report.
+
+Using the AWS management Console, search for the user name in the CloudTrail history. Then filter by API and download the report in CSV format.
+Overall explanation
+
+Using Athena with CloudTrail logs is a powerful way to enhance your analysis of AWS service activity. For example, you can use queries to identify trends and further isolate activity by attributes, such as source IP address or user.
+
+For example the following query will look at the top events initiated by root from the beginning of the year. It will show whether these were direct root activities or whether they were invoked by an AWS service (and, if so, which one) to perform an activity.
+
+For this specific scenario the root user can be replaced by the user name of the specific user the manager needs to audit.
+
+CORRECT: "Locate the CloudTrail logs in the appropriate Amazon S3 bucket. Use Amazon Athena to extract the information needed to generate the report" is the correct answer.
+
+INCORRECT: "Using the AWS management Console, search for the user name in the CloudTrail history. Then filter by API and download the report in CSV format" is incorrect. This is not the most efficient method of reporting.
+
+INCORRECT: "Use the CloudTrail digest files stored in the company's Amazon S3 bucket. then send the logs to Amazon QuickSight to create the report" is incorrect. Digest files are used to verify the integrity of CloudTrail logs that are delivered to an S3 bucket. They cannot be used for auditing a users’ API activity.
+
+INCORRECT: "Using the AWS management Console, search for the API activity in the CloudTrail history. Then filter by user name and download the report in CSV format" is incorrect. This is not the most efficient method of reporting.
+
+References:
+
+https://docs.aws.amazon.com/athena/latest/ug/cloudtrail-logs.html
+
+Save time with our AWS cheat sheets:
+
+https://digitalcloud.training/aws-cloudtrail/
+Domain
+AWS Management & Governance
+Question 19Skipped
+
+An enterprise has mandated the logging of all operations within its AWS account via AWS CloudTrail. In addition, the IT operations team needs to be alerted when any changes or deletions occur in the CloudTrail log files. What is the appropriate approach for the IT operations team to achieve these requirements?
+
+Enable log file integrity validation and use the AWS CloudTrail Processing Library to validate the log files.
+
+Use AWS CloudTrail Insights for monitoring the changes in the log files.
+Correct answer
+
+Enable log file integrity validation and use AWS CLI commands to verify the log files.
+
+Use Amazon CloudWatch Events to monitor the modifications in the log file.
+Overall explanation
+
+Enabling log file integrity validation in AWS CloudTrail allows for the detection of whether a log file was modified, deleted, or unchanged after CloudTrail delivered it. You can use AWS CLI commands to manually validate the integrity of the log files. This provides a cryptographically verifiable method of ensuring log files have not been altered.
+
+CORRECT: "Enable log file integrity validation and use AWS CLI commands to verify the log files" is the correct answer (as explained above.)
+
+INCORRECT: "Enable log file integrity validation and use the AWS CloudTrail Processing Library to validate the log files" is incorrect.
+
+AWS CloudTrail log file integrity validation does allow you to determine whether a log file was modified, deleted, or unchanged after CloudTrail delivered it. However, AWS CloudTrail Processing Library is used to process CloudTrail log files, but not specifically designed for validating the integrity of the log files.
+
+INCORRECT: "Use Amazon CloudWatch Events to monitor the modifications in the log file" is incorrect.
+
+While Amazon CloudWatch Events can be used to monitor and respond to changes in your AWS resources, it cannot directly monitor modifications to CloudTrail log files. CloudWatch Events primarily focuses on changes in the state of AWS resources.
+
+INCORRECT: "Use AWS CloudTrail Insights for monitoring the changes in the log files" is incorrect.
+
+AWS CloudTrail Insights helps in identifying unusual activity in your AWS accounts, such as spikes in resource provisioning, burst of AWS Identity and Access Management (IAM) actions, or gaps in periodic maintenance activity, not directly monitoring the changes in CloudTrail log files.
+
+References:
+
+https://docs.aws.amazon.com/awscloudtrail/latest/userguide/cloudtrail-log-file-validation-intro.html
+
+Save time with our AWS cheat sheets:
+
+https://digitalcloud.training/aws-cloudtrail/
+Domain
+AWS Management & Governance
+Question 20Skipped
+
+A CloudOps Engineer has configured a static website on Amazon S3. The bucket name is “mystaticsite”. The Administrator plans to use Amazon Route 53 to route traffic to the website and has configured an A record for www.mystaticsite.com. However, users are unable to connect to www.mystaticsite.com using their browsers.
+
+Which of the following is the cause of this issue?
+
+The Route 53 record set requires a certificate to be configured.
+Correct answer
+
+The S3 bucket name must match the record set name in Route 53.
+
+An Amazon CloudFront distribution must be configured for the S3 bucket.
+
+The Route 53 record set must be in the same region as the S3 bucket.
+Overall explanation
+
+When you use static website hosting on Amazon S3 with a custom domain name the name of the bucket must match the website DNS name. To support requests from both the root domain and subdomain, you create two buckets.
+
+Domain bucket ‐ mystaticsite.com
+
+Subdomain bucket ‐ www.mystaticsite.com
+
+In this case the Administrator has not configured the correct S3 bucket name so the configuration will not work.
+
+CORRECT: "The S3 bucket name must match the record set name in Route 53" is the correct answer.
+
+INCORRECT: "An Amazon CloudFront distribution must be configured for the S3 bucket" is incorrect. You don’t need an Amazon CloudFront distribution to make this work though you can use one if desired.
+
+INCORRECT: "The Route 53 record set requires a certificate to be configured" is incorrect. This is not required; certificates are not associated with record sets.
+
+INCORRECT: "The Route 53 record set must be in the same region as the S3 bucket" is incorrect. Amazon Route 53 is a global service, you do not create record sets within Regions.
+
+References:
+
+https://docs.aws.amazon.com/AmazonS3/latest/dev/website-hosting-custom-domain-walkthrough.html
+
+Save time with our AWS cheat sheets:
+
+https://digitalcloud.training/amazon-route-53/
+Domain
+AWS Storage
+Question 21Skipped
+
+A CloudOps Engineer made some changes to a production AWS CloudFormation stack and the update failed and then returned the error UPDATE_ROLLBACK_FAILED. The Administrator needs to return the CloudFormation stack back to its previous working state without the loss of existing resources.
+
+How can this be accomplished?
+
+Use the AWS CLI to manually change the stack status to UPDATE_COMPLETE, then continue updating the stack with a working template.
+
+Delete the stack, then recreate the stack with the original working template.
+Correct answer
+
+Correct the error that caused the failure, then select the Continue Update Rollback action in the console.
+
+Select the Update Stack action with a working template in the console.
+Overall explanation
+
+A stack’s state is set to UPDATE_ROLLBACK_FAILED when CloudFormation cannot roll back all changes during an update.
+
+The AWS CloudFormation continue update rollback can then be used. This can be initiated from the AWS CloudFormation console or with the continue-update-rollback command in the AWS Command Line Interface (CLI). This functionality is enabled for all the stacks in the UPDATE_ROLLBACK_FAILED state.
+
+For example, if the stack is in the UPDATE_ROLLBACK_FAILED state due to a service limit violation, you can request a limit increase or delete resources to stay within the limit and then use the continue update rollback functionality to reinitiate the rollback and bring the stack to the UPDATE_ROLLBACK_COMPLETE state.
+
+CORRECT: "Correct the error that caused the failure, then select the Continue Update Rollback action in the console" is the correct answer.
+
+INCORRECT: "Delete the stack, then recreate the stack with the original working template" is incorrect. This would destroy the existing resources which should be avoided as this is a production stack
+
+INCORRECT: "Select the Update Stack action with a working template in the console" is incorrect. This is not an option when in the UPDATE_ROLLBACK_FAILED state.
+
+INCORRECT: "Use the AWS CLI to manually change the stack status to UPDATE_COMPLETE, then continue updating the stack with a working template" is incorrect. The status cannot be changed to UPDATE_COMPLETE as the reason for the rollback failure has not yet been addresses.
+
+References:
+
+https://aws.amazon.com/blogs/devops/continue-rolling-back-an-update-for-aws-cloudformation-stacks-in-the-update_rollback_failed-state/
+
+Save time with our AWS cheat sheets:
+
+https://digitalcloud.training/aws-cloudformation/
+Domain
+AWS Management & Governance
+Question 22Skipped
+
+A company plans to use Amazon Route 53 to enable high availability for a website running on-premises. The website consists of an active and passive server. Route 53 must be configured to route traffic to the primary active server if the associated health returns a 2xx status code. All other traffic should be directed to the secondary passive server.
+
+A CloudOps Engineer needs to configure the record type and health check. Which options should the Administrator choose?
+
+An A record for each server with an Amazon Route 53 TCP health check.
+
+An alias record with evaluate health set to yes and associated with a Route 53 TCP health check.
+Correct answer
+
+An A record for each server with an Amazon Route 53 HTTP health check.
+
+An alias record with evaluate health set to yes and associated with a Route 53 HTTP health check.
+Overall explanation
+
+The website runs on-premises and therefore an Alias record cannot be used as this would only be used for AWS resources. Therefore, an A record should be used for each server. The health check must return HTTP status codes and therefore the only option is to use a HTTP health check.
+
+CORRECT: "An A record for each server with an Amazon Route 53 HTTP health check" is the correct answer.
+
+INCORRECT: "An A record for each server with an Amazon Route 53 TCP health check" is incorrect. A TCP health check will not return the HTTP status codes.
+
+INCORRECT: "An alias record with evaluate health set to yes and associated with a Route 53 HTTP health check" is incorrect. You cannot create an alias record for an on-premises website.
+
+INCORRECT: "An alias record with evaluate health set to yes and associated with a Route 53 TCP health check" is incorrect. You cannot create an alias record for an on-premises website.
+
+References:
+
+https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/dns-failover-types.html
+
+Save time with our AWS cheat sheets:
+
+https://digitalcloud.training/amazon-route-53/
+Domain
+AWS Networking & Content Delivery
+Question 23Skipped
+
+A company needs a way to share Amazon RDS database snapshots of an encrypted database across different AWS accounts they own. The database must be encrypted at rest in the destination accounts.
+
+How can the Administrator share the snapshots?
+
+Take an encrypted snapshot of the RDS database. Share the snapshot with the AWS accounts and then then launch an encrypted database from the snapshot.
+Correct answer
+
+Update the key policy to grant access to the target accounts. Copy the snapshot using the CMK and then share the snapshot with the target accounts.
+
+Take an unencrypted snapshot of the RDS database. Share the snapshot with the AWS accounts and then launch an encrypted database from the snapshot.
+
+Create a new unencrypted RDS instance from the encrypted snapshot, copy the database contents to a file and then share the file with the AWS accounts.
+Overall explanation
+
+The key policy must be updated to grant access to the target accounts. A (non-default) KMS key must be used to enable this to work. You can then copy the snapshot using the customer managed key, and then share the snapshot with the target accounts.
+
+CORRECT: "Update the key policy to grant access to the target accounts. Copy the snapshot using the CMK and then share the snapshot with the target accounts" is the correct answer.
+
+INCORRECT: "Take an unencrypted snapshot of the RDS database. Share the snapshot with the AWS accounts and then launch an encrypted database from the snapshot" is incorrect. You cannot take an unencrypted snapshot of an encrypted database and you cannot launch an encrypted database from an unencrypted snapshot.
+
+INCORRECT: "Take an encrypted snapshot of the RDS database. Share the snapshot with the AWS accounts and then then launch an encrypted database from the snapshot" is incorrect. You cannot share the snapshot without first updating the KMS key policy to grant permissions to the target accounts and copy the snapshot with the CMK before sharing it.
+
+INCORRECT: "Create a new unencrypted RDS instance from the encrypted snapshot, copy the database contents to a file and then share the file with the AWS accounts" is incorrect. You cannot create an unencrypted database from an encrypted snapshot.
+
+References:
+
+https://aws.amazon.com/premiumsupport/knowledge-center/share-encrypted-rds-snapshot-kms-key/
+
+Save time with our AWS cheat sheets:
+
+https://digitalcloud.training/amazon-rds/
+Domain
+AWS Database
+Question 24Skipped
+
+A company run an application on a single Amazon EC2 instance in a single Availability Zone (AZ). The company requires that the application is made highly available. A CloudOps Engineer has created an Application Load Balancer (ALB) and a launch configuration from the running instance. The Administrator needs to create an Auto Scaling group for the launch configuration.
+
+How should the Auto Scaling group be configured to make the application highly available?
+
+Use at least 2 regions with a minimum size of 1, desired capacity of 1, and a maximum size of 1.
+
+Use at least 2 Availability Zones with a minimum size of 1, desired capacity of 1, and a maximum size of 1.
+Correct answer
+
+Use at least 3 Availability Zones with a minimum size of 2, desired capacity of 2, and a maximum of 2.
+
+Use at least 3 regions with a minimum size of 2, desired capacity of 2, and a maximum size of 2.
+Overall explanation
+
+For high availability the Auto Scaling group should launch at least 2 instances in at least 2 AZs. Therefore, the minimum size of the ASG should be 2, the desired capacity should be 2, and the maximum should be 2.
+
+CORRECT: "Use at least 3 Availability Zones with a minimum size of 2, desired capacity of 2, and a maximum of 2" is the correct answer.
+
+INCORRECT: "Use at least 2 Availability Zones with a minimum size of 1, desired capacity of 1, and a maximum size of 1" is incorrect. This would result in an outage if the AZ with the 1 running instance fails.
+
+INCORRECT: "Use at least 2 regions with a minimum size of 1, desired capacity of 1, and a maximum size of 1" is incorrect. You cannot select multiple regions in an ASG.
+
+INCORRECT: "Use at least 3 regions with a minimum size of 2, desired capacity of 2, and a maximum size of 2" is incorrect. You cannot select multiple regions in an ASG.
+
+References:
+
+https://docs.aws.amazon.com/autoscaling/ec2/userguide/as-add-availability-zone.html
+
+Save time with our AWS cheat sheets:
+
+https://digitalcloud.training/amazon-ec2-auto-scaling/
+Domain
+AWS Compute
+Question 25Skipped
+
+The security team in a company is concerned about the security of AWS CloudTrail logs. The key requirements are to keep a record of any deletions or modifications to the log files.
+
+Which steps should a CloudOps Engineer take to meet these requirements? (Select TWO.)
+
+Enable the CloudTrail log file integrity check in AWS Config Rules.
+Correct selection
+
+Enable Amazon S3 MFA Delete for the CloudTrail S3 bucket.
+
+Add an SNS notification to CloudWatch Logs for any delete actions.
+Correct selection
+
+Enable CloudTrail log file integrity validation.
+
+Restrict all access to the CloudTrail S3 bucket.
+Overall explanation
+
+To determine whether a log file was modified, deleted, or unchanged after CloudTrail delivered it, you can use CloudTrail log file integrity validation. This feature is built using industry standard algorithms: SHA-256 for hashing and SHA-256 with RSA for digital signing.
+
+This makes it computationally infeasible to modify, delete or forge CloudTrail log files without detection. You can use the AWS CLI to validate the files in the location where CloudTrail delivered them.
+
+Configuring multi-factor authentication (MFA) ensures that any attempt to change the versioning state of your bucket or permanently delete an object version requires additional authentication. This helps prevent any operation that could compromise the integrity of your log files, even if a user acquires the password of an IAM user that has permissions to permanently delete Amazon S3 objects.
+
+CORRECT: "Enable CloudTrail log file integrity validation" is the correct answer.
+
+CORRECT: "Enable Amazon S3 MFA Delete for the CloudTrail S3 bucket" is the correct answer.
+
+INCORRECT: "Add an SNS notification to CloudWatch Logs for any delete actions" is incorrect. CloudWatch Logs is a different service to CloudTrail and the question is asking to secure the logs generated by CloudTrail logs.
+
+INCORRECT: "Enable the CloudTrail log file integrity check in AWS Config Rules" is incorrect. This setting is enabled in CloudTrail not in AWS Config.
+
+INCORRECT: "Restrict all access to the CloudTrail S3 bucket" is incorrect. This is unnecessary and may restrict legitimate access requests.
+
+References:
+
+https://docs.aws.amazon.com/awscloudtrail/latest/userguide/cloudtrail-log-file-validation-intro.html
+
+Save time with our AWS cheat sheets:
+
+https://digitalcloud.training/amazon-s3-and-glacier/
+Domain
+AWS Management & Governance
+Question 26Skipped
+
+A company security and compliance policy mandates that specific AMIs are approved for usage in the company’s AWS accounts. A CloudOps Engineer needs to review existing Amazon EC2 instances to ensure they are in compliance with this policy.
+
+Which action should a CloudOps Engineer take?
+
+Create a custom report using AWS Systems Manager Inventory to identify unapproved AMIs.
+
+Use AWS Trusted Advisor to identify EC2 workloads using unapproved AMIs.
+Correct answer
+
+Create an AWS Config rule to check that approved AMI IDs have been used.
+
+Create an AWS Lambda function that checks that approved AMI Is have been used.
+Overall explanation
+
+AWS Config enables AWS resource inventory and change management as well as Config Rules to confirm that resources are configured in compliance with policies that you define.
+
+AWS Config rules can check that running instances are using approved Amazon Machine Images, or AMIs. You can specify a list of approved AMI by ID or provide a tag to specify the list of AMI Ids.
+
+CORRECT: "Create an AWS Config rule to check that approved AMI IDs have been used" is the correct answer.
+
+INCORRECT: "Create a custom report using AWS Systems Manager Inventory to identify unapproved AMIs" is incorrect. AWS Config provides this information and should be used for compliance reporting.
+
+INCORRECT: "Create an AWS Lambda function that checks that approved AMI Is have been used" is incorrect. This is more complex and unnecessary when AWS Config provides this data.
+
+INCORRECT: "Use AWS Trusted Advisor to identify EC2 workloads using unapproved AMIs" is incorrect. This is not a function of trusted advisor.
+
+References:
+
+https://aws.amazon.com/blogs/devops/aws-config-checking-for-compliance-with-new-managed-rule-options/
+
+Save time with our AWS cheat sheets:
+
+https://digitalcloud.training/aws-config/
+Domain
+AWS Management & Governance
+Question 27Skipped
+
+A company uses a NAT instance to enable Amazon EC2 instances in private subnets to download software and updates from the internet. Latency on the NAT instance has increased as more EC2 instances have been deployed into the private subnets. A CloudOps Engineer needs to reduce latency cost-efficiently and ensure the solution can scale with increasing demand.
+
+Which action should be taken to accomplish this?
+
+Replace the NAT instance with a virtual private gateway.
+
+Change the instance type to use a larger instance type.
+
+Add Auto Scaling for the NAT instance.
+Correct answer
+
+Replace the NAT instance with a NAT gateway.
+Overall explanation
+
+The solution to this issue is to use a NAT gateway instead of a NAT instance. A NAT gateway scales automatically up to 45 Gbps so it will provide plenty of room for increasing demand. You are charged for creating and using a NAT gateway in your account. NAT gateway hourly usage and data processing rates apply. Amazon EC2 charges for data transfer also apply.
+
+CORRECT: "Replace the NAT instance with a NAT gateway" is the correct answer.
+
+INCORRECT: "Add Auto Scaling for the NAT instance" is incorrect. This is not a supported solution and does not work well.
+
+INCORRECT: "Change the instance type to use a larger instance type" is incorrect. This is not the best solution as it does not scale well for future demand.
+
+INCORRECT: "Replace the NAT instance with a virtual private gateway" is incorrect. A VPG is associated with an AWS VPN. It is not related to a NAT instance or NAT gateway.
+
+References:
+
+https://docs.aws.amazon.com/vpc/latest/userguide/vpc-nat-gateway.html
+
+Save time with our AWS cheat sheets:
+
+https://digitalcloud.training/amazon-vpc/
+Domain
+AWS Compute
+Question 28Skipped
+
+An organization deploys a critical application on Amazon EC2 instances within an Auto Scaling group. The application encounters extended scaling times due to lengthy startup scripts. A CloudOps Engineer has been tasked with finding a solution to shorten scale-out durations without exceeding the Auto Scaling group's capacity.
+
+Which approach meets these requirements?
+
+Implement scheduled scaling to increase the instance count during known peak usage periods.
+Correct answer
+
+Integrate a warm pool into the Auto Scaling group configuration.
+
+Switch to a larger EC2 instance type in the Auto Scaling group to improve instance performance.
+
+Add more instances to the Auto Scaling group to pre-emptively accommodate the increased traffic.
+Overall explanation
+
+In AWS, a warm pool is a feature of Auto Scaling groups that allows you to scale out more quickly by having instances pre-initialized. Instead of waiting for an EC2 instance to initialize when a scale-out event occurs, the instance is ready and available in the warm pool, reducing the overall time for the scale-out operation.
+
+This makes warm pools the optimal solution for reducing scale-out times when dealing with applications that have long boot scripts.
+
+CORRECT: "Integrate a warm pool into the Auto Scaling group configuration" is the correct answer (as explained above.)
+
+INCORRECT: "Add more instances to the Auto Scaling group to pre-emptively accommodate the increased traffic" is incorrect.
+
+This option may lead to overprovisioning, which is explicitly stated as something to avoid in the question. While this may indeed accommodate sudden traffic spikes, it may also lead to unnecessary costs if the extra capacity is not needed consistently.
+
+INCORRECT: "Implement scheduled scaling to increase the instance count during known peak usage periods" is incorrect.
+
+Scheduled scaling is used when you can predict patterns in traffic. However, the question does not specify predictable traffic patterns. Also, it does not address the problem of long boot scripts causing delays during scale-out events.
+
+INCORRECT: "Switch to a larger EC2 instance type in the Auto Scaling group to improve instance performance" is incorrect.
+
+This answer may improve performance of running instances, but it will not necessarily reduce the time it takes for new instances to become operational during scale-out events due to the long boot scripts.
+
+References:
+
+https://docs.aws.amazon.com/autoscaling/ec2/userguide/ec2-auto-scaling-warm-pools.html
+
+Save time with our AWS cheat sheets:
+
+https://digitalcloud.training/amazon-ec2-auto-scaling/
+Domain
+AWS Compute
+Question 29Skipped
+
+A CloudOps Engineer manages an Auto Scaling group of Amazon EC2 instances in an Amazon VPC. The EC2 instances use a NAT instance to access the internet.
+
+Based on the shared responsibility model, AWS is responsible for managing which element of this deployment?
+
+Ensuring high availability of the NAT instance.
+Correct answer
+
+Managing the health of the underlying EC2 hosts.
+
+Configuring the route table with the NAT instance ID.
+
+Managing scaling policies for the Auto Scaling group.
+Overall explanation
+
+AWS are responsible for security “of” the cloud. This includes managing the health of the underlying EC2 hosts on which your instances are running. AWS are not responsible for the tasks listed in the other answers as these relate to security “in” the cloud and are customer responsibilities.
+
+CORRECT: "Managing the health of the underlying EC2 hosts" is the correct answer.
+
+INCORRECT: "Configuring the route table with the NAT instance ID" is incorrect. Customers are responsible for configuring route tables, AWS provides the underlying routing functions.
+
+INCORRECT: "Managing scaling policies for the Auto Scaling group" is incorrect. Customers are responsible for managing the scaling policies with an ASG to ensure the right number of instances to service demand.
+
+INCORRECT: "Ensuring high availability of the NAT instance" is incorrect. NAT instances are customer managed solutions, they are not highly available by default.
+
+References:
+
+https://aws.amazon.com/compliance/shared-responsibility-model/
+
+Save time with our AWS cheat sheets:
+
+https://digitalcloud.training/amazon-ec2/
+Domain
+AWS Security, Identity, & Compliance
+Question 30Skipped
+
+A legacy application is deployed on an Amazon EC2 m1.large instance and the CPU utilization is over 90% resulting in high latency. The application can only be scaled vertically. How can a CloudOps Engineer resolve the performance issues?
+Correct answer
+
+Upgrade to a compute-optimized instance.
+
+Add a read replica to offload queries from the instance.
+
+Add additional m1.large instances to the application.
+
+Change the Amazon EBS volume to Provisioned IOPS.
+Overall explanation
+
+The instance type being used is a memory optimized instance and the CPU is a bottleneck for the performance of the application. As the application can only scale vertically the best resolution is to change to a compute optimized instance which will have more CPUs to run the application.
+
+CORRECT: "Upgrade to a compute-optimized instance" is the correct answer.
+
+INCORRECT: "Change the Amazon EBS volume to Provisioned IOPS" is incorrect. The CPU is constrained, not the storage, so this will not be effective.
+
+INCORRECT: "Add additional m1.large instances to the application" is incorrect. The application can only scale vertically and adding additional instances would be scaling horizontally.
+
+INCORRECT: "Add a read replica to offload queries from the instance" is incorrect. This is not an RDS database, so you cannot add a read replica.
+
+References:
+
+https://aws.amazon.com/ec2/instance-types/
+
+Save time with our AWS cheat sheets:
+
+https://digitalcloud.training/amazon-ec2/
+Domain
+AWS Compute
+Question 31Skipped
+
+A CloudOps Engineer has deployed an infrastructure stack for a company using AWS CloudFormation. The company made some manual changes to the infrastructure.
+
+The Administrator needs to capture the changes and update the CloudFormation template. How can the Administrator determine what changes were made?
+Correct answer
+
+Use drift detection on the CloudFormation stack. Use the output to update the CloudFormation template and redeploy the stack.
+
+Update the CloudFormation stack using a change set. Review the changes and update the stack.
+
+Update the CloudFormation stack by modifying the selected parameters in the template to match what was changed.
+
+Create a new CloudFormation stack based on the changes that were made. Delete the old stack and deploy the new stack.
+Overall explanation
+
+Drift detection enables you to detect whether a stack's actual configuration differs, or has drifted, from its expected configuration. Use AWS CloudFormation to detect drift on an entire stack, or on individual resources within the stack. A resource is considered to have drifted if any of its actual property values differ from the expected property values.
+
+AWS CloudFormation generates detailed information on each resource in the stack that has drifted. The Administrator can use this information to update the stack.
+
+CORRECT: "Use drift detection on the CloudFormation stack. Use the output to update the CloudFormation template and redeploy the stack" is the correct answer.
+
+INCORRECT: "Create a new CloudFormation stack based on the changes that were made. Delete the old stack and deploy the new stack" is incorrect. The Administrator does not know what changes were made; the changes must be detected.
+
+INCORRECT: "Update the CloudFormation stack using a change set. Review the changes and update the stack" is incorrect. You cannot update a stack using a change set unless you have an updated template. The Administrator first needs to determine the changes and update the template.
+
+INCORRECT: "Update the CloudFormation stack by modifying the selected parameters in the template to match what was changed" is incorrect. This does need to be done. However, the Administrator needs to first determine what the changes are, so the template can be updated.
+
+References:
+
+https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/using-cfn-stack-drift.html
+
+Save time with our AWS cheat sheets:
+
+https://digitalcloud.training/aws-cloudformation/
+Domain
+AWS Management & Governance
+Question 32Skipped
+
+A CloudOps Engineer created an Amazon Route 53 health check using a String Matching condition. The String Matching condition is searching for /html at the end of the page to ensure it fully loads. After enabling the health check, the administrator received an alert stating that the health check failed. However, the page loads successfully when navigating directly to it.
+
+What is the MOST likely cause of the health check failure?
+
+The search string must be longer than 4 characters.
+
+The search string is not HTML-encoded.
+Correct answer
+
+The search string is not in the first 5120 bytes of the response body.
+
+The search string should not include the forward slash (/).
+Overall explanation
+
+With HTTP_STR_MATCH Amazon Route 53 tries to establish a TCP connection. If successful, Route 53 submits an HTTP request and searches the first 5,120 bytes of the response body for the string that you specify in SearchString.
+
+If the response body contains the value that you specify in Search string, Route 53 considers the endpoint healthy. If not, or if the endpoint doesn't respond, Route 53 considers the endpoint unhealthy. The search string must appear entirely within the first 5,120 bytes of the response body.
+
+CORRECT: "The search string is not in the first 5120 bytes of the response body" is the correct answer.
+
+INCORRECT: "The search string is not HTML-encoded" is incorrect. The search string does not need to be HTML encoded.
+
+INCORRECT: "The search string should not include the forward slash (/)" is incorrect. If you don’t include a forward slash, Route 53 will just add it in anyway.
+
+INCORRECT: "The search string must be longer than 4 characters" is incorrect. There is no minimum length for the search string.
+
+References:
+
+https://docs.aws.amazon.com/Route53/latest/APIReference/API_HealthCheckConfig.html
+
+https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/health-checks-creating-values.html
+
+Save time with our AWS cheat sheets:
+
+https://digitalcloud.training/amazon-route-53/
+Domain
+AWS Networking & Content Delivery
+Question 33Skipped
+
+A CloudOps Engineer must choose an EBS volume type that will be attached to an Amazon EC2 instance. The volume will be used by a big data application and the application data will be accessed infrequently and stored sequentially.
+
+What EBS volume type will be the MOST cost-effective solution?
+
+Throughput Optimized HDD (st1)
+
+General Purpose SSD (gp2)
+Correct answer
+
+Cold HDD (sc1)
+
+Provisioned IOPS SSD (io1)
+Overall explanation
+
+The Cold HDD (sc1) volume type is the most cost-effective storage solution that is suitable for throughput-oriented storage for large volumes of data that are infrequently accessed.
+
+CORRECT: "Cold HDD (sc1)" is the correct answer.
+
+INCORRECT: "Throughput Optimized HDD (st1)" is incorrect. This is not the most cost-effective storage volume for this use case. It is better suited to throughput-oriented storage that requires frequent access.
+
+INCORRECT: "Provisioned IOPS SSD (io1)" is incorrect. This is a much more expensive storage volume type for IOPS intensive workloads.
+
+INCORRECT: "General Purpose SSD (gp2)" is incorrect. This is a more expensive storage volume type that uses SSD and is suitable for use as a boot volume.
+
+References:
+
+https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-volume-types.html
+
+Save time with our AWS cheat sheets:
+
+https://digitalcloud.training/amazon-ebs/
+Domain
+AWS Storage
+Question 34Skipped
+
+A web application for a popular online store is using Amazon ElastiCache with Memcached for frequently used data. Performance has been poor for a couple of weeks and complaints about the user experience have been reported. The metric data for the Amazon EC2 instances and the Amazon RDS instance appear normal, but the eviction count metrics are high.
+
+What can a CloudOps Engineer do to address this issue and resolve the performance issues?
+Correct answer
+
+Scale the Memcached cluster by adding additional nodes.
+
+Scale the RDS instance by changing instance types.
+
+Scale the Memcached cluster by adding read replicas.
+
+Scale the Memcached cluster by increasing CPU capacity.
+Overall explanation
+
+Evictions occur when memory is over filled or greater than the maxmemory setting in the cache, resulting in the engine selecting keys to evict in order to manage its memory. The keys that are chosen are based on the eviction policy that is selected.
+
+Therefore, the best solution is to add additional nodes which will provide more memory for storing the frequently used data and should lower the eviction count metrics.
+
+CORRECT: "Scale the Memcached cluster by adding additional nodes" is the correct answer.
+
+INCORRECT: "Scale the Memcached cluster by adding read replicas" is incorrect. You cannot add read replicas to a Memcached cluster.
+
+INCORRECT: "Scale the Memcached cluster by increasing CPU capacity" is incorrect. This would not increase the memory. The memory must be increased so there’s more space to store the frequently used data.
+
+INCORRECT: "Scale the RDS instance by changing instance types" is incorrect. The metrics for RDS are normal. The issue lies in the Memcached layer having insufficient memory available.
+
+References:
+
+https://aws.amazon.com/caching/best-practices/
+
+Save time with our AWS cheat sheets:
+
+https://digitalcloud.training/amazon-elasticache/
+Domain
+AWS Database
+Question 35Skipped
+
+A distributed application runs across many Amazon EC2 instances and processes large quantities of data. The application is designed to handle processing interruptions without causing issues. A CloudOps Engineer needs to determine the MOST cost-effective pricing model for this use case.
+
+Which EC2 pricing model should the Administrator use?
+Correct answer
+
+Spot Instances
+
+On-Demand Instances
+
+Dedicated Hosts
+
+Reserved Instances
+Overall explanation
+
+The most cost-effective pricing model for this use case is to use Spot instances. With Spot instances you need to be able to handle the termination of resources when AWS need the capacity back. Therefore, it should only be used with applications that can accept processing interruptions. In this case this distributed application can handle the processing interruptions so the best way to lower costs is to use Spot instances.
+
+CORRECT: "Spot Instances" is the correct answer.
+
+INCORRECT: "Dedicated Hosts" is incorrect. This is a more expensive option and there are no requirements for the use of dedicated hosts.
+
+INCORRECT: "On-Demand Instances" is incorrect. There are no cost savings to be gained by using on-demand instances.
+
+INCORRECT: "Reserved Instances" is incorrect. This would be a good pricing model for longer term (1 or 3 years) use cases for steady-state workloads. For this particular scenario, Spot instances are better to further lower costs.
+
+References:
+
+https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-spot-instances.html
+
+Save time with our AWS cheat sheets:
+
+https://digitalcloud.training/amazon-ec2/
+Domain
+AWS Cost Management
+Question 36Skipped
+
+A developer is receiving access denied errors when attempting to list the objects in an Amazon S3 bucket. The developer is using the IAM user account "arn:aws:iam::513259117252:user/paul". The following S3 bucket policy has been applied to the bucket:
+
+How can a CloudOps Engineer modify the S3 bucket policy to fix the issue?
+Correct answer
+
+Change the "Resource" from "arn:aws:s3:::dcttestbucket/*" to "arn:aws:s3:::dcttestbucket".
+
+Change the "Principal" from "arn:aws:iam::513259117252:user/paul" to "arn:aws:iam::513259117252:role/paul".
+
+Change the "Action" from "s3:List*" to "s3:ListBucket".
+
+Change the "Effect" from "Allow" to "Deny".
+Overall explanation
+
+The bucket policy is not correctly formed. The /* applies the policy only to the objects. However, the s3:ListBucket action must be allowed at the bucket level. Removing the trailing / and the wildcard should fix this issue.
+
+You must have this permission to perform ListObjectsV2 actions.s3:ListBucket is the name of the permission that allows a user to list the objects in a bucket. ListObjectsV2 is the name of the API call that lists the objects in a bucket.
+
+CORRECT: "Change the "Resource" from "arn:aws:s3:::dcttestbucket/*" to "arn:aws:s3:::dcttestbucket"" is the correct answer.
+
+INCORRECT: "Change the "Principal" from "arn:aws:iam::513259117252:user/paul" to "arn:aws:iam::513259117252:role/paul"" is incorrect. The IAM principal being used is a user account so the principal statement is correct in the policy.
+
+INCORRECT: "Change the "Action" from "s3:List*" to "s3:ListBucket"" is incorrect. This would only provide the s3:ListBucket and would therefore remove the s3:ListObject permissions.
+
+INCORRECT: "Change the "Effect" from "Allow" to "Deny"" is incorrect. This would not achieve the desired outcome.
+
+References:
+
+https://aws.amazon.com/premiumsupport/knowledge-center/s3-access-denied-listobjects-sync/
+
+Save time with our AWS cheat sheets:
+
+https://digitalcloud.training/amazon-s3-and-glacier/
+Domain
+AWS Storage
+Question 37Skipped
+
+A CloudOps Engineer manages and application that uses an Application Load Balancer (ALB) in front of six Amazon EC2 instances in a single security group. The Administrator notices that the CloudWatch metric for HealthyHostCount has dropped from 6 to 2.
+
+What is MOST likely causing this issue?
+
+The security groups of the instances are not allowing the ALB health checks to succeed.
+Correct answer
+
+The ALB health checks have failed, and the ALB has taken EC2 instances out of service.
+
+The Amazon Route 53 health checks have failed, and the ALB has taken EC2 instances out of service.
+
+The route tables are not updated to allow traffic to flow between the ALB and the EC2 instances.
+Overall explanation
+
+Though it is unclear what caused 4 instances to fail their health checks and the other 2 to remain operational, this is the most likely cause. None of the other options make sense as they would either apply to all instances or none at all.
+
+CORRECT: "The ALB health checks have failed, and the ALB has taken EC2 instances out of service" is the correct answer.
+
+INCORRECT: "The security groups of the instances are not allowing the ALB health checks to succeed" is incorrect. The instances are attached to a single security group so if it is misconfigured then all health checks would fail, and all instances would be removed from service.
+
+INCORRECT: "The route tables are not updated to allow traffic to flow between the ALB and the EC2 instances" is incorrect. If the route tables are not configured correctly then none of the instances will be operational.
+
+INCORRECT: "The Amazon Route 53 health checks have failed, and the ALB has taken EC2 instances out of service" is incorrect. Amazon ALB does not take instances out of service based on Amazon Route 53 health checks. It will only remove instances from service if they fail the ALB health checks.
+
+References:
+
+https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-cloudwatch-metrics.html
+
+Save time with our AWS cheat sheets:
+
+https://digitalcloud.training/aws-elastic-load-balancing-aws-elb/
+Domain
+AWS Compute
+Question 38Skipped
+
+An application has been deployed that stores configuration files in an Amazon S3 bucket. A history of revisions of the configuration files must be maintained in case a rollback is required.
+
+How can a CloudOps Engineer configure the S3 bucket to meet these requirements?
+
+Enable object tagging on the S3 bucket.
+
+Enable cross-origin resource sharing on the S3 bucket.
+
+Enable a lifecycle policy on the S3 bucket.
+Correct answer
+
+Enable versioning on the S3 bucket.
+Overall explanation
+
+Versioning is a means of keeping multiple variants of an object in the same bucket. You can use versioning to preserve, retrieve, and restore every version of every object stored in your Amazon S3 bucket.
+
+With versioning, you can easily recover from both unintended user actions and application failures. When you enable versioning for a bucket, if Amazon S3 receives multiple write requests for the same object simultaneously, it stores all of the objects.
+
+CORRECT: "Enable versioning on the S3 bucket" is the correct answer.
+
+INCORRECT: "Enable a lifecycle policy on the S3 bucket" is incorrect. Lifecycle policies are used to move data between different storage classes, they do not retain copies of versions of files.
+
+INCORRECT: "Enable cross-origin resource sharing on the S3 bucket" is incorrect. CORS is not related to retaining copies of versions of an object on S3.
+
+INCORRECT: "Enable object tagging on the S3 bucket" is incorrect. Tagging adds metadata to your objects, it does not assist with retaining versions.
+
+References:
+
+https://docs.aws.amazon.com/AmazonS3/latest/dev/Versioning.html
+
+Save time with our AWS cheat sheets:
+
+https://digitalcloud.training/amazon-s3-and-glacier/
+Domain
+AWS Storage
+Question 39Skipped
+
+The security team has notified a CloudOps Engineer that there may be a vulnerable version of software installed on some Amazon EC2 instances. How can the Administrator verify if the vulnerable software is installed on the EC2 instances with the LEAST operational overhead?
+
+Use AWS CloudTrail to verify Amazon EC2 API activity in the account.
+
+Connect to each instance using SSH and check the software version.
+Correct answer
+
+Create and run an Amazon Inspector assessment template.
+
+Write some custom code that uses AWS Lambda to check the instances.
+Overall explanation
+
+Amazon Inspector helps you discover potential security issues by using security rules to analyze your AWS resources. Amazon Inspector monitors and collects behavioral data (telemetry) about your resources.
+
+To get started, you create an assessment target (a collection of the AWS resources that you want Amazon Inspector to analyze). Next, you create an assessment template (a blueprint that you use to configure your assessment). You use the template to start an assessment run, which is the monitoring and analysis process that results in a set of findings.
+
+CORRECT: "Create and run an Amazon Inspector assessment template" is the correct answer.
+
+INCORRECT: "Connect to each instance using SSH and check the software version" is incorrect. This is very manual and not the most effective method.
+
+INCORRECT: "Use AWS CloudTrail to verify Amazon EC2 API activity in the account" is incorrect. API activity will not identify software installed on an EC2 instance.
+
+INCORRECT: "Write some custom code that uses AWS Lambda to check the instances" is incorrect. This is possible but more time consuming than just using the Inspector template.
+
+References:
+
+https://docs.aws.amazon.com/inspector/latest/userguide/inspector_assessments.html
+Domain
+AWS Security, Identity, & Compliance
+Question 40Skipped
+
+A global news agency employs teams across Europe and Asia to collect high-resolution photos for daily news updates. These teams have reported delays while uploading large image files to the centralized Amazon S3 bucket located in the US.
+
+What are the MOST cost-effective ways to enhance the speed of image uploads into the S3 bucket? (Select TWO.)
+
+Create various AWS Site-to-Site VPN connections between AWS and the remote offices for image uploads.
+
+Leverage AWS Global Accelerator for improving the upload speeds from the remote locations in Europe and Asia.
+Correct selection
+
+Utilize multipart uploads for transferring the large image files into the destination S3 bucket from Europe and Asia.
+Correct selection
+
+Implement Amazon S3 Transfer Acceleration to enhance upload speed into the destination S3 bucket.
+
+Set up multiple AWS Direct Connect links between AWS and offices in Europe and Asia for file uploads.
+Overall explanation
+
+S3 Transfer Acceleration can speed up file transfers to S3 buckets over long distances, making it a suitable solution for improving upload speeds. Multipart upload allows you to upload a single object as a set of parts, which can improve performance by maximizing network throughput and reducing the impact of any single problematic network condition.
+
+CORRECT: "Implement Amazon S3 Transfer Acceleration to enhance upload speed into the destination S3 bucket" is a correct answer (as explained above.)
+
+CORRECT: "Utilize multipart uploads for transferring the large image files into the destination S3 bucket from Europe and Asia" is also a correct answer (as explained above.)
+
+INCORRECT: "Set up multiple AWS Direct Connect links between AWS and offices in Europe and Asia for file uploads" is incorrect.
+
+Direct Connect can be expensive, particularly for smaller data transfers, and the question asks for the most cost-effective solutions.
+
+INCORRECT: "Leverage AWS Global Accelerator for improving the upload speeds from the remote locations in Europe and Asia" is incorrect.
+
+While AWS Global Accelerator does improve performance, it's not typically used for S3 uploads and might not be the most cost-effective solution for this specific use case.
+
+INCORRECT: "Create various AWS Site-to-Site VPN connections between AWS and the remote offices for image uploads" is incorrect.
+
+While this would ensure secure uploads, it is not necessarily a solution for improving upload speeds, and it also may not be cost-effective.
+
+References:
+
+https://docs.aws.amazon.com/AmazonS3/latest/userguide/transfer-acceleration.html
+
+https://docs.aws.amazon.com/AmazonS3/latest/userguide/mpuoverview.html
+
+Save time with our AWS cheat sheets:
+
+https://digitalcloud.training/amazon-s3-and-glacier/
+Domain
+AWS Storage
+Question 41Skipped
+
+A company has deployed an application on Amazon EC2 instances behind an Application Load Balancer (ALB). There have been reports of errors from users who have attempted to use the application. The CloudOps Engineer noticed an increase in the HTTPCode_ELB_5XX_Count Amazon CloudWatch metric for the load balancer.
+
+What is a possible cause for this increase?
+
+The service limits for ALBs in the VPC has been exceeded.
+Correct answer
+
+The target group of the ALB does not contain healthy EC2 instances.
+
+The ALB security group does not allow inbound traffic from the users.
+
+The ALB is associated with private subnets within the VPC.
+Overall explanation
+
+The error “HTTPCode_ELB_5XX_Count” records the number of HTTP 5XX server error codes that originate from the load balancer. This count does not include any response codes generated by the targets. This metric indicates that the instances are not healthy and available to respond to incoming connection requests.
+
+CORRECT: "The target group of the ALB does not contain healthy EC2 instances" is the correct answer.
+
+INCORRECT: "The ALB is associated with private subnets within the VPC" is incorrect. This is not a reason why the targets would not be available. If this is an internal ALB this is a correct configuration.
+
+INCORRECT: "The service limits for ALBs in the VPC has been exceeded" is incorrect. This would mean the ALB could not be created in the first place. The errors indicate the ALB is operational, but the targets are not healthy.
+
+INCORRECT: "The ALB security group does not allow inbound traffic from the users" is incorrect. This would not result in 5XX errors. The clients would simply not be able to connect.
+
+References:
+
+https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-cloudwatch-metrics.html
+
+Save time with our AWS cheat sheets:
+
+https://digitalcloud.training/aws-elastic-load-balancing-aws-elb/
+Domain
+AWS Compute
+Question 42Skipped
+
+An application runs on Amazon EC2 instances in multiple Availability Zones (AZs) behind an internet-facing Application Load Balancer (ALB). A CloudOps Engineer needs to track the originating IP address of each application request and the EC2 instance that processes it.
+
+What should the Administrator use to access this information?
+
+AWS CloudTrail
+
+Amazon CloudWatch
+Correct answer
+
+The ALB access logs
+
+VPC Flow Logs
+Overall explanation
+
+Elastic Load Balancing provides access logs that capture detailed information about requests sent to your load balancer. The entries include the client:port which shows the the IP address and port of the requesting client and the target:port which includes the IP address and port of the target that processed this request.
+
+CORRECT: "The ALB access logs" is the correct answer.
+
+INCORRECT: "Amazon CloudWatch" is incorrect. CloudWatch monitors performance metrics, it does not show connectivity information.
+
+INCORRECT: "AWS CloudTrail" is incorrect. CloudTrail tracks API actions for auditing.
+
+INCORRECT: "VPC Flow Logs" is incorrect. VPC Flow Logs will not see the source IP of the originating client because that traffic flow it outside the VPC and is terminated at the ALB. The connectivity within the VPC will be between the ALB and the target so the originating source address is not present.
+
+References:
+
+https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-access-logs.html
+
+Save time with our AWS cheat sheets:
+
+https://digitalcloud.training/aws-elastic-load-balancing-aws-elb/
+Domain
+AWS Compute
+Question 43Skipped
+
+A CloudOps Engineer accidentally deleted a folder containing important data from an Amazon EBS volume. A recent snapshot of the volume is available.
+
+What should the Administrator do to restore the user's file from the snapshot?
+
+Launch a new Amazon EC2 instance in the same Availability Zone and copy the deleted folder over the network.
+
+Restore the file from the snapshot onto the EC2 instance using the Amazon EC2 console.
+
+Use the Amazon EC2 console to browse the contents of the snapshot, locate the folder, and then copy it to the EBS volume.
+Correct answer
+
+Create a new EBS volume from the snapshot, attach the volume to an Amazon EC2 instance, and copy the deleted file.
+Overall explanation
+
+The resolution to this issue is to use the snapshot to create a new EBS volume. The volume should be created in the same AZ as the Amazon EC2 instance. The CloudOps Engineer can then attach the volume to the EC2 instance and copy the folder from the new EBS volume to the original location.
+
+CORRECT: "Create a new EBS volume from the snapshot, attach the volume to an Amazon EC2 instance, and copy the deleted file" is the correct answer.
+
+INCORRECT: "Launch a new Amazon EC2 instance in the same Availability Zone and copy the deleted folder over the network" is incorrect. This solution does not mention how the data is restored. It is also unnecessary to copy the data over the network when you can attach an additional volume directly to the instance.
+
+INCORRECT: "Use the Amazon EC2 console to browse the contents of the snapshot, locate the folder, and then copy it to the EBS volume" is incorrect. You cannot browse the contents of a snapshot of copy data out of a snapshot using the EC2 console.
+
+INCORRECT: "Restore the file from the snapshot onto the EC2 instance using the Amazon EC2 console" is incorrect. You cannot restore files from the EC2 console.
+
+References:
+
+https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-restoring-volume.html
+
+Save time with our AWS cheat sheets:
+
+https://digitalcloud.training/amazon-ebs/
+Domain
+AWS Storage
+Question 44Skipped
+
+A business has established an IPsec VPN connection between its on-site data center and AWS infrastructure. The VPN connection is showing as active, but the Amazon EC2 instances cannot communicate with any resources in the on-premises data center.
+
+What should a CloudOps Engineer do to rectify this situation?
+
+Alter the DHCP options set of the VPC. Include the IPsec VPN connection in the VPN configuration settings.
+
+Deploy a transit gateway between the IPsec VPN connection and the subnet where the EC2 instances reside.
+Correct answer
+
+Activate route propagation in the route table associated with the EC2 instances' subnet for the virtual private gateway.
+
+Adjust the security group settings for the EC2 instances to allow ICMP traffic from the CIDR block of the on-site data center.
+Overall explanation
+
+The Amazon VPC must know how to route traffic to the on-premises network. This is done by enabling route propagation for the virtual private gateway in the VPC route table. If route propagation is not enabled, the EC2 instances will not know how to route traffic to the on-premises resources even though the IPsec VPN tunnel is up.
+
+CORRECT: "Activate route propagation in the route table associated with the EC2 instances' subnet for the virtual private gateway" is the correct answer (as explained above.)
+
+INCORRECT: "Adjust the security group settings for the EC2 instances to allow ICMP traffic from the CIDR block of the on-site data center" is incorrect.
+
+While it is true that you should allow ICMP traffic for the instances to communicate, the issue stated in the question is about a problem with the routing configuration over the VPN, not the security group rules.
+
+INCORRECT: "Deploy a transit gateway between the IPsec VPN connection and the subnet where the EC2 instances reside" is incorrect.
+
+Transit gateways are used for connecting multiple VPCs and VPNs. In this situation, you have a single VPC trying to connect to an on-premises network, not multiple VPCs.
+
+INCORRECT: "Alter the DHCP options set of the VPC. Include the IPsec VPN connection in the VPN configuration settings" is incorrect.
+
+he DHCP options set for a VPC allows you to control domain-name resolution for your instances. It doesn't have a direct role in routing or VPN settings.
+
+References:
+
+https://docs.aws.amazon.com/vpn/latest/s2svpn/VPC_VPN.html
+
+Save time with our AWS cheat sheets:
+
+https://digitalcloud.training/amazon-vpc/
+Domain
+AWS Networking & Content Delivery
+Question 45Skipped
+
+A CloudOps Engineer has started to use Amazon Inspector to assess Amazon EC2 instances for security and compliance. The Administrator noticed that some security findings are missing for some instances.
+
+Which action should the Administrator take to attempt to resolve this issue?
+
+Generate the missing security findings list manually by logging in to the affected EC2 instances and running CLI commands.
+
+Verify that the unified agent for Amazon CloudWatch is installed on the instances and collecting the necessary metrics.
+Correct answer
+
+Verify that the Amazon Inspector agent is installed and running on the affected instances and then restart the agent.
+
+Move the instances to a public subnet and attach an Elastic IP address to ensure connectivity to the Amazon Inspector service.
+Overall explanation
+
+The Amazon Inspector agent is an entity that collects installed package information and software configuration for an Amazon EC2 instance. Though not required in all cases, you should install the Amazon Inspector agent on each of your target Amazon EC2 instances in order to fully assess their security.
+
+In this case the Administrator should verify that the agent is installed and install it if necessary. If it is already installed then restarting the agent may cause the information to be sent to the telemetry service.
+
+CORRECT: "Verify that the Amazon Inspector agent is installed and running on the affected instances and then restart the agent" is the correct answer.
+
+INCORRECT: "Generate the missing security findings list manually by logging in to the affected EC2 instances and running CLI commands" is incorrect. This is unnecessary, the agent should take care of sending the information to the Inspector service.
+
+INCORRECT: "Verify that the unified agent for Amazon CloudWatch is installed on the instances and collecting the necessary metrics" is incorrect. You do not need the Amazon CloudWatch agent to send data to Amazon Inspector.
+
+INCORRECT: "Move the instances to a public subnet and attach an Elastic IP address to ensure connectivity to the Amazon Inspector service" is incorrect. This is not necessary. Though you do need to be able to connect to the public endpoint for Amazon Inspector, this can be from a private subnet using a NAT Gateway or NAT instance.
+
+References:
+
+https://docs.aws.amazon.com/inspector/latest/userguide/inspector_agents.html
+Domain
+AWS Security, Identity, & Compliance
+Question 46Skipped
+
+A CloudOps Engineer has an AWS CloudFormation template created from an infrastructure stack deployed in us-east-1. The Administrator attempts to use the template to launch a stack in us-west-1. The stack partially deploys but then errors and rolls back.
+
+What are the most likely reasons for the failure of the stack deployment? (Select TWO.)
+
+CloudFormation templates can be used only to deploy stacks in a single Region.
+Correct selection
+
+The template referenced services that do not exist in us-west-1.
+Correct selection
+
+The template referenced an Amazon Machine Image (AMI) that is not available in us-west-1.
+
+The template referenced an IAM user that is not available in us-west-1.
+
+The template did not have the proper level of permissions to deploy the resources in us-west-1.
+Overall explanation
+
+The most likely reasons for the stack creation failure are that the AMI that is referenced is not available in the new Region or the template references resources such as VPC IDs that are not relevant in the Region. As the stack has been created from infrastructure in another Region these are both possibilities.
+
+CORRECT: "The template referenced an Amazon Machine Image (AMI) that is not available in us-west-1" is the correct answer.
+
+CORRECT: "The template referenced services that do not exist in us-west-1" is also a correct answer.
+
+INCORRECT: "The template referenced an IAM user that is not available in us-west-1" is incorrect. IAM is a global users and user accounts can be used globally.
+
+INCORRECT: "The template did not have the proper level of permissions to deploy the resources in us-west-1" is incorrect. Permissions are not assigned to templates; they are passed in to CloudFormation when launching the template.
+
+INCORRECT: "CloudFormation templates can be used only to deploy stacks in a single Region" is incorrect. You can use a CloudFormation template to deploy stacks in any region as long as the template is configured correctly.
+
+References:
+
+https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/stacks.html
+
+Save time with our AWS cheat sheets:
+
+https://digitalcloud.training/aws-cloudformation/
+Domain
+AWS Management & Governance
+Question 47Skipped
+
+A team of Analysts require a specialized Amazon EC2 configuration. The team need to able to launch and terminate instances across the company’s AWS accounts but do not wish to configure EC2 settings on their own. The specialized EC2 configuration contains licensed software and must be available for use only by the Analysts.
+
+Which solution should a CloudOps Engineer use to allow the Analysts to deploy their workloads with MINIMAL effort?
+
+Create an Amazon Machine Image (AMI) encrypted with an AWS KMS key. Share the encrypted AMI with authorized accounts. Allow the Analysts access to use the KMS key.
+
+Create an AWS Elastic Beanstalk environment. Share the environment across accounts and use IAM policies to enable access for the team of Analysts.
+
+Create an AWS CloudFormation template and configure launch permissions on the AMI used by the template to add the authorized accounts. Share the template in an Amazon S3 bucket.
+Correct answer
+
+Create an AWS CloudFormation template and use it to create a portfolio in AWS Service Catalog. Grant the Analysts permissions to launch products from the portfolio.
+Overall explanation
+
+In AWS Service Catalog a product is an IT service that you want to make available for deployment on AWS. A portfolio is a collection of products, together with configuration information. Portfolios help manage who can use specific products and how they can use them.
+
+Granting a user access to a portfolio enables that user to browse the portfolio and launch the products in it. You apply AWS Identity and Access Management (IAM) permissions to control who can view and modify your catalog.
+
+This solution ensures that the Analysts can launch the specialized EC2 instances without needing to configure any settings in EC2 as the instances will be launched using AWS CloudFormation. The permissions are also configured so only the Analysts can launch the specialized instances.
+
+CORRECT: "Create an AWS CloudFormation template and use it to create a portfolio in AWS Service Catalog. Grant the Analysts permissions to launch products from the portfolio" is the correct answer.
+
+INCORRECT: "Create an Amazon Machine Image (AMI) encrypted with an AWS KMS key. Share the encrypted AMI with authorized accounts. Allow the Analysts access to use the KMS key" is incorrect. Though you can share encrypted AMIs across accounts, this does not solve the issue of ensuring that the Analysts do not need to configure EC2 settings.
+
+INCORRECT: "Create an AWS CloudFormation template and configure launch permissions on the AMI used by the template to add the authorized accounts. Share the template in an Amazon S3 bucket" is incorrect. This does not limit the usage of the AMI to only the Analysts as it will be available for launch within each authorized account.
+
+INCORRECT: "Create an AWS Elastic Beanstalk environment. Share the environment across accounts and use IAM policies to enable access for the team of Analysts" is incorrect. You cannot share an Elastic Beanstalk environment across accounts.
+
+References:
+
+https://docs.aws.amazon.com/servicecatalog/latest/adminguide/what-is_concepts.html
+
+Save time with our AWS cheat sheets:
+
+https://digitalcloud.training/aws-cloudformation/
+Domain
+AWS Management & Governance
+Question 48Skipped
+
+A company operates numerous Amazon EC2 instances for its applications. A CloudOps Engineer must implement an automated system to alert the operations team anytime there is a change in the state of an EC2 instance.
+
+What is the most efficient solution to achieve these requirements?
+
+Utilize AWS Config to continuously monitor and record EC2 configurations and alert via Amazon SNS when there is a change in instance state.
+Correct answer
+
+Establish an Amazon EventBridge rule that identifies changes in the EC2 instance states and targets an Amazon SNS topic.
+
+Develop a custom script to monitor EC2 instance state changes using AWS CloudTrail and manually send emails to the operations team.
+
+Use AWS Systems Manager State Manager to automatically send messages to Amazon SNS whenever there is an EC2 state transition.
+Overall explanation
+
+Amazon EventBridge can detect changes in your AWS resources and respond to them with a variety of actions. Setting up an EventBridge rule to capture EC2 instance state changes and targeting an SNS topic is a very efficient way to alert the operations team of these changes. The SNS topic can send notifications to all subscribed members of the operations team.
+
+CORRECT: "Establish an Amazon EventBridge rule that identifies changes in the EC2 instance states and targets an Amazon SNS topic" is the correct answer (as explained above.)
+
+INCORRECT: "Develop a custom script to monitor EC2 instance state changes using AWS CloudTrail and manually send emails to the operations team" is incorrect.
+
+While this method could technically work, it is not the most operationally efficient solution. It would require manual intervention and additional overhead for developing and maintaining the script.
+
+INCORRECT: "Utilize AWS Config to continuously monitor and record EC2 configurations and alert via Amazon SNS when there is a change in instance state" is incorrect.
+
+AWS Config is used for assessing, auditing, and evaluating the configurations of your AWS resources, not for real-time alerting of state changes in EC2 instances.
+
+INCORRECT: "Use AWS Systems Manager State Manager to automatically send messages to Amazon SNS whenever there is an EC2 state transition" is incorrect.
+
+AWS Systems Manager State Manager is primarily used to automate the process of keeping your EC2 instances in a defined state (like ensuring certain services are always running on your instances), rather than sending alerts when instance states change.
+
+References:
+
+https://docs.aws.amazon.com/eventbridge/latest/userguide/eb-what-is.html
+
+Save time with our AWS cheat sheets:
+
+https://digitalcloud.training/amazon-cloudwatch/
+Domain
+AWS Management & Governance
+Question 49Skipped
+
+A SysOps engineer employs AWS CloudFormation StackSets for provisioning AWS resources across multiple AWS Regions within a single AWS account. In one specific Region, a stack operation is unsuccessful, reflecting an OUTDATED status on the stack instance. What could be the primary reason for this issue?
+
+The stack instance in the affected Region has not yet been brought up to date with the latest modifications in the AWS CloudFormation StackSets template.
+
+The AWS CLI version being used by the CloudOps Engineer is deprecated.
+Correct answer
+
+The CloudFormation template is trying to create a global resource that is not unique.
+
+The CloudFormation template, which is stored locally, has been altered but not yet uploaded to AWS CloudFormation.
+Overall explanation
+
+According to AWS there can be several reasons for this error message.
+
+Problem: A stack operation failed, and the stack instance status is OUTDATED.
+
+Cause: There can be several common causes for stack operation failure.
+
+    Insufficient permissions in a target account for creating resources that are specified in your template.
+
+    The AWS CloudFormation template might have errors. Validate the template in AWS CloudFormation and fix errors before trying to create your stack set.
+
+    The template could be trying to create global resources that must be unique but aren't, such as S3 buckets.
+
+    A specified target account number doesn't exist. Check the target account numbers that you specified on the Set deployment options page of the wizard.
+
+    The administrator account does not have a trust relationship with the target account.
+
+    The maximum number of a resource that is specified in your template already exists in your target account. For example, you might have reached the limit of allowed IAM roles in a target account, but the template creates more IAM roles.
+
+    You have reached the maximum number of stacks that are allowed in a stack set.
+
+CORRECT: "The CloudFormation template is trying to create a global resource that is not unique" is the correct answer (as explained above.)
+
+INCORRECT: "The stack instance in the affected Region has not yet been brought up to date with the latest modifications in the AWS CloudFormation StackSets template" is incorrect.
+
+The status OUTDATED means an operation was performed directly on the stack that is managed by AWS CloudFormation StackSets, not that it hasn't been updated with the latest modifications in the StackSets template.
+
+INCORRECT: "The AWS CLI version being used by the CloudOps Engineer is deprecated" is incorrect.
+
+This is incorrect because AWS CLI versions don't affect CloudFormation stack operations and an outdated CLI would not lead to an OUTDATED status on a stack instance.
+
+INCORRECT: "The CloudFormation template, which is stored locally, has been altered but not yet uploaded to AWS CloudFormation" is incorrect.
+
+Changes made to a local copy of the CloudFormation template don't affect existing StackSets. StackSets changes would only occur after the updated template has been pushed to CloudFormation.
+
+References:
+
+https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/stacksets-concepts.html#stackset-status-codes
+
+Save time with our AWS cheat sheets:
+
+https://digitalcloud.training/aws-cloudformation/
+Domain
+AWS Management & Governance
+Question 50Skipped
+
+A CloudOps Engineer needs to know the number of objects in an Amazon S3 bucket and noticed a discrepancy between an Amazon CloudWatch report and the output of the AWS CLI.
+
+Which S3 feature can the Administrator use to get a definitive answer?
+
+Amazon S3 analytics
+Correct answer
+
+Amazon S3 inventory
+
+Object tags
+
+AWS Management Console
+Overall explanation
+
+Amazon S3 inventory provides comma-separated values (CSV), Apache optimized row columnar (ORC) or Apache Parquet (Parquet) output files that list your objects and their corresponding metadata on a daily or weekly basis for an S3 bucket or a shared prefix. The inventory reports will provide a definitive answer to the Administrator for how many objects there are in the bucket.
+
+CORRECT: "Amazon S3 inventory" is the correct answer.
+
+INCORRECT: "Amazon S3 analytics" is incorrect. This service is used for analyzing access patterns to help you decide which S3 storage class is best for your data.
+
+INCORRECT: "AWS Management Console" is incorrect. You cannot see a count of the number of objects in a bucket using the management console.
+
+INCORRECT: "Object tags" is incorrect. Tags will not assist with counting the number of objects in the bucket.
+
+References:
+
+https://docs.aws.amazon.com/AmazonS3/latest/dev/storage-inventory.html
+
+Save time with our AWS cheat sheets:
+
+https://digitalcloud.training/amazon-s3-and-glacier/
+Domain
+AWS Storage
+Question 51Skipped
+
+A CloudOps Engineer needs to provide internet access for several Amazon EC2 instances in a private subnet. The Administrator has deployed a NAT instance using an amzn-ami-vpc-nat AMI, updated security groups, and configured the appropriate route within the route table. The instances still cannot access the internet.
+
+What should be done to resolve the issue?
+Correct answer
+
+Disable source/destination checks on the NAT instance.
+
+Delete the NAT instance and replace it with an internet gateway.
+
+Configure a VPN and route via the company proxy server.
+
+Start/stop the NAT instance so it is launched on a different host.
+Overall explanation
+
+Each EC2 instance performs source/destination checks by default. This means that the instance must be the source or destination of any traffic it sends or receives. However, a NAT instance must be able to send and receive traffic when the source or destination is not itself. Therefore, you must disable source/destination checks on the NAT instance.
+
+You can disable the SrcDestCheck attribute for a NAT instance that's either running or stopped using the console or the command line. This is the most likely cause of the issues here as all other steps required to launch a NAT instance have been followed.
+
+CORRECT: "Disable source/destination checks on the NAT instance" is the correct answer.
+
+INCORRECT: "Configure a VPN and route via the company proxy server" is incorrect. This is not the best solution as you must then forward traffic via a company network. It would be better to use the NAT instance that has been deployed so the internet gateway can be leveraged within AWS.
+
+INCORRECT: "Delete the NAT instance and replace it with an internet gateway" is incorrect. You cannot replace a NAT instance with an internet gateway for instances in a private subnet.
+
+INCORRECT: "Start/stop the NAT instance so it is launched on a different host" is incorrect. The issue is unlikely to be related to the host the instance is running on.
+
+References:
+
+https://docs.aws.amazon.com/vpc/latest/userguide/VPC_NAT_Instance.html
+
+Save time with our AWS cheat sheets:
+
+https://digitalcloud.training/amazon-vpc/
+Domain
+AWS Compute
+Question 52Skipped
+
+A university is using a distributed computing application to run complex calculations on a fleet of Amazon EC2 instances. The calculations will be running for at least 1 year. The application uses 2 control nodes and between 8 and 24 worker nodes as required. The control nodes run continuously while the worker nodes run for 8 hours a day and are launched when required.
+
+What is the MOST cost-effective pricing model for the application? (Select TWO.)
+
+Use Spot Instances for the control nodes and On-Demand Instances if there is no Spot availability.
+Correct selection
+
+Use Spot Instances for the worker nodes and On-Demand Instances if there is no Spot availability.
+Correct selection
+
+Use Reserved Instances for the control nodes.
+
+Use Dedicated Hosts for the control nodes.
+
+Use Reserved Instances for the worker nodes.
+Overall explanation
+
+The worker nodes run continuously and will run for at least 1 year so using reserved instances would be the most cost-effective choice as these instances cannot risk being terminated. For the worker nodes, a mixture of Spot and on-demand would make the most sense. Spot can be used when there is capacity which will provide a significant cost saving. When there is no Spot capacity available on-demand instances can be used.
+
+CORRECT: "Use Reserved Instances for the control nodes" is the correct answer.
+
+CORRECT: "Use Spot Instances for the worker nodes and On-Demand Instances if there is no Spot availability" is also a correct answer.
+
+INCORRECT: "Use Dedicated Hosts for the control nodes" is incorrect. This would not be cost-effective and is not required for this scenario.
+
+INCORRECT: "Use Reserved Instances for the worker nodes" is incorrect. As the worker nodes are variable in number and only run for 8 hours a day, this would not make sense.
+
+INCORRECT: "Use Spot Instances for the control nodes and On-Demand Instances if there is no Spot availability" is incorrect. The control nodes run continuously for the whole year so Spot instances would not be suitable as the instances could be terminated from time to time.
+
+References:
+
+https://aws.amazon.com/ec2/pricing/
+
+Save time with our AWS cheat sheets:
+
+https://digitalcloud.training/amazon-ec2/
+Domain
+AWS Cost Management
+Question 53Skipped
+
+A critical Amazon EC2 instance has stopped responding. The CloudOps Engineer checked the EC2 management console and noticed that the system status checks are impaired
+
+What first step should the CloudOps Engineer take to resolve this issue?
+
+Terminate the EC2 instance and launch a replacement in another AZ.
+
+Reboot the EC2 instance so it can be launched on a new host.
+
+Take a snapshot, create an AMI, and launch a new instance from the AMI.
+Correct answer
+
+Stop and then start the EC2 instance so that it can be launched on a new host.
+Overall explanation
+
+System status checks monitor the AWS systems on which your instance runs. These checks detect underlying problems with your instance that require AWS involvement to repair. When a system status check fails, you can choose to wait for AWS to fix the issue, or you can resolve it yourself.
+
+For instances backed by Amazon EBS, you can stop and start the instance yourself, which in most cases results in the instance being migrated to a new host. For instances backed by instance store, you can terminate and replace the instance.
+
+The following are examples of problems that can cause system status checks to fail:
+
+Loss of network connectivity.
+
+Loss of system power.
+
+Software issues on the physical host.
+
+Hardware issues on the physical host that impact network reachability.
+
+CORRECT: "Stop and then start the EC2 instance so that it can be launched on a new host" is the correct answer.
+
+INCORRECT: "Reboot the EC2 instance so it can be launched on a new host" is incorrect. Rebooting the instance will not cause it to move to a different host server.
+
+INCORRECT: "Terminate the EC2 instance and launch a replacement in another AZ" is incorrect. This is unnecessary. A better solution is to simply stop and start the instance as this will cause it to move to a different host.
+
+INCORRECT: "Take a snapshot, create an AMI, and launch a new instance from the AMI" is incorrect. This is unnecessary. A better solution is to simply stop and start the instance as this will cause it to move to a different host.
+
+References:
+
+https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/monitoring-system-instance-status-check.html
+
+Save time with our AWS cheat sheets:
+
+https://digitalcloud.training/amazon-ec2/
+Domain
+AWS Compute
+Question 54Skipped
+
+A corporation is operating a hybrid environment consisting of a local data center and an AWS Cloud setup. There are two software applications, one running on the company's on-premises data center named server1.localcorp.net, and another one operating on an Amazon EC2 instance known as server1.awscorp.net. A stable AWS Site-to-Site VPN connection links the on-premises network to AWS.
+
+When the on-premises application attempts to connect to the EC2-hosted application, DNS resolution doesn't seem to work. To allow DNS resolution between resources in the local data center and AWS, a CloudOps Engineer needs to implement a solution.
+
+What would allow the on-premises application to successfully resolve the hostname of the EC2 instance?
+Correct answer
+
+Implement an inbound Amazon Route 53 Resolver rule in the VPC where the EC2 instance is running. Configure the on-premises DNS resolver to forward awscorp.net DNS queries to the inbound resolver endpoint.
+
+Enable AWS Direct Connect between the on-premises network and the AWS VPC. Create a conditional forwarding rule in the on-premises DNS resolver to forward all queries to Amazon Route 53.
+
+Use an AWS Transit Gateway to allow DNS resolution between the on-premises network and AWS VPC. Create Amazon Route 53 health check DNS resolution is operating correctly.
+
+Implement an outbound Amazon Route 53 Resolver rule in the VPC where the EC2 instance is hosted. Configure the on-premises DNS resolver to forward localcorp.net DNS queries to the inbound resolver endpoint.
+Overall explanation
+
+An inbound resolver rule allows resources in an on-premises network to resolve DNS domain names of AWS resources. By setting up an inbound resolver rule and configuring the on-premises DNS to forward queries to the inbound resolver endpoint, the on-premises application will be able to resolve the DNS hostname of the EC2 instance.
+
+CORRECT: "Implement an inbound Amazon Route 53 Resolver rule in the VPC where the EC2 instance is running. Configure the on-premises DNS resolver to forward awscorp.net DNS queries to the inbound resolver endpoint" is the correct answer (as explained above.)
+
+INCORRECT: "Implement an outbound Amazon Route 53 Resolver rule in the VPC where the EC2 instance is hosted. Configure the on-premises DNS resolver to forward localcorp.net DNS queries to the inbound resolver endpoint" is incorrect.
+
+Outbound resolver rules allow AWS resources to resolve DNS domain names of resources in an on-premises network. This option would not resolve the issue because the requirement is to enable on-premises resources to resolve DNS of AWS resources, not the other way round.
+
+INCORRECT: "Enable AWS Direct Connect between the on-premises network and the AWS VPC. Create a conditional forwarding rule in the on-premises DNS resolver to forward all queries to Amazon Route 53" is incorrect.
+
+While AWS Direct Connect provides a dedicated network connection between your network and one of the AWS Direct Connect locations, it doesn't inherently resolve DNS issues. Route 53 resolver would still need to be configured properly to handle DNS queries between on-premises and AWS.
+
+INCORRECT: "Use an AWS Transit Gateway to allow DNS resolution between the on-premises network and AWS VPC. Create Amazon Route 53 health check DNS resolution is operating correctly" is incorrect.
+
+AWS Transit Gateway helps in managing interconnectivity between VPCs and on-premises networks. However, just using AWS Transit Gateway doesn't handle DNS resolution. You still need appropriate DNS resolution configuration, typically via Route 53 Resolver.
+
+References:
+
+https://repost.aws/knowledge-center/route53-resolve-with-inbound-endpoint
+
+Save time with our AWS cheat sheets:
+
+https://digitalcloud.training/amazon-route-53/
+Domain
+AWS Networking & Content Delivery
+Question 55Skipped
+
+A company is using an AWS Storage Gateway volume gateway configuration running on a virtual machine. Usage of the Storage Gateway has recently increased, and users have reported that performance of the iSCSI drives has degraded. A CloudOps Engineer checked the Amazon CloudWatch metrics and noticed the CacheHitPercent metric is below 55% and the CachePercentUsed metric is above 95%.
+
+What steps are MOST likely to resolve the performance issues?
+
+Ensure that the physical disks for the Storage Gateway are in a RAID 1 configuration to allow higher throughput.
+Correct answer
+
+Create a larger disk for the cached volume. In the AWS Management Console, edit the local disks, then select the new disk as the cached volume.
+
+Optimize the iSCSI settings on the Storage Gateway’s iSCSI initiator to achieve higher I/O performance.
+
+Create a recovery snapshot from the volume, then deploy and activate a new volume gateway from the snapshot.
+Overall explanation
+
+A volume gateway deployment where you are storing data on S3 and have a local cache is known as a cached volume configuration. The Amazon CloudWatch metrics indicate that the cache has insufficient capacity to service the requests it is receiving.
+
+The CacheHitPercent should be higher to indicate that more requests are being served from the cache and the CachePercentUsed metric should be lower, indicating that there is space available in the cache. The resolution to this is to create a larger cache so more requests can be served from the iSCSI disks and don’t result in data being retrieved from S3.
+
+CORRECT: "Create a larger disk for the cached volume. In the AWS Management Console, edit the local disks, then select the new disk as the cached volume" is the correct answer.
+
+INCORRECT: "Optimize the iSCSI settings on the Storage Gateway’s iSCSI initiator to achieve higher I/O performance" is incorrect. The CloudWatch metrics indicate that the cache size is the primary issue here and therefore increasing the cache size is most likely to resolve the issues.
+
+INCORRECT: "Ensure that the physical disks for the Storage Gateway are in a RAID 1 configuration to allow higher throughput" is incorrect. RAID 1 is mirroring and does not offer any performance improvements.
+
+INCORRECT: "Create a recovery snapshot from the volume, then deploy and activate a new volume gateway from the snapshot" is incorrect. The volume has not failed so there is no need to perform a recovery. In this case the cache size must be increased to improve performance.
+
+References:
+
+https://docs.aws.amazon.com/storagegateway/latest/userguide/WhatIsStorageGateway.html
+
+https://docs.aws.amazon.com/storagegateway/latest/userguide/ManagingLocalStorage-common.html
+
+Save time with our AWS cheat sheets:
+
+https://digitalcloud.training/aws-storage-gateway/
+Domain
+AWS Storage
+Question 56Skipped
+
+A serverless application uses an AWS Lambda function that is expected to receive a large increase in traffic during a promotional event. A CloudOps Engineer needs to configure the Lambda function to scale and handle the increase in traffic.
+
+How can the Administrator accomplish this?
+
+Create additional Lambda functions and configure them as targets for a Network Load Balancer (NLB).
+
+Configure AWS Application Auto Scaling to scale concurrent executions.
+
+Increase the amount of memory available to the Lambda function.
+Correct answer
+
+Ensure the concurrency limit for the Lambda function is higher than the expected simultaneous function executions.
+Overall explanation
+
+The first time you invoke your function, AWS Lambda creates an instance of the function and runs its handler method to process the event. When the function returns a response, it stays active and waits to process additional events. If you invoke the function again while the first event is being processed, Lambda initializes another instance, and the function processes the two events concurrently. As more events come in, Lambda routes them to available instances and creates new instances as needed. When the number of requests decreases, Lambda stops unused instances to free up scaling capacity for other functions.
+
+Your functions' concurrency is the number of instances that serve requests at a given time. For an initial burst of traffic, your functions' cumulative concurrency in a Region can reach an initial level of between 500 and 3000, which varies per Region.
+
+After the initial burst, your functions' concurrency can scale by an additional 500 instances each minute. This continues until there are enough instances to serve all requests, or until a concurrency limit is reached. When requests come in faster than your function can scale, or when your function is at maximum concurrency, additional requests fail with a throttling error (429 status code).
+
+To ensure the Lambda function scales to handle the increased load, the Administrator must ensure that the concurrency limit is higher than the expected traffic.
+
+CORRECT: "Ensure the concurrency limit for the Lambda function is higher than the expected simultaneous function executions" is the correct answer.
+
+INCORRECT: "Create additional Lambda functions and configure them as targets for a Network Load Balancer (NLB)" is incorrect. You cannot configure Lambda functions as targets for NLBs (use ALBs) and you should not scale across different functions. Instead, use Lambda’s built-in concurrency scaling features to scale to different instances of the function.
+
+INCORRECT: "Configure AWS Application Auto Scaling to scale concurrent executions" is incorrect. You can use AWS Application Auto Scaling with AWS Lambda to adjusting provisioned concurrency levels according to utilization. This is used to avoid latency when scaling quickly is required. However, latency is not mentioned in this question and provisioned concurrency is also not being used.
+
+INCORRECT: "Increase the amount of memory available to the Lambda function" is incorrect. This increases the amount of memory (and CPU) assigned to each instance of the function. However, you still need to ensure that the concurrency limits are high enough to ensure enough instances of the function are able to execute.
+
+References:
+
+https://docs.aws.amazon.com/lambda/latest/dg/invocation-scaling.html
+Domain
+AWS Compute
+Question 57Skipped
+
+A CloudOps Engineer needs to replicate an application setup, currently running on numerous Amazon EC2 instances within the eu-west-1 Region, to three additional AWS Regions. The current setup in eu-west-1 utilizes specifically configured Amazon Machine Images (AMIs) and an AWS CloudFormation template for resource deployment.
+
+What is the MOST efficient way for the CloudOps Engineer to replicate this setup across the additional Regions?
+
+Modify the CloudFormation template to add the new Regions to the Auto Scaling group, then update the existing stack in eu-west-1.
+
+Deploy an EC2 instance in each Region, manually configure them as per the original instance, and then create new AMIs. Update the CloudFormation template to utilize the new AMIs.
+Correct answer
+
+Use the aws ec2 copy-image command to copy the AMI to each new Region. Modify the CloudFormation template to include mappings for the copied AMIs.
+
+Use AWS Elastic Beanstalk to deploy the application in each additional region, leveraging the original application configuration.
+Overall explanation
+
+This is the most efficient way to replicate the environment. By copying the AMI to each new region, you're creating an exact replica of the current environment in eu-west-1. Updating the CloudFormation template to incorporate mappings for the replicated AMIs ensures that the resources are deployed correctly in each region.
+
+CORRECT: "Use the aws ec2 copy-image command to copy the AMI to each new Region. Modify the CloudFormation template to include mappings for the copied AMIs" is the correct answer (as explained above.)
+
+INCORRECT: "Deploy an EC2 instance in each Region, manually configure them as per the original instance, and then create new AMIs. Update the CloudFormation template to utilize the new AMIs" is incorrect.
+
+While this approach is possible, it's inefficient and prone to manual errors. Manual configuration of each instance is a time-consuming process and may not result in exact replication of the original environment.
+
+INCORRECT: "Use AWS Elastic Beanstalk to deploy the application in each additional region, leveraging the original application configuration" is incorrect.
+
+While AWS Elastic Beanstalk can simplify the process of deploying and scaling applications, it isn't a good choice here because we're working with a fully configured Amazon Machine Image (AMI) and AWS CloudFormation template, which Elastic Beanstalk does not use directly.
+
+INCORRECT: "Modify the CloudFormation template to add the new Regions to the Auto Scaling group, then update the existing stack in eu-west-1" is incorrect.
+
+Auto Scaling groups are regional, not global. Therefore, adding new regions to the Auto Scaling group within the CloudFormation template is not possible. This approach would not replicate the environment correctly in the new regions.
+
+References:
+
+https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/template-guide.html
+
+Save time with our AWS cheat sheets:
+
+https://digitalcloud.training/amazon-ec2/
+Domain
+AWS Compute
+Question 58Skipped
+
+A company has several AWS accounts in a single organization in AWS Organizations. The company requires that no Amazon S3 buckets can be deleted its production account.
+
+What is the SIMPLEST approach to ensuring that the S3 buckets in the production account cannot be deleted?
+
+Set up MFA Delete on all the S3 buckets in the production account to prevent the buckets from being deleted.
+
+Create an IAM role that restricts the API actions that can be used for Amazon S3 and assign it to EC2 instances.
+
+Create an IAM group that has an IAM policy to deny the s3:DeleteBucket action on all buckets in the production account.
+Correct answer
+
+Use a service control policy to deny the s3:DeleteBucket API action in the production account.
+Overall explanation
+
+Service control policies (SCPs) are a type of organization policy that you can use to manage permissions in your organization. SCPs offer central control over the maximum available permissions for all accounts in your organization.
+
+For this scenario, an SCP can be used to restrict the s3:DeleteBucket API action on the production account. This will ensure that no user will be able to delete a bucket in this account as API action is restricted. This will apply even to users who have the necessary IAM permissions to delete the bucket.
+
+CORRECT: "Use a service control policy to deny the s3:DeleteBucket API action in the production account" is the correct answer.
+
+INCORRECT: "Set up MFA Delete on all the S3 buckets in the production account to prevent the buckets from being deleted" is incorrect. MFA delete does not prevent deletion; it just adds a layer of protection to reduce the likelihood of accidental deletion.
+
+INCORRECT: "Create an IAM group that has an IAM policy to deny the s3:DeleteBucket action on all buckets in the production account" is incorrect. This will only apply to users that are added to the group which means ongoing administrative challenges in ensuring that all users are added to the group so that no one has the ability to delete a bucket.
+
+INCORRECT: "Create an IAM role that restricts the API actions that can be used for Amazon S3 and assign it to EC2 instances" is incorrect. You restrict permissions but not API actions when using IAM policies. Also, it doesn’t make sense to just apply the policy to EC2 instances, this must apply to everyone.
+
+References:
+
+https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_policies_type-auth.html
+
+Save time with our AWS cheat sheets:
+
+https://digitalcloud.training/aws-organizations/
+Domain
+AWS Management & Governance
+Question 59Skipped
+
+A CloudOps Engineer is deploying a set of EC2 instances using an AWS CloudFormation template. The template executes correctly in the eu-central-1 region but encounters an error in the ap-south-1 region with the error message: AMI [ami-87654321] does not exist.
+
+What should the CloudOps Engineer do to ensure the CloudFormation template works in the second Region?
+
+Add a custom resource in the CloudFormation template that uses AWS Lambda to fetch the latest AMI ID in the region where the stack is deployed.
+
+Create an identical copy of the Amazon Machine Image (AMI) in the destination Region and assign it the same AMI ID.
+
+Alter the CloudFormation template to incorporate the Region identifier as part of the fully defined AMI ID.
+Correct answer
+
+Revise the CloudFormation template to include the AMI IDs in a "Mappings" section and reference the appropriate mapping within the template to select the correct AMI ID.
+Overall explanation
+
+AMI IDs are unique to each region, and you can't use an AMI from one region directly in another region. To handle this, you should define a Mappings section in your CloudFormation template. This section can contain a map of region-to-AMI ID pairings, allowing you to refer to the right AMI ID based on the region where you're deploying resources.
+
+CORRECT: "Revise the CloudFormation template to include the AMI IDs in a "Mappings" section and reference the appropriate mapping within the template to select the correct AMI ID" is the correct answer (as explained above.)
+
+INCORRECT: "Create an identical copy of the Amazon Machine Image (AMI) in the destination Region and assign it the same AMI ID" is incorrect.
+
+AWS does not allow assigning custom AMI IDs or reusing AMI IDs from another region. Each region will generate its own unique AMI ID.
+
+INCORRECT: "Alter the CloudFormation template to incorporate the Region identifier as part of the fully defined AMI ID" is incorrect.
+
+AWS does not support the concept of a fully defined AMI ID that includes a region identifier. Each AMI has a unique ID which is specific to a region, and it can't be changed.
+
+INCORRECT: "Add a custom resource in the CloudFormation template that uses AWS Lambda to fetch the latest AMI ID in the region where the stack is deployed" is incorrect.
+
+While it's possible to create a Lambda function to get the latest AMI ID, it's an unnecessary overhead for this problem. The AMI IDs are static and don't change often, so hardcoding them into the template Mappings section is a simpler solution. Using Lambda for this task could also lead to increased cost and complexity.
+
+References:
+
+https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/mappings-section-structure.html
+
+Save time with our AWS cheat sheets:
+
+https://digitalcloud.training/aws-cloudformation/
+Domain
+AWS Management & Governance
+Question 60Skipped
+
+A corporation has a collection of AWS accounts under AWS Organizations. As part of a security audit, they need to inspect the Virtual Private Cloud (VPC) settings in the AWS accounts assigned to their developers. The auditor, who has a separate AWS account, is responsible for conducting this inspection.
+
+What would be the most secure approach to achieve this objective?
+
+The security administrator should create IAM users in each developer account with full access permissions to review VPC configurations.
+Correct answer
+
+The security administrator should assume an IAM role in the developer AWS accounts that has the read-only permissions to review VPC configurations.
+
+The security administrator should log into each developer account using the root user credentials to review the VPC configurations.
+
+The security administrator should use the AWS Management Console of his own account to directly access and review the VPC configurations of the developer accounts.
+Overall explanation
+
+The IAM role provides temporary permissions that can be used to make API calls. The security administrator can "assume" this role when they need access to the VPC settings in the developer accounts. This allows the administrator to access only the resources they need, and only for the time they need them, thus minimizing the security risk. This principle is part of the best practices for managing permissions in AWS.
+
+CORRECT: "The security administrator should assume an IAM role in the developer AWS accounts that has the read-only permissions to review VPC configurations" is the correct answer (as explained above.)
+
+INCORRECT: "The security administrator should log into each developer account using the root user credentials to review the VPC configurations" is incorrect.
+
+This approach is not secure. The root user has unrestricted access to all resources in the AWS account, which is a security risk. Additionally, sharing credentials is generally a bad practice from a security perspective.
+
+INCORRECT: "The security administrator should create IAM users in each developer account with full access permissions to review VPC configurations" is incorrect.
+
+This answer is also not secure. Providing full access to all resources can create unnecessary security risks. Instead, it's best to adhere to the principle of least privilege, which says that you should grant only the permissions required to perform a task.
+
+INCORRECT: "The security administrator should use the AWS Management Console of his own account to directly access and review the VPC configurations of the developer accounts" is incorrect.
+
+This option is incorrect because in AWS, each account is a separate entity; users and permissions are not shared across accounts by default. This means that just because a user has certain permissions in one account, they do not automatically have those same permissions in another account. For the security administrator to access resources in the developer accounts from their own account, a mechanism for cross-account access would need to be established, such as cross-account IAM roles.
+
+References:
+
+https://docs.aws.amazon.com/IAM/latest/UserGuide/tutorial_cross-account-with-roles.html
+
+Save time with our AWS cheat sheets:
+
+https://digitalcloud.training/aws-iam/
+Domain
+AWS Management & Governance
+Question 61Skipped
+
+A manager has requested that all Amazon S3 buckets must have logging enabled due to compliance requirements. A CloudOps Engineer needs to ensure that the compliance requirements are met whilst allowing teams to continue to create S3 buckets.
+
+How can this be achieved for both existing and new S3 buckets?
+
+Create an IAM policy that restricts the ability to create new buckets to specific teams.
+
+Create an AWS Lambda function to automatically delete any Amazon S3 buckets if logging is not enabled.
+Correct answer
+
+Auto remediate any non-compliant S3 buckets with the AWS Config managed rule S3_BUCKET_LOGGING_ENABLED.
+
+Create a CloudWatch Alarm that notifies the Administrator when a bucket is created without logging enabled.
+Overall explanation
+
+The easiest way to achieve this outcome is to use the AWS Config managed rule. This will check that logging is enabled and auto remediate any non-compliant buckets.
+
+CORRECT: "Auto remediate any non-compliant S3 buckets with the AWS Config managed rule S3_BUCKET_LOGGING_ENABLED" is the correct answer.
+
+INCORRECT: "Create a CloudWatch Alarm that notifies the Administrator when a bucket is created without logging enabled" is incorrect. You cannot configure CloudWatch to notify based on a creation event with a certain configuration.
+
+INCORRECT: "Create an IAM policy that restricts the ability to create new buckets to specific teams" is incorrect. This would limit the teams from being able to create buckets which is not desired.
+
+INCORRECT: "Create an AWS Lambda function to automatically delete any Amazon S3 buckets if logging is not enabled" is incorrect. There needs to be a method of identification or a trigger such as an event source mapping from the bucket (not mentioned). This may be troublesome as you would have buckets being deleted which may cause issues for teams. The better solution is to enforce the compliance requirements through AWS Config.
+
+References:
+
+https://aws.amazon.com/blogs/mt/aws-config-auto-remediation-s3-compliance/
+
+Save time with our AWS cheat sheets:
+
+https://digitalcloud.training/aws-config/
+Domain
+AWS Storage
+Question 62Skipped
+
+A company hosts a web application on Amazon EC2 instances. The application is expected to receive both HTTP and HTTPS traffic. However, the company wants to ensure all HTTP traffic is automatically redirected to HTTPS for secure communication. A CloudOps Engineer has been tasked to configure an Application Load Balancer (ALB) with a certificate from AWS Certificate Manager (ACM) to achieve this goal.
+
+Which combination of actions should the administrator take? (Select TWO)
+
+Configure an HTTPS to HTTP redirection rule on a listener for port 443.
+
+Attach the ACM certificate directly to the EC2 instances.
+Correct selection
+
+Configure an HTTP to HTTPS redirection rule on a listener for port 80.
+Correct selection
+
+Attach the ACM certificate to the ALB and configure a listener for port 443.
+
+Create a Network Load Balancer instead of an Application Load Balancer.
+Overall explanation
+
+The ACM certificate enables the ALB to handle HTTPS traffic on port 443 using a new listener. The redirection rule ensures any HTTP traffic received on port 80 is automatically redirected to HTTPS for secure communication.
+
+CORRECT: "Attach the ACM certificate to the ALB and configure a listener for port 443" is a correct answer (as explained above.)
+
+CORRECT: "Configure an HTTP to HTTPS redirection rule on a listener for port 80" is also a correct answer (as explained above.)
+
+INCORRECT: "Attach the ACM certificate directly to the EC2 instances" is incorrect.
+
+The ACM certificate cannot be directly attached to EC2 instances. It should be attached to the ALB.
+
+INCORRECT: "Configure an HTTPS to HTTP redirection rule on a listener for port 443" is incorrect.
+
+This would incorrectly redirect secure HTTPS traffic to unsecure HTTP, which is not desired in this scenario.
+
+INCORRECT: "Create a Network Load Balancer instead of an Application Load Balancer" is incorrect.
+
+While Network Load Balancer has its uses, the scenario specifically calls for an ALB.
+
+References:
+
+https://repost.aws/knowledge-center/elb-redirect-http-to-https-using-alb
+
+Save time with our AWS cheat sheets:
+
+https://digitalcloud.training/aws-certificate-manager/
+Domain
+AWS Security, Identity, & Compliance
+Question 63Skipped
+
+An application is deployed on three separate environments using AWS CloudFormation. The environments, development, test, and production, each require unique credentials to access external services.
+
+Which option provides a secure means for providing the required credentials with a MINIMUM of operational overhead?
+
+Use a separate CloudFormation template for each environment. In the Resources section, include a user data script for each EC2 instance. Use the user data script to insert the proper credentials for the environment into the EC2 instances.
+
+Use parameters to pass the credentials to the CloudFormation template. Use the user data script to insert the parameterized credentials into the EC2 instances.
+
+Use separate Amazon Machine Images (AMIs) for each environment with the required credentials. Pass the environment tag as a parameter to the CloudFormation template and us mappings to map the environment tag to the proper AMI.
+Correct answer
+
+Use AWS Systems Manager Parameter Store to store the credentials as secure strings. Pass an environment tag as a parameter to the CloudFormation template. Use the user data script to insert the environment tag in the EC2 instances.
+Overall explanation
+
+AWS Systems Manager Parameter Store provides secure, hierarchical storage for configuration data management and secrets management. You can store data such as passwords, database strings, Amazon Machine Image (AMI) IDs, and license codes as parameter values. In AWS CloudFormation parameters enable you to input custom values to your template each time you create or update a stack.
+
+For this scenario you can input the environment name as a parameter when launching CloudFormation and have CloudFormation pass this value to the EC2 instances in the user data script at launch. The EC2 instances can use this information to connect to AWS Systems Manager Parameter Store and retrieve the applicable application credentials.
+
+CORRECT: "Use AWS Systems Manager Parameter Store to store the credentials as secure strings. Pass an environment tag as a parameter to the CloudFormation template. Use the user data script to insert the environment tag in the EC2 instances" is the correct answer.
+
+INCORRECT: "Use parameters to pass the credentials to the CloudFormation template. Use the user data script to insert the parameterized credentials into the EC2 instances" is incorrect. This would mean entering the credentials and passing them to EC2 insecurely. It’s better to store the credentials in a secure service such as SSM Parameter Store.
+
+INCORRECT: "Use a separate CloudFormation template for each environment. In the Resources section, include a user data script for each EC2 instance. Use the user data script to insert the proper credentials for the environment into the EC2 instances" is incorrect. This would also mean passing the credentials using a user data script which is not encrypted. This is not a secure solution.
+
+INCORRECT: "Use separate Amazon Machine Images (AMIs) for each environment with the required credentials. Pass the environment tag as a parameter to the CloudFormation template and us mappings to map the environment tag to the proper AMI" is incorrect. This requires storing the credentials on the AMI which is not secure.
+
+References:
+
+https://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-parameter-store.html
+
+https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/parameters-section-structure.html
+
+Save time with our AWS cheat sheets:
+
+https://digitalcloud.training/aws-systems-manager/
+Domain
+AWS Management & Governance
+Question 64Skipped
+
+A company runs an application across two public and two private subnets in two availability zones (AZs). They use a single internet gateway and a single NAT gateway. Amazon CloudFront is used to cache static and dynamic content.
+
+What would potentially cause applications in the VPC to fail during a brief AZ outage?
+
+Amazon CloudFront, as it cannot use origins in multiple subnets.
+
+A single internet gateway, because it is not redundant across multiple AZs.
+
+The main route table, as it cannot be associated with multiple subnets.
+Correct answer
+
+A single NAT gateway, because it is not redundant across multiple AZs.
+Overall explanation
+
+Each NAT gateway is created in a specific Availability Zone and implemented with redundancy in that zone. Therefore, if you only have a single NAT gateway you could lose it in the event of an AZ outage.
+
+CORRECT: "A single NAT gateway, because it is not redundant across multiple AZs" is the correct answer.
+
+INCORRECT: "A single internet gateway, because it is not redundant across multiple AZs" is incorrect. Internet gateways are redundant across multiple AZs as they are highly available and attached at the VPC level.
+
+INCORRECT: "Amazon CloudFront, as it cannot use origins in multiple subnets" is incorrect. You can use CloudFront with multiple origins or the origin could be an ELB with multiple targets. In a brief outage it should not matter as the content will be cached.
+
+INCORRECT: "The main route table, as it cannot be associated with multiple subnets" is incorrect. You can associate any route table with multiple subnets and those subnets can be created within different AZs.
+
+References:
+
+https://docs.aws.amazon.com/vpc/latest/userguide/vpc-nat-gateway.html
+
+Save time with our AWS cheat sheets:
+
+https://digitalcloud.training/amazon-vpc/
+Domain
+AWS Compute
+Question 65Skipped
+
+A web application runs on two Amazon EC2 instances behind an Application Load Balancer (ALB). There have been reports from users of poor performance and HTTP 503 and 504 errors. A CloudOps Engineer has reviewed Amazon CloudWatch metrics and discovered that the CPU utilization on the instances is extremely high.
+
+Which action should the Administrator take to resolve these issues?
+Correct answer
+
+Place the EC2 instances into an Amazon EC2 Auto Scaling group.
+
+Configure the load balancer to use a TCP listener instead of HTTPS.
+
+Enable cross-zone load balancing on the Application Load Balancer.
+
+Enable sticky sessions on the Application Load Balancer.
+Overall explanation
+
+The simplest solution to this issue is to implement Auto Scaling for the application. With Amazon EC2 Auto Scaling the number of instances serving the application can be modified automatically based on the actual load placed on the application by users.
+
+Existing EC2 instances can be attached to an Auto Scaling group. After the instances are attached, they become a part of the Auto Scaling group.
+
+CORRECT: "Place the EC2 instances into an Amazon EC2 Auto Scaling group" is the correct answer.
+
+INCORRECT: "Configure the load balancer to use a TCP listener instead of HTTPS" is incorrect. The ALB does not support TCP listeners, and this would not improve performance anyway.
+
+INCORRECT: "Enable sticky sessions on the Application Load Balancer" is incorrect. Sticky sessions results in connections being sent to the same back-end instance for the life of the session. This would not reduce load on the instances and lower their CPU utilization.
+
+INCORRECT: "Enable cross-zone load balancing on the Application Load Balancer" is incorrect. Cross-zone load balancing helps to distributed traffic evenly between instances in different Availability Zones, especially when running an odd number of instances. In this scenario this would not assist as there are an even number of instances.
+
+References:
+
+https://docs.aws.amazon.com/autoscaling/ec2/userguide/attach-instance-asg.html
+
+Save time with our AWS cheat sheets:
+
+https://digitalcloud.training/amazon-ec2-auto-scaling/
+Domain
+AWS Compute
+AWS Certified CloudOps Engineer – Associate
+Set a certification due date
+AWS Certified CloudOps Engineer – Associate
+
+    Completed
+
+Start
+Practice Test 1: CloudOps
+Completed
+Start
+Practice Test 2: CloudOps
+Not completed
+Start
+Practice Test 3: CloudOps
+Not completed
+Start
+Practice Test 4: CloudOps
+Not completed
+
+    Start
+    Practice Test 5: CloudOps
+
+information alert
+Schedule learning time
+Learning a little each day adds up. Research shows that students who make learning a habit are more likely to reach their goals. Set time aside to learn and get reminders using your learning scheduler.
+Prepare for your certification with this course.
+AWS Certified CloudOps Engineer – Associate
+AWS Certified CloudOps Engineer – Associate
+[2026] AWS Certified CloudOps Engineer Associate Practice Exam Questions for AWS CloudOps Certification [SOA-C03]
+Rating: 4.6 out of 54.6
+1,379 ratings
+14,694
+Students
+325 questions
+Total
+Last updated September 2026
+English
+What you'll learn
+
+    ASSESS YOUR EXAM READINESS: Pass the AWS Certified Cloud Engineer Associate exam with a great score
+    EXAM SIMULATION: All practice tests are timed and scored (passing score is 72%) mimicking the real exam environment
+    DETAILED EXPLANATIONS: Every question includes a detailed explanation that describes why each answer is correct or incorrect
+    REFERENCE LINKS: To help you understand the AWS concepts, all answers link to our online training notes (cheat sheets) with exam-specific information
+    RANDOMIZED QUESTIONS: Each time you take the test, the questions and answers are randomized to ensure you're learning and not memorizing
+    PREMIUM-QUALITY: These practice questions are free from typos and technical errors which makes your learning experience much more pleasant
+    ALWAYS UP TO DATE: Our question bank is constantly updated based on student feedback from the real exam. New questions are added on a regular basis
+    ACTIVE Q&A FORUM: In our discussion board, students ask questions and share their recent exam experience offering feedback on which topics were covered
+    RESPONSIVE SUPPORT: Our team of AWS experts respond to all of your questions, concerns or feedback
+    BEST VALUE FOR MONEY: Our practice exams offer the best value for your money with lifetime access - including all future updates at no extra cost
+
+Description
+
+Are you preparing for the AWS Certified CloudOps Engineer Associate exam and want to ensure you're fully prepared to pass your AWS certification exam on your first attempt? Look no further than these high-quality AWS CloudOps Engineer Associate practice exams to assess your exam-readiness!
+
+
+These 5 full-length sets of AWS practice tests (with 65 practice questions each) accurately reflect the difficulty of the Amazon Web Services exam questions and are the most realistic AWS exam experience available on Udemy, as demonstrated by the fantastic reviews from thousands of students.
+
+If you're looking for easy-to-pass questions, our Amazon AWS practice tests may not be for you. Our students love these high-quality practice tests because they simulate the actual certification exam and help them get a better understanding of AWS concepts.
+
+Don't just take our word for it – check out our reviews, which confirm that our AWS practice questions closely match the SOA-C03 exam pattern and difficulty. These practice tests will prepare you thoroughly for the real exam giving you the confidence you need to take and pass the test!
+
+
+This SOA-C03 practice test course includes:
+
+
+    325 exam-style questions with detailed answers and explanations to reinforce your understanding of the core concepts
+
+    Test report that highlights the areas you need to focus on
+
+    Regular updates to reflect the latest exam content
+
+    Realistic exam simulation to help you build confidence in your ability to pass your exam
+
+    Free bonus material to help you succeed in your exam
+
+
+TOP REASONS WHY THESE PRACTICE EXAMS ARE THE KEY TO ACING YOUR AWS EXAM
+
+100% ALIGNED WITH LATEST SOA-C03 EXAM: All practice tests on Udemy are scenario-based reflecting the latest AWS exam question/answer format (1 answer from 4 options, or 2 or more answers from 5 or more options)
+
+SIMULATE THE REAL CERTIFICATION EXAM: Practice tests are timed (130 min to answer 65 questions) and scored (passing score is 72%) accurately mirroring the real exam environment. This allows you to become familiar with the AWS exam format
+
+DEEP DIVE REFERENCE LINKS: Our practice tests offer more than just answers – they link to relevant sections of our online "Training Notes," providing you with a comprehensive collection of exam-specific information for the AWS CloudOps exam
+
+DETAILED EXPLANATIONS FOR ALL ANSWERS: Once you complete our practice tests, you'll have the opportunity to review and check your answers. Each question includes a detailed explanation that describes why each answer is either correct or incorrect, supporting your understanding of AWS Services which is key to passing the exam
+
+REGULAR UPDATES OF QUESTION BANK: We are constantly improving and updating our questions based on exam feedback from thousands of our students. As a result, most of our students achieve exceptional results, with an average exam score of over 85%.
+
+TEST REPORT: Upon completion of the practice test, you'll receive a comprehensive report that provides insight into your progress and highlights the AWS knowledge areas you need to focus on the most in your studies
+
+ADDITIONAL LEARNING RESOURCES: To help you succeed in your exam, we've included free learning material (optional, requires name/email) that complements the course content
+
+RESPONSIVE SUPPORT: All of your questions, concerns, and feedback will be comprehensively addressed by our team of AWS experts
+
+ACTIVE Q&A DISCUSSION BOARD: Participate in AWS-related discussions on our Q&A discussion board, where our students share their exam experiences and offer valuable feedback on the topics covered.
+
+MOBILE ACCESS: Study on the go and access all practice questions from your mobile phone - anywhere, anytime
+
+
+HOW TO BEST PREPARE FOR YOUR AWS CERTIFICATION EXAM
+
+KEY TRAINING ADVICE: While the pass mark for the actual AWS exam is 72%, we highly recommend that you continue taking our AWS practice exams until you achieve a consistent score of 80% or higher. Once you reach this recommended score on our practice tests, you'll be well-prepared to sit the actual exam and achieve a great score.
+
+COVERING DEVELOPMENT WITH AWS SERVICES: We cover development with AWS services including deployment, security, refactoring, and monitoring and troubleshooting. We also deep dive into individual services including AWS Lambda, Amazon API Gateway, Amazon S3, Amazon CloudFront, Amazon CodeCommit, CodeBuild, CodeDeploy, CodePipeline and CodeStar, Amazon EC2, Amazon ECS, AWS IAM, Amazon RDS, Route 53, DynamoDB, ElastiCache, VPC, SQS, SNS, Amazon Kinesis, CloudWatch, CloudTrail and many more.
+
+GET FAMILIAR WITH THE ACTUAL EXAM FORMAT: Our AWS Certified CloudOps Associate practice exams are specifically designed to help you become familiar with the test question format and structure of the actual AWS exam. Unlike many other practice tests on the market, our exams closely match the format of the real AWS exam, ensuring that you are adequately prepared for the real AWS exam.
+
+DEEPEN YOUR KNOWLEDGE: It's important to note that while our AWS practice exams match the style and pattern of the actual exam, they are not brain dumps. Simply memorizing answers will not prepare you for the real AWS certification exam. Instead, we recommend using our AWS CloudOps Engineer practice exams to deepen your understanding which will give you the best chance of passing your exam no matter what questions you encounter on exam day.
+
+COMPETITIVE ADVANTAGE: These days, most IT roles require AWS training and certification, as Amazon Web Services has become the leading provider of cloud computing services. Our AWS practice tests and supporting training resources are designed to give you a competitive edge and help you pass your AWS Certified CloudOps Engineer certification exam with confidence.
+
+
+WHAT DO OTHER STUDENTS SAY?
+
+Check out the excellent course reviews from our many students who passed their AWS exam with an average passing score of over 850:
+
+"Couldn't praise this course enough. Most similar to the exam and undoubtedly, if it wasn't for this course I wouldn't have PASSED the CloudOps exam"
+
+"This the best practice test so far for CloudOps. These Exams helped me a lot to pass the exam. I really wanted to thank you Neal"
+
+"I passed the CloudOps admin exam yesterday with a high score. I can say that Neal's practice exam, questions and subjects mimic the real exam"
+
+
+YOUR INSTRUCTOR
+
+Hi, I'm Neal Davis, and I'm delighted to be your instructor for this course. As the founder of Digital Cloud Training, I'm deeply committed to providing top-quality AWS certification training resources. I created these practice tests to help you excel in your AWS exam and achieve your professional goals. With over 20 years of hands-on experience in the Cloud space, I'm excited to share my expertise with you on Udemy.
+
+
+OUR SUCCESS IN NUMBERS
+
+    Over 750,000 students enrolled in our AWS courses on Udemy
+
+    4.7-star instructor rating from over 150,000 reviews
+
+    Our students pass the AWS exam with an average score of over 85%
+
+
+Watch the intro video to find out why students choose Digital Cloud Training to fast-track their exam success!
+
+
+MONEY-BACK GUARANTEE
+
+We are totally confident in the value of our Practice Exams which come with a 30-day unconditional money-back guarantee. To fast-track your AWS exam success - get lifetime access now - risk-free!
+
+
+ABOUT THE AWS CERTIFIED CLOUDOPS ENGINEER ASSOCIATE CERTIFICATION 
+
+The AWS Certified CloudOps Engineer Associate certification is one of the most sought-after certifications in the cloud computing industry. AWS CloudOps are in huge demand and salaries can be above $150,000 USD per annum. The AWS Certified CloudOps exam aims to test knowledge of the key services and tools used by Systems Administrators creating applications on AWS.
+
+When you're ready to book your exam you can do so on the AWS Training portal. Curious about the AWS CloudOps certification cost? The AWS CloudOps Certification cost is $150 USD in most regions and you currently have the choice of an online proctored exam or test center (subject to availability).
+
+
+OUR MISSION
+
+At Digital Cloud Training we are committed to your success. It is our mission to ensure you pass your exam the first time and don't waste time or money. After going through the entire course and testing your knowledge with the AWS Certified CloudOps Associate Practice Exam, you'll be more than ready for the real AWS exam.
+Who this course is for:
+
+    Students preparing for the AWS Certified Cloud Engineer Associate exam who want to pass with confidence
+    Students who want to test their skills in exam simulation, assessing their AWS exam readiness
+    Students who have completed the AWS Certified Cloud Engineer Associate video course from Neal Davis and are looking for some final test prep
+    Candidates for the AWS Certified Cloud Engineer Associate exam who are keen to pass on their first attempt
+    Anyone who wants to learn AWS through high-quality questions and answers, explanations and reference links
+    IT Professionals who want to enter any AWS technical Job interview with confidence
+    Anyone who is keen to take their career and salary to the next level with an AWS certification
+
+Instructors
+Neal Davis | AWS Certified Solutions Architect & Developer
+AWS Solutions Architect & AWS Certified Instructor
+
+Hi, my name's Neal. I am the founder of Digital Cloud Training, a highly experienced AWS Cloud Solutions Architect and a successful IT instructor. I've been working in IT for over 20 years in a variety of roles ranging from support to architecture. Over the last 15 years, I have mainly worked as a Solutions Architect in the systems integration space designing solutions for enterprise organizations.
+
+My experience in IT has included working with virtualization and cloud computing since it's inception. In my most recent consulting role I worked as an Enterprise Architect designing Hybrid IT and Digital Transformation solutions.
+
+I have always enjoyed earning IT certifications and they have helped me immensely with moving upwards throughout my career. These days, my passion is to help others to achieve their career goals through in-depth AWS certification training resources.
+
+That's why I started digitalcloud.training - to provide certification training resources for Amazon Web Services (AWS) certifications that represent a higher quality standard than is otherwise available in the market.
+
+Connect with me on Facebook, LinkedIn, Youtube or Twitter.
+Digital Cloud Training | AWS Certified Cloud Practitioner AWS Certified Solutions Architect, AWS Developer Associate
+Highest Quality AWS Certification Exam Preparation Resources
+
+Digital Cloud Training provides AWS Certification exam preparation resources including instructor-led Video Courses, guided Hands-on Labs, in-depth Training Notes, Exam-Cram lessons for quick revision, Quizzes to test your knowledge and exam-difficulty Practice Exams to assess your exam readiness.
+
+We strive to provide the highest quality AWS Training Resources that ensure our students are best prepared to pass their AWS exams first time, every time!
+
+With Digital Cloud Training, you get access to highly experienced staff who support you on your AWS Certification journey and help you elevate your career through achieving highly valuable certifications.
+Requirements
+
+    Students are required to have successfully passed the AWS Certified Solution Architect Associate exam or AWS Certified Developer Associate
+    Before assessing your exam readiness, we strongly recommend completing our AWS Certified Cloud Engineer Associate Video Course, led by expert instructor Neal Davis.
+
+    Get the app
+    About us
+
+    Help and Support
+    Terms
+
+    Privacy policy
+
+    Sitemap
+    Accessibility statement
+
+© 2026 Udemy, Inc.
