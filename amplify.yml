@@ -1,0 +1,20 @@
+# Amplify build spec (overrides the console copy). Vite 8 needs Node >= 20.19, so pin 22.
+# App root is the repo root, so customHttp.yml stays at the root too.
+version: 1
+frontend:
+  phases:
+    preBuild:
+      commands:
+        - nvm install 22 && nvm use 22
+        - cd quiz-app
+        - npm ci
+    build:
+      commands:
+        - npm run build
+  artifacts:
+    baseDirectory: quiz-app/dist
+    files:
+      - "**/*"
+  cache:
+    paths:
+      - quiz-app/node_modules/**/*

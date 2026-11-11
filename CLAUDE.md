@@ -30,6 +30,7 @@ update SPEC.md and this section when a step lands.
   via AWS Amplify, which builds on every merge to `main`.
 - **`infra/`**: CDK app (us-west-1) for the Activity API, its DynamoDB table and the admin Cognito
   pool. Contract and stacks in `infra/README.md`; reasons in `docs/adr/0001-small-backend-for-learner-activity.md`.
+- **`amplify.yml`**: Amplify build spec (Node 22, `cd quiz-app`, artifacts `quiz-app/dist`); overrides the console copy.
 - **`customHttp.yml`**: Amplify response headers (CSP, HSTS, etc.).
 - **`scrape/`**: offline Python scripts that convert raw dumps into Bank JSON. Not part of the build.
 - **`unsorted-data/`**: raw source Banks for future conversion. `unsorted-data/udemy/` is local-only
