@@ -1,17 +1,28 @@
 version: 2
 updates:
+  # Minor/patch updates come grouped; each major arrives as its own PR so one
+  # breaking change can't block the rest. @types/node stays on 22 to match the
+  # Node 22 runtime (Lambda, CI, Amplify).
   - package-ecosystem: npm
     directory: /quiz-app
     schedule: { interval: monthly }
     groups:
       quiz-app:
         patterns: ["*"]
+        update-types: [minor, patch]
+    ignore:
+      - dependency-name: "@types/node"
+        update-types: [version-update:semver-major]
   - package-ecosystem: npm
     directory: /infra
     schedule: { interval: monthly }
     groups:
       infra:
         patterns: ["*"]
+        update-types: [minor, patch]
+    ignore:
+      - dependency-name: "@types/node"
+        update-types: [version-update:semver-major]
   - package-ecosystem: github-actions
     directory: /
     schedule: { interval: monthly }
