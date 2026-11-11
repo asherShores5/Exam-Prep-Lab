@@ -304,6 +304,81 @@
     "domain": "K2 API & Security"
   },
   {
+    "id": 145,
+    "question": "A K2 API definition has both allowlistedFields and allowlistedFieldsIA set. A request arrives with no responseFieldMode override. Which list filters the response?",
+    "options": [
+      "allowlistedFieldsIA, because it is more specific",
+      "allowlistedFields. With no override the field mode defaults to GA, and GA always uses allowlistedFields",
+      "The union of both lists",
+      "Neither; the request is rejected for being ambiguous"
+    ],
+    "correctAnswers": [
+      1
+    ],
+    "explanation": "K2 reads the mode from the request's overrides and defaults to GA. Only an explicit IA request looks at allowlistedFieldsIA.",
+    "domain": "K2 API & Security"
+  },
+  {
+    "id": 146,
+    "question": "A request asks for IA field mode, but the API's allowlistedFieldsIA is null (the common case). What happens?",
+    "options": [
+      "K2 returns an error because no IA list exists",
+      "K2 returns the full, unfiltered response",
+      "K2 falls back to allowlistedFields",
+      "K2 returns an empty response"
+    ],
+    "correctAnswers": [
+      2
+    ],
+    "explanation": "IA mode uses the IA list only when it exists; otherwise it falls back to the normal allowlist. Newer K2 generators no longer read the legacy IA lists at all.",
+    "domain": "K2 API & Security"
+  },
+  {
+    "id": 147,
+    "question": "Dante limits outgoing K2 calls to 60 TPS with a burst of 120. What is that limit applied to?",
+    "options": [
+      "Each script, separately",
+      "Each target AWS account",
+      "Each user, added up across every script that user is running at once",
+      "The whole Dante fleet"
+    ],
+    "correctAnswers": [
+      2
+    ],
+    "explanation": "It's per user. Two of your scripts running at the same time share one 60 TPS budget.",
+    "domain": "K2 API & Security"
+  },
+  {
+    "id": 148,
+    "question": "Match the error to its cause: a script gets HTTP 429 'Your call to apiName ... against account ... was throttled by K2 Service. Please decrease your rate of requests'.",
+    "options": [
+      "K2 load shedding because the K2 host is overloaded",
+      "The caller hit the K2 per-user limit",
+      "The downstream AWS service is down",
+      "The Dante API itself is receiving too much traffic"
+    ],
+    "correctAnswers": [
+      1
+    ],
+    "explanation": "Per-user K2 limit = 429. K2 load shedding = 500 ('K2 Service is experiencing issues'). Dante API throttling has its own 'receiving high traffic' message.",
+    "domain": "K2 API & Security"
+  },
+  {
+    "id": 149,
+    "question": "Your script stays under 60 TPS but one specific API keeps throttling. What's the most likely reason and next step?",
+    "options": [
+      "The Dante JS client is broken; rewrite retries by hand",
+      "The downstream service throttles below K2's limit; back off for that API and, if it persists, ask the K2 Proxy team for a limit change",
+      "The account is on a deny-list",
+      "TBS is blocking the API"
+    ],
+    "correctAnswers": [
+      1
+    ],
+    "explanation": "60 TPS lines up with K2's per-user limit, but a downstream service can throttle lower. Dante's JS client already retries throttled K2 calls.",
+    "domain": "K2 API & Security"
+  },
+  {
     "id": 18,
     "question": "Which files does 'AWS Contribution Model: Create server side script' scaffold under src/scripts/<ScriptName>/ for a JavaScript script? (Select THREE)",
     "options": [
@@ -790,6 +865,81 @@
     "domain": "Dante Scripts & Script Runner"
   },
   {
+    "id": 154,
+    "question": "What does a script's toolmetadata.json control?",
+    "options": [
+      "Which LDAP groups can run the script",
+      "The script's name and CTI",
+      "Which output fields Dante returns: fields not listed in includeFields are dropped",
+      "The webpack bundle entry point"
+    ],
+    "correctAnswers": [
+      2
+    ],
+    "explanation": "It's an output allowlist for tool-based security (includeFields required, excludeFields optional, JSONPath). It's a second filter on top of K2's allowlistedFields.",
+    "domain": "Dante Scripts & Script Runner"
+  },
+  {
+    "id": 155,
+    "question": "Match each file to its job. Which pairing is correct?",
+    "options": [
+      "entryPoints.json = script inputs for local tests",
+      "tests.json = maps each script to its source file for webpack",
+      "entryPoints.json = maps each script to its file for bundling and the VS Code commands; tests.json = inputs used by Test/Preview",
+      "definition.json = output field allowlist"
+    ],
+    "correctAnswers": [
+      2
+    ],
+    "explanation": "entryPoints.json (src/) drives bundling and plugin commands; definition.json is script metadata; toolmetadata.json is the output allowlist; tests.json holds test inputs.",
+    "domain": "Dante Scripts & Script Runner"
+  },
+  {
+    "id": 156,
+    "question": "A VS Code plugin command fails with 'ENOENT: no such file or directory, open .../src/entryPoints.json'. Most likely cause?",
+    "options": [
+      "The script was never deployed",
+      "The package root isn't the folder open in VS Code's Explorer",
+      "entryPoints.json must live in each script folder",
+      "The Config file has the wrong package name"
+    ],
+    "correctAnswers": [
+      1
+    ],
+    "explanation": "The plugin looks for src/entryPoints.json relative to the folder open in Explorer (not the terminal's cwd). Open the package root by itself.",
+    "domain": "Dante Scripts & Script Runner"
+  },
+  {
+    "id": 157,
+    "question": "You deployed a new version of your script and want to see it in Script Runner before merging. What controls which version runs?",
+    "options": [
+      "The executionId parameter",
+      "The CIBRScriptVersion URL parameter from the preview link; removing it runs the production version",
+      "The version field in definition.json",
+      "The newest deploy always runs for everyone"
+    ],
+    "correctAnswers": [
+      1
+    ],
+    "explanation": "Each deploy bumps the version. Preview links carry CIBRScriptVersion=N; drop it to fall back to the promoted version.",
+    "domain": "Dante Scripts & Script Runner"
+  },
+  {
+    "id": 158,
+    "question": "Why must you never name a script input parameter CIBRScriptVersion or executionId?",
+    "options": [
+      "They are reserved Python keywords",
+      "They collide with Script Runner's own URL parameters and can break the tool (this has caused an outage)",
+      "K2 strips them from requests",
+      "They exceed the parameter name length limit"
+    ],
+    "correctAnswers": [
+      1
+    ],
+    "explanation": "Script Runner uses both names itself. Pick different input names.",
+    "domain": "Dante Scripts & Script Runner"
+  },
+  {
     "id": 120,
     "question": "Which are required before you can PUBLISH a Script Runner script? (Select THREE)",
     "options": [
@@ -1004,6 +1154,67 @@
       1
     ],
     "explanation": "Promote labels the current supported version, which is what versionless calls resolve to. For most scripts you promote right after you publish.",
+    "domain": "Contribution Model & Script Publishing"
+  },
+  {
+    "id": 150,
+    "question": "You run 'Update your tool permission' and enter one new LDAP group. The script already had three groups. What is the result?",
+    "options": [
+      "Four groups: the new one is appended",
+      "One group: the command SETS the list, so the other three are removed",
+      "Nothing changes until the next deploy",
+      "The command fails because groups already exist"
+    ],
+    "correctAnswers": [
+      1
+    ],
+    "explanation": "It's a SET, not an add. Always enter the complete list. Changes take effect immediately and follow the 2-person rule.",
+    "domain": "Contribution Model & Script Publishing"
+  },
+  {
+    "id": 151,
+    "question": "(Select TWO) Which statements about Tool-Based Security (TBS) are true?",
+    "options": [
+      "A script can't be published or promoted without at least one LDAP group",
+      "TBS access also grants access to the K2 APIs the script calls",
+      "Permission changes take effect immediately",
+      "TBS replaces Business Case Authorization (BCA)"
+    ],
+    "correctAnswers": [
+      0,
+      2
+    ],
+    "explanation": "TBS adds a tool-level check on top of BCA; it doesn't replace it. K2 API access is a separate grant made at onboarding.",
+    "domain": "Contribution Model & Script Publishing"
+  },
+  {
+    "id": 152,
+    "question": "A user has TBS access to a tool and BCA access to the account, but no access to an API the script calls. What happens?",
+    "options": [
+      "They get a BCA break-glass widget",
+      "They get a TBS 2PR break-glass widget",
+      "No break-glass is offered and the script can't run",
+      "The script runs but that API's fields are redacted"
+    ],
+    "correctAnswers": [
+      2
+    ],
+    "explanation": "Break-glass covers missing TBS or BCA access. Missing API-level access can't be bypassed; request API access instead.",
+    "domain": "Contribution Model & Script Publishing"
+  },
+  {
+    "id": 153,
+    "question": "How can you see which LDAP groups currently have permission to run a script in Script Runner?",
+    "options": [
+      "Read definition.json in the package",
+      "Open the tool with the browser developer tools open and read permissionMap in the getAsset response",
+      "Look in toolmetadata.json",
+      "Check the package's code.amazon.com permissions page"
+    ],
+    "correctAnswers": [
+      1
+    ],
+    "explanation": "Groups live in the Contribution Model backend, not in the package files. getAsset returns permissionMap keyed by partition.",
     "domain": "Contribution Model & Script Publishing"
   },
   {
@@ -1507,6 +1718,97 @@
       1
     ],
     "explanation": "Use -allPackages for everything or -p for specific packages. To read a dependency's source, brazil-path '[Package]pkg.src' works from a package that depends on it directly.",
+    "domain": "Builder Tooling & Code Reviews"
+  },
+  {
+    "id": 141,
+    "question": "A reviewer leaves comments on your Dante script CR. How do you get your fixes onto that same review?",
+    "options": [
+      "Open a new CR for the fixes and link the old one",
+      "Amend the original commit and run cr again with no options",
+      "Commit the fixes, then run cr -r CR-<id> to post a new revision on the existing review",
+      "Edit the files directly in the CRUX web view"
+    ],
+    "correctAnswers": [
+      2
+    ],
+    "explanation": "A new revision keeps the CR ID, comments and reviewers, and reviewers can diff revision against revision. It also re-runs the analyzers and the Dry Run Build.\n\nFix forward with a new commit rather than amending one you already uploaded.",
+    "domain": "Builder Tooling & Code Reviews"
+  },
+  {
+    "id": 142,
+    "question": "Your Dante script works in your workspace, but the CR's Dry Run Build fails because it can't find a new function you added to a shared helper package. Why?",
+    "options": [
+      "The Dry Run Build builds against the version set, which still has the old helper build. Your workspace used your local helper checkout. Put both packages on one CR, or land the helper change first",
+      "Dry Run Builds never include dependencies",
+      "The helper function needs to be marked public in definition.json",
+      "Dry Run Builds only run on Fridays"
+    ],
+    "correctAnswers": [
+      0
+    ],
+    "explanation": "Inside a workspace, checked-out packages override the version set. The CR build has no such override, so it only sees what's actually in the set.\n\nThis is the most common 'works on my machine' failure for multi-package tooling changes.",
+    "domain": "Builder Tooling & Code Reviews"
+  },
+  {
+    "id": 143,
+    "question": "Your change touches a script package and its helper package, and both are on one CR. You run cr -r CR-<id> from inside the script package with no -i. What happens?",
+    "options": [
+      "Both packages update as normal",
+      "cr errors out and changes nothing",
+      "A second CR is created for the helper",
+      "The review is re-scoped to only the script package and the helper silently drops off. Re-pass -i with every package when updating"
+    ],
+    "correctAnswers": [
+      3
+    ],
+    "explanation": "Each package is its own git repo, so a multi-package CR holds one commit per package. When updating it, pass the full include list, for example -i \"ScriptPkg[HEAD^:HEAD],HelperPkg[HEAD^:HEAD]\", then re-check the CR's package list.",
+    "domain": "Builder Tooling & Code Reviews"
+  },
+  {
+    "id": 144,
+    "question": "Before raising a community CR on a shared tooling package, why run git fetch and check that origin/mainline is in your history?",
+    "options": [
+      "CRUX rejects any CR with more than one commit",
+      "Shared packages move fast. If you're behind or diverged, the review can pick up unrelated changes or hit merge conflicts at merge time",
+      "It speeds up the Dry Run Build",
+      "It's only needed for the first CR you ever raise"
+    ],
+    "correctAnswers": [
+      1
+    ],
+    "explanation": "Quick check: git fetch -q origin mainline && git merge-base --is-ancestor origin/mainline HEAD. If you're behind, git pull --rebase first so reviewers only see your change.",
+    "domain": "Builder Tooling & Code Reviews"
+  },
+  {
+    "id": 159,
+    "question": "(Select TWO) What test evidence belongs in a Dante script CR description?",
+    "options": [
+      "The tested script name and its CIBRScriptVersion",
+      "The preview link and a screenshot of the rendered output",
+      "Your Midway cookie so reviewers can rerun it",
+      "Nothing; reviewers rerun the script themselves"
+    ],
+    "correctAnswers": [
+      0,
+      1
+    ],
+    "explanation": "Also note known limitations. If you redeploy, update the version, link and screenshot. Reviewers can't verify a script from the diff alone.",
+    "domain": "Builder Tooling & Code Reviews"
+  },
+  {
+    "id": 160,
+    "question": "In a Dante script's unit tests, which should you mock?",
+    "options": [
+      "Everything, including validation and render helpers",
+      "Calls that hit an API (for example saveOutput or K2 calls), but not validation or render helpers",
+      "Nothing; unit tests should call real K2",
+      "Only the render helpers"
+    ],
+    "correctAnswers": [
+      1
+    ],
+    "explanation": "Mocking validators/renderers only tests the mock. Mock what makes network calls and assert on the real helper output.",
     "domain": "Builder Tooling & Code Reviews"
   },
   {
