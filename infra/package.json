@@ -9,15 +9,15 @@
     "deploy": "AWS_REGION=us-west-1 AWS_DEFAULT_REGION=us-west-1 cdk deploy --all --require-approval never"
   },
   "dependencies": {
-    "@aws-sdk/client-dynamodb": "^3.1161.0",
-    "@aws-sdk/lib-dynamodb": "^3.1161.0",
+    "@aws-sdk/client-dynamodb": "^3.1164.0",
+    "@aws-sdk/lib-dynamodb": "^3.1164.0",
     "aws-cdk-lib": "^2.275.0",
     "constructs": "^10.8.1"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.164",
     "@types/node": "^22.20.5",
-    "aws-cdk": "^2.1147.0",
+    "aws-cdk": "^2.1148.0",
     "esbuild": "^0.28.2",
     "tsx": "^4.23.15",
     "typescript": "^7.0.2",
